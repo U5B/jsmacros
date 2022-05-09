@@ -1,5 +1,6 @@
+/* global World, Player, JsMacros, JavaWrapper, event */
 // Configuration Start
-let blatant = false // set to true for esp to apply to all players
+let blatant = false // eslint-disable-line prefer-const
 
 // Glowing colors based on health
 const criticalHealthColor = { r: 255, g: 0, b: 0 } // red
@@ -17,7 +18,7 @@ const lowHealthPercentage = 0.4 // health is 40%
 let tickLoop
 let affectedPlayers = []
 
-function rgbToDecimal (rgb = {r: 0, g: 0, b: 0}) {
+function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
   return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b))
 }
 
@@ -30,12 +31,16 @@ function tick () {
       checkPlayer(player)
     }
   } else {
-    const entity = Player.rayTraceEntity()
+    const entity = Player.rayTraceEntity() // infinite range possible?
     checkEntity(entity)
   }
   return true
 }
-function checkEntity (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>) { // technically this could be an entity but I don't care
+
+/**
+ * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
+ */
+function checkEntity (entity) {
   if (!entity) return false
   if (entity.getType() !== 'minecraft:player') return false // only accept players
   affectedPlayers = []
@@ -49,7 +54,10 @@ function checkEntity (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.En
 }
 
 // Check if a player has lost health and update their glowing status and color
-function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
+/**
+ * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
+ */
+function checkPlayer (player) {
   if (!player) return false
   if (player.getType() !== 'minecraft:player') return false // only accept players
   const name = player.getName().getString()
@@ -66,7 +74,10 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
 }
 
 // Reset player to their previous glowing state
-function resetPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
+/**
+ * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
+ */
+function resetPlayer (player) {
   if (!player) return false
   if (player.getType() !== 'minecraft:player') return false // only accept players
   player.resetGlowing() // no more G L O W
@@ -76,11 +87,11 @@ function resetPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
 
 // This function should set all players to their previous glowing state
 function resetPlayers (ignore = false) {
-    // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
+  // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
     if (ignore === true) { // run check only if ignore is true
       const name = player.getName().getString()
-      if (affectedPlayers.includes(name) === true) continue 
+      if (affectedPlayers.includes(name) === true) continue
     }
     resetPlayer(player)
   }
@@ -89,8 +100,11 @@ function resetPlayers (ignore = false) {
 
 // determine the health color based on health decimal
 // maybe in the future I multiply by 100 so I can Math.floor/Math.round values
-function determineColor (decimalHealth:Number) {
-  let color = { glow: false, color: resetColor }
+/**
+ * @param {Number} decimalHealth
+ */
+function determineColor (decimalHealth) {
+  const color = { glow: false, color: resetColor }
   if (decimalHealth > goodHealthPercentage) color.color = goodHealthColor // good
   else if (decimalHealth <= goodHealthPercentage && decimalHealth > lowHealthPercentage) color.color = lowHealthColor // needs healing
   else if (decimalHealth <= lowHealthPercentage) color.color = criticalHealthColor // needs healing now
@@ -98,14 +112,14 @@ function determineColor (decimalHealth:Number) {
 }
 
 // start the loop when an entity is damaged
-const entityDamagedEvent = JsMacros.on('EntityDamaged', JavaWrapper.methodToJava(() => {
+const startEvent = JsMacros.on('EntityLoad', JavaWrapper.methodToJava(() => {
   if (!tickLoop) tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }))
 
 function terminate () {
   if (tickLoop) JsMacros.off('Tick', tickLoop)
-  if (entityDamagedEvent) JsMacros.off('EntityDamaged', entityDamagedEvent)
+  if (startEvent) JsMacros.off('EntityDamaged', startEvent)
   tick()
   resetPlayers(false)
   tickLoop = undefined
