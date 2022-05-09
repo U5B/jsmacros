@@ -14,9 +14,6 @@
       "headers/*.d.ts"
     ],
     "exclude": [
-        "build/*",
-        ".git/*",
-        "README.md",
-        ".gitignore"
+        "build/*"
     ]
 }
