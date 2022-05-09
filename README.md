@@ -1,0 +1,1 @@
+[Download](https://github.com/wagyourtail/JsMacros/releases/tag/1.6.5)
