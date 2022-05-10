@@ -1,6 +1,3 @@
-const database = {
-  damage: {}
-}
 function rgbToDecimal (rgb) {
   return (rgb.r << 16) + (rgb.g << 8) + (rgb.b)
 }

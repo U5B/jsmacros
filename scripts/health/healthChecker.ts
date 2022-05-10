@@ -1,51 +1,90 @@
-/* global World, Player, JsMacros, JavaWrapper, event */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 // Configuration Start
-let blatant = false // eslint-disable-line prefer-const
+const config = { // one of these should be on
+  blatant: false,
+  whitelist: false,
+  whitelisted: [],
+  raytrace: true,
+  raytraceRange: 30 // Hallowed Beam reach
+} // eslint-disable-line prefer-const
 
 // Glowing colors based on health
 const criticalHealthColor = { r: 255, g: 0, b: 0 } // red
 const lowHealthColor = { r: 255, g: 255, b: 0 } // yellow
 const goodHealthColor = { r: 0, g: 255, b: 0 } // green
 const resetColor = { r: 255, g: 255, b: 255 } // white
+const highlightColor = { r: 255, g: 165, b: 0 } // orange
 
 // Max health is usually 20hp. 1 heart = 2hp
 // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
 // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
 const goodHealthPercentage = 0.7 // health is 70%
-const lowHealthPercentage = 0.4 // health is 40%
+const lowHealthPercentage = 0.45 // health is 40%
 // Configuration End
 
 let tickLoop
 let affectedPlayers = []
+let highlightedPlayer = ''
 
 function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
   return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b))
 }
 
 function tick () {
-  if (blatant === true) {
-    // Check all loaded players
-    affectedPlayers = [] // reset all players being affected by this
-    // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
-    for (const player of World.getLoadedPlayers()) {
-      checkPlayer(player)
+  try {
+    // reset all players being affected by this
+    if (config.blatant === true) {
+      affectedPlayers = []
+      // Check all loaded players
+      checkPlayers()
+      if (config.raytrace === true) highlightPlayerCursor()
+    } else if (config.raytrace === true) {
+      // const entity = Player.rayTraceEntity() // infinite range possible?
+      highlightPlayerCursorHealth()
+    } else {
+      Chat.log('Mode is not set. Please set one of the following modes: blatant or raytrace')
+      stop()
     }
-  } else {
-    const entity = Player.rayTraceEntity() // infinite range possible?
-    checkEntity(entity)
+  } catch (e) {
+    Chat.getLogger('usb').error(e)
+    stop()
   }
   return true
 }
 
+function rayTraceEntity () {
+  // @ts-ignore # DebugRenderer.getTargetedEntity()
+  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), config.raytraceRange)
+  // @ts-ignore # Check if the result is empty
+  if (result.isEmpty()) return false
+  // @ts-ignore
+  const entity = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper').create(result.get())
+  return entity
+}
+
+function highlightPlayerCursor () {
+  const player = rayTraceEntity()
+  if (!isPlayer(player)) {
+    highlightedPlayer = ''
+    resetPlayers(true)
+    return false // only accept players
+  }
+  const color = rgbToDecimal(highlightColor)
+  player.setGlowing(true)
+  player.setGlowingColor(color)
+  highlightedPlayer = player.getName()?.getString()
+  resetPlayers(true)
+  return true
+}
 /**
  * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
  */
-function checkEntity (entity) {
-  if (!entity) return false
-  if (entity.getType() !== 'minecraft:player') return false // only accept players
+function highlightPlayerCursorHealth () {
+  const entity = rayTraceEntity()
+  if (!isPlayer(entity)) return checkPlayers() // only accept players
   affectedPlayers = []
   const player = entity.asPlayer() // Typescript please stop screaming at me
-  const newPlayer = checkPlayer(player)
+  const newPlayer = checkPlayer(entity)
   if (newPlayer === true) { // we only reset it if raytrace switched to a different player
     resetPlayers(true)
     return true
@@ -53,14 +92,28 @@ function checkEntity (entity) {
   return false
 }
 
+function checkPlayers () {
+  // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
+  for (const player of World.getLoadedPlayers()) {
+    const name = player.getName()?.getString()
+    if (!name) continue
+    if (config.blatant === true) {
+      checkPlayer(player)
+    } else if (config.raytrace === true && affectedPlayers.includes(name) === true) {
+      checkPlayer(player)
+    }
+  }
+}
+
 // Check if a player has lost health and update their glowing status and color
 /**
  * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
  */
 function checkPlayer (player) {
-  if (!player) return false
-  if (player.getType() !== 'minecraft:player') return false // only accept players
-  const name = player.getName().getString()
+  if (!isPlayer(player)) return false // only accept players
+  const name = player.getName()?.getString()
+  if (!name) return false
+  if (config.whitelist === true && config.whitelisted.includes(name) === false) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
@@ -78,8 +131,7 @@ function checkPlayer (player) {
  * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
  */
 function resetPlayer (player) {
-  if (!player) return false
-  if (player.getType() !== 'minecraft:player') return false // only accept players
+  if (!isPlayer(player)) return false // only accept players
   player.resetGlowing() // no more G L O W
   player.resetGlowingColor()
   return true
@@ -92,6 +144,7 @@ function resetPlayers (ignore = false) {
     if (ignore === true) { // run check only if ignore is true
       const name = player.getName().getString()
       if (affectedPlayers.includes(name) === true) continue
+      if (highlightedPlayer === name) continue
     }
     resetPlayer(player)
   }
@@ -111,20 +164,30 @@ function determineColor (decimalHealth) {
   return color
 }
 
-// start the loop when an entity is damaged
-const startEvent = JsMacros.on('EntityLoad', JavaWrapper.methodToJava(() => {
+function isPlayer (player) {
+  if (!player) return false
+  if (player.getType() === 'minecraft:player') return true
+}
+
+// start the loop once message is sent
+JsMacros.once('SendMessage', JavaWrapper.methodToJava(() => {
   if (!tickLoop) tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }))
 
+function stop () {
+  // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
+  JsMacros.getServiceManager().stopService(event.serviceName)
+}
+
 function terminate () {
+  // if (startEvent) JsMacros.off('SendMessage', startEvent)
   if (tickLoop) JsMacros.off('Tick', tickLoop)
-  if (startEvent) JsMacros.off('EntityDamaged', startEvent)
-  tick()
+  // tick()
   resetPlayers(false)
   tickLoop = undefined
   return true
 }
 
-// @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent but I am using this as a service.
+// @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent
 event.stopListener = JavaWrapper.methodToJava(terminate)

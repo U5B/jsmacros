@@ -112,6 +112,7 @@ function cleanString (str) {
     .toLowerCase()
 }
 
+generatePois()
 const command = Chat.createCommandBuilder('poi')
 command
   .greedyStringArg('poi')
