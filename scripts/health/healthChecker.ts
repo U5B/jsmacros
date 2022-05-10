@@ -5,21 +5,27 @@ const config = { // one of these should be on
   whitelist: false,
   whitelisted: [],
   raytrace: true,
-  raytraceRange: 30 // Hallowed Beam reach
-} // eslint-disable-line prefer-const
+  raytraceRange: 30, // Hallowed Beam reach
+  // Max health is usually 20hp. 1 heart = 2hp
+  // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
+  // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
+  health: {
+    low: 0.7, // health is 70%
+    critical: 0.5, // health is 50%
+    persist: false // raytrace persistance
+  },
+  state: {
+    started: false
+  }
+}
 
-// Glowing colors based on health
+// Glowing colors
 const criticalHealthColor = { r: 255, g: 0, b: 0 } // red
 const lowHealthColor = { r: 255, g: 255, b: 0 } // yellow
 const goodHealthColor = { r: 0, g: 255, b: 0 } // green
 const resetColor = { r: 255, g: 255, b: 255 } // white
 const highlightColor = { r: 255, g: 165, b: 0 } // orange
 
-// Max health is usually 20hp. 1 heart = 2hp
-// Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
-// Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
-const goodHealthPercentage = 0.7 // health is 70%
-const lowHealthPercentage = 0.45 // health is 40%
 // Configuration End
 
 let tickLoop
@@ -46,7 +52,7 @@ function tick () {
       stop()
     }
   } catch (e) {
-    Chat.getLogger('usb').error(e)
+    Chat.getLogger('usb').fatal(e)
     stop()
   }
   return true
@@ -81,11 +87,19 @@ function highlightPlayerCursor () {
  */
 function highlightPlayerCursorHealth () {
   const entity = rayTraceEntity()
-  if (!isPlayer(entity)) return checkPlayers() // only accept players
+  if (!isPlayer(entity)) {
+    if (config.health.persist === false) {
+      affectedPlayers = []
+      resetPlayers(true)
+      return false
+    }
+    checkPlayers()
+    return false
+  } // only accept players
   affectedPlayers = []
   const player = entity.asPlayer() // Typescript please stop screaming at me
-  const newPlayer = checkPlayer(entity)
-  if (newPlayer === true) { // we only reset it if raytrace switched to a different player
+  const newPlayer = checkPlayer(player)
+  if (newPlayer === true || config.health.persist === false) { // we only reset it if raytrace switched to a different player or if persist is set to false
     resetPlayers(true)
     return true
   }
@@ -158,9 +172,9 @@ function resetPlayers (ignore = false) {
  */
 function determineColor (decimalHealth) {
   const color = { glow: false, color: resetColor }
-  if (decimalHealth > goodHealthPercentage) color.color = goodHealthColor // good
-  else if (decimalHealth <= goodHealthPercentage && decimalHealth > lowHealthPercentage) color.color = lowHealthColor // needs healing
-  else if (decimalHealth <= lowHealthPercentage) color.color = criticalHealthColor // needs healing now
+  if (decimalHealth > config.health.low) color.color = goodHealthColor // good
+  else if (decimalHealth <= config.health.low && decimalHealth > config.health.critical) color.color = lowHealthColor // needs healing
+  else if (decimalHealth <= config.health.critical) color.color = criticalHealthColor // needs healing now
   return color
 }
 
@@ -169,25 +183,46 @@ function isPlayer (player) {
   if (player.getType() === 'minecraft:player') return true
 }
 
-// start the loop once message is sent
-JsMacros.once('SendMessage', JavaWrapper.methodToJava(() => {
+function start () {
   if (!tickLoop) tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
-}))
+}
 
 function stop () {
-  // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
-  JsMacros.getServiceManager().stopService(event.serviceName)
+  if (!config.state.started) return
+  try {
+    // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
+    JsMacros.getServiceManager().stopService(event.serviceName)
+  } catch (e) {
+    Chat.getLogger('usb').error(e)
+  }
 }
 
 function terminate () {
-  // if (startEvent) JsMacros.off('SendMessage', startEvent)
+  // cmd1.unregister()
+  config.state.started = false
   if (tickLoop) JsMacros.off('Tick', tickLoop)
-  // tick()
   resetPlayers(false)
   tickLoop = undefined
   return true
 }
-
+/*
+const cmd1 = Chat.createCommandBuilder('usb:hp')
+cmd1.executes(JavaWrapper.methodToJava((context) => {
+  if (config.state.started === false) {
+    Chat.log('[usb] Health service started')
+    Chat.getLogger('usb').info('HP Service started.')
+    config.state.started = true
+    start()
+  } else {
+    Chat.getLogger('usb').fatal('HP Service stopped.')
+    Chat.log('[usb] Health service stopped.')
+    stop()
+  }
+  return true
+}))
+cmd1.register()
+*/
+start()
 // @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent
 event.stopListener = JavaWrapper.methodToJava(terminate)
