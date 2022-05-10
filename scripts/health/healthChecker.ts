@@ -1,36 +1,42 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 // Configuration Start
-const config = { // one of these should be on
-  blatant: false,
-  whitelist: false,
-  whitelisted: [],
-  raytrace: true,
-  raytraceRange: 30, // Hallowed Beam reach
+const set = { // static variables
+  blatant: {
+    enabled: false
+  },
+  whitelist: {
+    enabled: false,
+    players: [] // list of players in string format to whitelist
+  },
+  raytrace: {
+    enabled: false,
+    reach: 30, // Hallowed Beam range (cannot be decimal)
+    persist: false, // if true, persist if crosshair moves away from entity
+    depth: false, // run depth checks on entities to not show them through walls [NOT YET DONE]
+    color: { r: 255, g: 165, b: 0 } // used for when selecting an entity in blatant mode
+  },
   // Max health is usually 20hp. 1 heart = 2hp
   // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
   // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
   health: {
-    low: 0.7, // health is 70%
     critical: 0.5, // health is 50%
-    persist: false // raytrace persistance
+    low: 0.7, // health is 70%
+    color: { // glowing colors in RGB format
+      critical: { r: 255, g: 0, b: 0 },
+      low: { r: 255, g: 255, b: 0 },
+      good: { r: 0, g: 255, b: 0 },
+      base: { r: 255, g: 255, b: 255 },
+    }
   },
-  state: {
-    started: false
+  state: { // not static variables that change in the code
+    tickLoop: undefined,
+    started: false,
+    glowingPlayers: [], // currently glowing players
+    selectedPlayer: '' // currently raytraced/highlighted player
   }
 }
 
-// Glowing colors
-const criticalHealthColor = { r: 255, g: 0, b: 0 } // red
-const lowHealthColor = { r: 255, g: 255, b: 0 } // yellow
-const goodHealthColor = { r: 0, g: 255, b: 0 } // green
-const resetColor = { r: 255, g: 255, b: 255 } // white
-const highlightColor = { r: 255, g: 165, b: 0 } // orange
-
 // Configuration End
-
-let tickLoop
-let affectedPlayers = []
-let highlightedPlayer = ''
 
 function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
   return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b))
@@ -39,12 +45,12 @@ function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
 function tick () {
   try {
     // reset all players being affected by this
-    if (config.blatant === true) {
-      affectedPlayers = []
+    if (set.blatant.enabled === true) {
+      set.state.glowingPlayers = []
       // Check all loaded players
       checkPlayers()
-      if (config.raytrace === true) highlightPlayerCursor()
-    } else if (config.raytrace === true) {
+      if (set.raytrace.enabled === true) highlightPlayerCursor()
+    } else if (set.raytrace.enabled === true) {
       // const entity = Player.rayTraceEntity() // infinite range possible?
       highlightPlayerCursorHealth()
     } else {
@@ -60,7 +66,7 @@ function tick () {
 
 function rayTraceEntity () {
   // @ts-ignore # DebugRenderer.getTargetedEntity()
-  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), config.raytraceRange)
+  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), set.raytrace.reach)
   // @ts-ignore # Check if the result is empty
   if (result.isEmpty()) return false
   // @ts-ignore
@@ -71,14 +77,14 @@ function rayTraceEntity () {
 function highlightPlayerCursor () {
   const player = rayTraceEntity()
   if (!isPlayer(player)) {
-    highlightedPlayer = ''
+    set.state.selectedPlayer = ''
     resetPlayers(true)
     return false // only accept players
   }
-  const color = rgbToDecimal(highlightColor)
+  const color = rgbToDecimal(set.raytrace.color)
   player.setGlowing(true)
   player.setGlowingColor(color)
-  highlightedPlayer = player.getName()?.getString()
+  set.state.selectedPlayer = player.getName()?.getString()
   resetPlayers(true)
   return true
 }
@@ -87,19 +93,19 @@ function highlightPlayerCursor () {
  */
 function highlightPlayerCursorHealth () {
   const entity = rayTraceEntity()
-  if (!isPlayer(entity)) {
-    if (config.health.persist === false) {
-      affectedPlayers = []
+  if (!isPlayer(entity)) { // only accept players
+    if (set.raytrace.persist === false) {
+      set.state.glowingPlayers = []
       resetPlayers(true)
       return false
     }
     checkPlayers()
     return false
-  } // only accept players
-  affectedPlayers = []
+  }
+  set.state.glowingPlayers = []
   const player = entity.asPlayer() // Typescript please stop screaming at me
   const newPlayer = checkPlayer(player)
-  if (newPlayer === true || config.health.persist === false) { // we only reset it if raytrace switched to a different player or if persist is set to false
+  if (newPlayer === true || set.raytrace.persist === false) { // we only reset it if raytrace switched to a different player or if persist is set to false
     resetPlayers(true)
     return true
   }
@@ -111,9 +117,9 @@ function checkPlayers () {
   for (const player of World.getLoadedPlayers()) {
     const name = player.getName()?.getString()
     if (!name) continue
-    if (config.blatant === true) {
+    if (set.blatant.enabled === true) {
       checkPlayer(player)
-    } else if (config.raytrace === true && affectedPlayers.includes(name) === true) {
+    } else if (set.raytrace.enabled === true && set.state.glowingPlayers.includes(name) === true) {
       checkPlayer(player)
     }
   }
@@ -127,7 +133,7 @@ function checkPlayer (player) {
   if (!isPlayer(player)) return false // only accept players
   const name = player.getName()?.getString()
   if (!name) return false
-  if (config.whitelist === true && config.whitelisted.includes(name) === false) return false
+  if (set.whitelist.enabled === true && set.whitelist.players.includes(name) === false) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
@@ -136,7 +142,7 @@ function checkPlayer (player) {
   const decimalColor = rgbToDecimal(color.color)
   player.setGlowingColor(decimalColor)
   player.setGlowing(true)
-  affectedPlayers.push(name) // player is now infected with G L O W
+  set.state.glowingPlayers.push(name) // player is now infected with G L O W
   return true
 }
 
@@ -157,8 +163,8 @@ function resetPlayers (ignore = false) {
   for (const player of World.getLoadedPlayers()) {
     if (ignore === true) { // run check only if ignore is true
       const name = player.getName().getString()
-      if (affectedPlayers.includes(name) === true) continue
-      if (highlightedPlayer === name) continue
+      if (set.state.glowingPlayers.includes(name) === true) continue
+      if (set.state.selectedPlayer === name) continue
     }
     resetPlayer(player)
   }
@@ -171,10 +177,10 @@ function resetPlayers (ignore = false) {
  * @param {Number} decimalHealth
  */
 function determineColor (decimalHealth) {
-  const color = { glow: false, color: resetColor }
-  if (decimalHealth > config.health.low) color.color = goodHealthColor // good
-  else if (decimalHealth <= config.health.low && decimalHealth > config.health.critical) color.color = lowHealthColor // needs healing
-  else if (decimalHealth <= config.health.critical) color.color = criticalHealthColor // needs healing now
+  const color = { glow: false, color: set.health.color.base }
+  if (decimalHealth > set.health.low) color.color = set.health.color.good // good
+  else if (decimalHealth <= set.health.low && decimalHealth > set.health.critical) color.color = set.health.color.low // needs healing
+  else if (decimalHealth <= set.health.critical) color.color = set.health.color.critical // needs healing now
   return color
 }
 
@@ -184,12 +190,12 @@ function isPlayer (player) {
 }
 
 function start () {
-  if (!tickLoop) tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
+  if (!set.state.tickLoop) set.state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }
 
 function stop () {
-  if (!config.state.started) return
+  if (!set.state.started) return
   try {
     // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
     JsMacros.getServiceManager().stopService(event.serviceName)
@@ -200,10 +206,10 @@ function stop () {
 
 function terminate () {
   // cmd1.unregister()
-  config.state.started = false
-  if (tickLoop) JsMacros.off('Tick', tickLoop)
+  set.state.started = false
+  if (set.state.tickLoop) JsMacros.off('Tick', set.state.tickLoop)
   resetPlayers(false)
-  tickLoop = undefined
+  set.state.tickLoop = undefined
   return true
 }
 /*
