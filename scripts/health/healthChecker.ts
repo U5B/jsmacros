@@ -25,10 +25,11 @@ const set = { // static variables
       critical: { r: 255, g: 0, b: 0 },
       low: { r: 255, g: 255, b: 0 },
       good: { r: 0, g: 255, b: 0 },
-      base: { r: 255, g: 255, b: 255 },
+      base: { r: 255, g: 255, b: 255 }
     }
   },
   state: { // not static variables that change in the code
+    mappings: undefined,
     tickLoop: undefined,
     started: false,
     glowingPlayers: [], // currently glowing players
@@ -43,6 +44,7 @@ function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
 }
 
 function tick () {
+  if (!World || !World.isWorldLoaded() || set.state.started === false) return
   try {
     // reset all players being affected by this
     if (set.blatant.enabled === true) {
@@ -189,13 +191,21 @@ function isPlayer (player) {
   if (player.getType() === 'minecraft:player') return true
 }
 
+function loadMappings () {
+  if (set.state.mappings) return
+  const mappingsUrl = 'https://maven.fabricmc.net/net/fabricmc/yarn/1.18.2%2Bbuild.3/yarn-1.18.2%2Bbuild.3-v2.jar'
+  set.state.mappings = Reflection.loadMappingHelper(mappingsUrl)
+}
+
 function start () {
+  set.state.started = true
+  loadMappings()
   if (!set.state.tickLoop) set.state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }
 
 function stop () {
-  if (!set.state.started) return
+  if (set.state.started === false) return
   try {
     // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
     JsMacros.getServiceManager().stopService(event.serviceName)
