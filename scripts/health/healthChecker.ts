@@ -9,10 +9,10 @@ const set = { // static variables
     players: [] // list of players in string format to whitelist
   },
   raytrace: {
-    enabled: false,
+    enabled: true,
     reach: 30, // Hallowed Beam range (cannot be decimal)
     persist: false, // if true, persist if crosshair moves away from entity
-    depth: false, // run depth checks on entities to not show them through walls
+    depth: true, // run depth checks on entities to not show them through walls
     color: { r: 255, g: 165, b: 0 } // used for when selecting an entity in blatant mode
   },
   // Max health is usually 20hp. 1 heart = 2hp
@@ -29,7 +29,6 @@ const set = { // static variables
     }
   },
   state: { // not static variables that change in the code
-    mappings: undefined,
     tickLoop: undefined,
     started: false,
     glowingPlayers: [], // currently glowing players
@@ -53,7 +52,6 @@ function tick () {
       checkPlayers()
       if (set.raytrace.enabled === true) highlightPlayerCursor()
     } else if (set.raytrace.enabled === true) {
-      // const entity = Player.rayTraceEntity() // infinite range possible?
       highlightPlayerCursorHealth()
     } else {
       Chat.log('Mode is not set. Please set one of the following modes: blatant or raytrace')
@@ -76,9 +74,13 @@ function rayTraceEntity () {
   return entity
 }
 
-function isEntityVisible (entity) {
+/**
+ * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
+ */
+function isPlayerVisible (entity) {
+  if (!isPlayer(entity)) return false
   if (set.raytrace.depth === false) return true
-  if (entity.isGlowing() === true) return true
+  if (entity.asLiving().isGlowing() === true) return true
   const javaEntity = entity.asLiving().getRaw()
   // @ts-ignore
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
@@ -99,18 +101,11 @@ function highlightPlayerCursor () {
   resetPlayers(true)
   return true
 }
-/**
- * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
- */
+
 function highlightPlayerCursorHealth () {
   const entity = rayTraceEntity()
-  const visible = isEntityVisible(entity)
-  if (isPlayer(entity) === false || visible === false) { // only accept players
-    if (set.raytrace.persist === false || visible === false) {
-      set.state.glowingPlayers = []
-      resetPlayers(true)
-      return false
-    }
+  if (isPlayer(entity) === false) { // only accept players
+    if (set.raytrace.persist === false) resetPlayers(false)
     checkPlayers()
     return false
   }
@@ -127,7 +122,7 @@ function highlightPlayerCursorHealth () {
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    if (isEntityVisible(player) === false || isPlayer(player) === false) {
+    if (isPlayerVisible(player) === false) {
       resetPlayer(player)
       continue
     }
@@ -201,19 +196,15 @@ function determineColor (decimalHealth) {
 
 function isPlayer (player) {
   if (!player) return false
-  if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
-  if (player.getType() === 'minecraft:player') return true
-}
-
-function loadMappings () {
-  if (set.state.mappings) return
-  const mappingsUrl = 'https://maven.fabricmc.net/net/fabricmc/yarn/1.18.2%2Bbuild.3/yarn-1.18.2%2Bbuild.3-v2.jar'
-  set.state.mappings = Reflection.loadMappingHelper(mappingsUrl)
+  if (player.getType() === 'minecraft:player') {
+    if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
+    return true
+  }
+  return false
 }
 
 function start () {
   set.state.started = true
-  loadMappings()
   if (!set.state.tickLoop) set.state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }
