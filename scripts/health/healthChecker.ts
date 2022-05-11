@@ -78,7 +78,7 @@ function rayTraceEntity () {
  * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
  */
 function isPlayerVisible (entity) {
-  if (!isPlayer(entity)) return false
+  if (!isPlayer(entity)) return null
   if (set.raytrace.depth === false) return true
   if (entity.asLiving().isGlowing() === true) return true
   const javaEntity = entity.asLiving().getRaw()
@@ -89,10 +89,10 @@ function isPlayerVisible (entity) {
 
 function highlightPlayerCursor () {
   const player = rayTraceEntity()
-  if (!isPlayer(player)) {
+  if (!isPlayerVisible(player)) { // check needed since we don't use checkPlayer() here
     set.state.selectedPlayer = ''
-    resetPlayers(true)
-    return false // only accept players
+    resetPlayers(true) // we want to ignore glowing players
+    return false
   }
   const color = rgbToDecimal(set.raytrace.color)
   player.setGlowing(true)
@@ -103,36 +103,29 @@ function highlightPlayerCursor () {
 }
 
 function highlightPlayerCursorHealth () {
-  const entity = rayTraceEntity()
-  if (isPlayer(entity) === false) { // only accept players
-    if (set.raytrace.persist === false) resetPlayers(false)
-    checkPlayers()
-    return false
-  }
-  set.state.glowingPlayers = []
-  const player = entity.asPlayer() // Typescript please stop screaming at me
-  const newPlayer = checkPlayer(player)
-  if (newPlayer === true || set.raytrace.persist === false) { // we only reset it if raytrace switched to a different player or if persist is set to false
+  const player = rayTraceEntity()
+  const valid = checkPlayer(player)
+  if (!valid) {
+    if (set.raytrace.persist === false) {
+      set.state.selectedPlayer = ''
+      resetPlayers(false)
+      return false
+    } else {
+      checkPlayers()
+      return true
+    }
+  } else {
+    set.state.selectedPlayer = player.getName()?.getString()
     resetPlayers(true)
     return true
   }
-  return false
 }
 
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    if (isPlayerVisible(player) === false) {
-      resetPlayer(player)
-      continue
-    }
-    const name = player.getName()?.getString()
-    if (!name) continue
-    if (set.blatant.enabled === true) {
-      checkPlayer(player)
-    } else if (set.raytrace.enabled === true && set.state.glowingPlayers.includes(name) === true) {
-      checkPlayer(player)
-    }
+    const valid = checkPlayer(player)
+    if (!valid) resetPlayer(player)
   }
 }
 
@@ -141,9 +134,10 @@ function checkPlayers () {
  * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
  */
 function checkPlayer (player) {
-  if (!isPlayer(player)) return false // only accept players
+  if (!isPlayerVisible(player)) return false // only accept players
   const name = player.getName()?.getString()
   if (set.whitelist.enabled === true && set.whitelist.players.includes(name) === false) return false
+  if (set.raytrace.enabled === true && set.state.selectedPlayer !== name) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
@@ -152,7 +146,7 @@ function checkPlayer (player) {
   const decimalColor = rgbToDecimal(color.color)
   player.setGlowingColor(decimalColor)
   player.setGlowing(true)
-  set.state.glowingPlayers.push(name) // player is now infected with G L O W
+  set.state.glowingPlayers.push(name)
   return true
 }
 
@@ -224,26 +218,10 @@ function terminate () {
   set.state.started = false
   if (set.state.tickLoop) JsMacros.off('Tick', set.state.tickLoop)
   resetPlayers(false)
-  set.state.tickLoop = undefined
+  set.state.tickLoop = null
   return true
 }
-/*
-const cmd1 = Chat.createCommandBuilder('usb:hp')
-cmd1.executes(JavaWrapper.methodToJava((context) => {
-  if (config.state.started === false) {
-    Chat.log('[usb] Health service started')
-    Chat.getLogger('usb').info('HP Service started.')
-    config.state.started = true
-    start()
-  } else {
-    Chat.getLogger('usb').fatal('HP Service stopped.')
-    Chat.log('[usb] Health service stopped.')
-    stop()
-  }
-  return true
-}))
-cmd1.register()
-*/
+
 start()
 // @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent
 event.stopListener = JavaWrapper.methodToJava(terminate)
