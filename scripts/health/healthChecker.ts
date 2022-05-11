@@ -12,7 +12,7 @@ const set = { // static variables
     enabled: false,
     reach: 30, // Hallowed Beam range (cannot be decimal)
     persist: false, // if true, persist if crosshair moves away from entity
-    depth: false, // run depth checks on entities to not show them through walls [NOT YET DONE]
+    depth: false, // run depth checks on entities to not show them through walls [glitchy]
     color: { r: 255, g: 165, b: 0 } // used for when selecting an entity in blatant mode
   },
   // Max health is usually 20hp. 1 heart = 2hp
@@ -76,6 +76,15 @@ function rayTraceEntity () {
   return entity
 }
 
+function isEntityVisible (entity) {
+  if (set.raytrace.depth === false) return true
+  if (entity.isGlowing() === true) return true
+  const javaEntity = entity.asLiving().getRaw()
+  // @ts-ignore
+  const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
+  return result
+}
+
 function highlightPlayerCursor () {
   const player = rayTraceEntity()
   if (!isPlayer(player)) {
@@ -95,8 +104,9 @@ function highlightPlayerCursor () {
  */
 function highlightPlayerCursorHealth () {
   const entity = rayTraceEntity()
-  if (!isPlayer(entity)) { // only accept players
-    if (set.raytrace.persist === false) {
+  const visible = isEntityVisible(entity)
+  if (isPlayer(entity) === false || visible === false) { // only accept players
+    if (set.raytrace.persist === false || visible === false) {
       set.state.glowingPlayers = []
       resetPlayers(true)
       return false
@@ -117,6 +127,10 @@ function highlightPlayerCursorHealth () {
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
+    if (isEntityVisible(player) === false || isPlayer(player) === false) {
+      resetPlayer(player)
+      continue
+    }
     const name = player.getName()?.getString()
     if (!name) continue
     if (set.blatant.enabled === true) {
@@ -188,6 +202,7 @@ function determineColor (decimalHealth) {
 
 function isPlayer (player) {
   if (!player) return false
+  if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
   if (player.getType() === 'minecraft:player') return true
 }
 
