@@ -12,7 +12,7 @@ const set = { // static variables
     enabled: false,
     reach: 30, // Hallowed Beam range (cannot be decimal)
     persist: false, // if true, persist if crosshair moves away from entity
-    depth: false, // run depth checks on entities to not show them through walls [glitchy]
+    depth: false, // run depth checks on entities to not show them through walls
     color: { r: 255, g: 165, b: 0 } // used for when selecting an entity in blatant mode
   },
   // Max health is usually 20hp. 1 heart = 2hp
@@ -148,7 +148,6 @@ function checkPlayers () {
 function checkPlayer (player) {
   if (!isPlayer(player)) return false // only accept players
   const name = player.getName()?.getString()
-  if (!name) return false
   if (set.whitelist.enabled === true && set.whitelist.players.includes(name) === false) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
