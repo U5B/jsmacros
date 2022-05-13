@@ -11,12 +11,13 @@ import { getConfig } from "./config"
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
 // '': invalid
-const mode = getConfig('persistLegit')
+const mode = getConfig('espLegit')
 // Configuration End
 
 const state = {
   tickLoop: undefined,
   started: false,
+  running: false,
   glowingPlayers: [],
   selectedPlayer: ''
 }
@@ -26,25 +27,27 @@ function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
 }
 
 function tick () {
-  if (!World || !World.isWorldLoaded() || state.started === false) return
   try {
-    // reset all players being affected by this
+    if (World && World.isWorldLoaded() && state.started === true) {
+      if (state.running === false) {
+        Chat.log('[GlowHealth] Started!')
+        Chat.getLogger('usb').warn('[GlowHealth] Service is now running...')
+        state.running = true
+      }
+    } else return false
     if (mode.blatant.enabled === true) {
-      state.glowingPlayers = []
+      state.glowingPlayers = [] // reset all players being affected by this
       // Check all loaded players
       checkPlayers()
       if (mode.raytrace.enabled === true) highlightPlayerCursor()
     } else if (mode.raytrace.enabled === true) {
       highlightPlayerCursorHealth()
-    } else {
-      Chat.log('Mode is not mode. Please set one of the following modes: blatant or raytrace')
-      stop()
     }
+    return true
   } catch (e) {
-    Chat.getLogger('usb').fatal(e)
-    stop()
+    stop(e)
+    return false
   }
-  return true
 }
 
 function rayTraceEntity () {
@@ -63,25 +66,33 @@ function rayTraceEntity () {
 function isPlayerVisible (entity) {
   if (!isPlayer(entity)) return null
   if (mode.raytrace.depth === false) return true
-  if (entity.asLiving().isGlowing() === true) return true
+  if (isPlayerGlowing(entity) === true) return true
   const javaEntity = entity.asLiving().getRaw()
   // @ts-ignore
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
   return result
 }
 
+function isPlayerGlowing (player) {
+  const forceGlowing = player.isGlowing()
+  player.resetGlowing()
+  const value = player.isGlowing()
+  player.setGlowing(forceGlowing)
+  return value
+}
+
 function highlightPlayerCursor () {
   const player = rayTraceEntity()
   if (!isPlayerVisible(player)) { // check needed since we don't use checkPlayer() here
     state.selectedPlayer = ''
-    resetPlayers(true) // we want to ignore glowing players
+    resetPlayers(true, false) // we want to ignore glowing players
     return false
   }
   const color = rgbToDecimal(mode.raytrace.color)
   player.setGlowing(true)
   player.setGlowingColor(color)
   state.selectedPlayer = player.getName()?.getString()
-  resetPlayers(true)
+  resetPlayers(true, true)
   return true
 }
 
@@ -89,17 +100,17 @@ function highlightPlayerCursorHealth () {
   const player = rayTraceEntity()
   const valid = checkPlayer(player)
   if (!valid) {
-    if (mode.raytrace.persist === false) {
-      state.selectedPlayer = ''
-      resetPlayers(false)
-      return false
-    } else {
+    if (mode.raytrace.persist === true) {
       checkPlayers()
       return true
+    } else if (mode.raytrace.persist === false) {
+      state.selectedPlayer = ''
+      resetPlayers(false, false)
+      return false
     }
   } else {
     state.selectedPlayer = player.getName()?.getString()
-    resetPlayers(true)
+    resetPlayers(false, true)
     return true
   }
 }
@@ -107,7 +118,8 @@ function highlightPlayerCursorHealth () {
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    const valid = checkPlayer(player)
+    let valid = false
+    if (mode.blatant.enabled === true || (mode.raytrace.enabled === true && mode.raytrace.persist === true && state.selectedPlayer === player.getName()?.getString())) valid = checkPlayer(player)
     if (!valid) resetPlayer(player)
   }
 }
@@ -120,7 +132,6 @@ function checkPlayer (player) {
   if (!isPlayerVisible(player)) return false // only accept players
   const name = player.getName()?.getString()
   if (mode.whitelist.enabled === true && mode.whitelist.players.includes(name) === false) return false
-  if (mode.raytrace.enabled === true && state.selectedPlayer !== name) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
@@ -145,13 +156,13 @@ function resetPlayer (player) {
 }
 
 // This function should set all players to their previous glowing state
-function resetPlayers (ignore = false) {
+function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    if (ignore === true) { // run check only if ignore is true
+    if ((ignoreGlowing || ignoreSelected) === true) { // run check only if ignore is true
       const name = player.getName().getString()
-      if (state.glowingPlayers.includes(name) === true) continue
-      if (state.selectedPlayer === name) continue
+      if (ignoreSelected && state.selectedPlayer === name) continue
+      if (ignoreGlowing && state.glowingPlayers.includes(name) === true) continue
     }
     resetPlayer(player)
   }
@@ -181,26 +192,27 @@ function isPlayer (player) {
 }
 
 function start () {
+  Chat.getLogger('usb').warn('[GlowHealth] Starting service...')
   state.started = true
   if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
 }
 
-function stop () {
+function stop (error) {
   if (state.started === false) return
-  try {
-    // @ts-ignore # Typescript screams at me since event.serviceName doesn't exist on Events.BaseEvent
-    JsMacros.getServiceManager().stopService(event.serviceName)
-  } catch (e) {
-    Chat.getLogger('usb').error(e)
-  }
+  Chat.getLogger('usb').fatal('[GlowHealth] Error:', error)
+  terminate()
 }
 
 function terminate () {
+  Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...')
   // cmd1.unregister()
   state.started = false
+  state.running = false
+  state.glowingPlayers = []
+  state.selectedPlayer = ''
   if (state.tickLoop) JsMacros.off('Tick', state.tickLoop)
-  resetPlayers(false)
+  if (World && World.isWorldLoaded()) resetPlayers()
   state.tickLoop = null
   return true
 }

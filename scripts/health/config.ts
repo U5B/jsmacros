@@ -1,4 +1,5 @@
 const config = {
+  name: 'custom',
   blatant: {
     enabled: false
   },
@@ -40,8 +41,9 @@ const config = {
   }
 }
 
-function getConfig (mode = '') {
+function getConfig (mode = 'custom') {
   let modifiedConfig = config
+  modifiedConfig.name = mode
   switch (mode) {
     case 'espBlatant': { // esp for all
       modifiedConfig.blatant.enabled = true
