@@ -80,7 +80,7 @@ function rayTraceEntity () {
 function isPlayerVisible (entity) {
   if (!isPlayer(entity)) return null
   if (set.raytrace.depth === false) return true
-  if (entity.asLiving().isGlowing() === true) return true
+  // if (entity.asLiving().isGlowing() === true) return true
   const javaEntity = entity.asLiving().getRaw()
   // @ts-ignore
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
@@ -124,7 +124,7 @@ function highlightPlayerCursorHealth () {
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    let valid
+    let valid = false
     if (set.blatant.enabled === true || (set.raytrace.enabled === true && set.raytrace.persist === true && set.state.selectedPlayer === player.getName()?.getString())) valid = checkPlayer(player)
     if (!valid) resetPlayer(player)
   }
