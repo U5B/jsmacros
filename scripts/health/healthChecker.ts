@@ -80,11 +80,19 @@ function rayTraceEntity () {
 function isPlayerVisible (entity) {
   if (!isPlayer(entity)) return null
   if (set.raytrace.depth === false) return true
-  // if (entity.asLiving().isGlowing() === true) return true
+  if (isPlayerGlowing(entity) === true) return true
   const javaEntity = entity.asLiving().getRaw()
   // @ts-ignore
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
   return result
+}
+
+function isPlayerGlowing (player) {
+  const forceGlowing = player.isGlowing()
+  player.resetGlowing()
+  const value = player.isGlowing()
+  player.setGlowing(forceGlowing)
+  return value
 }
 
 function highlightPlayerCursor () {
