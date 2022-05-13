@@ -99,14 +99,14 @@ function highlightPlayerCursor () {
   const player = rayTraceEntity()
   if (!isPlayerVisible(player)) { // check needed since we don't use checkPlayer() here
     set.state.selectedPlayer = ''
-    resetPlayers(true) // we want to ignore glowing players
+    resetPlayers(true, false) // we want to ignore glowing players
     return false
   }
   const color = rgbToDecimal(set.raytrace.color)
   player.setGlowing(true)
   player.setGlowingColor(color)
   set.state.selectedPlayer = player.getName()?.getString()
-  resetPlayers(true)
+  resetPlayers(true, true)
   return true
 }
 
@@ -119,12 +119,12 @@ function highlightPlayerCursorHealth () {
       return true
     } else if (set.raytrace.persist === false) {
       set.state.selectedPlayer = ''
-      resetPlayers(false)
+      resetPlayers(false, false)
       return false
     }
   } else {
     set.state.selectedPlayer = player.getName()?.getString()
-    resetPlayers(true)
+    resetPlayers(false, true)
     return true
   }
 }
@@ -170,13 +170,13 @@ function resetPlayer (player) {
 }
 
 // This function should set all players to their previous glowing state
-function resetPlayers (ignore = false) {
+function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    if (ignore === true) { // run check only if ignore is true
+    if ((ignoreGlowing || ignoreSelected) === true) { // run check only if ignore is true
       const name = player.getName().getString()
-      if (set.state.selectedPlayer === name) continue
-      if (set.state.glowingPlayers.includes(name) === true) continue
+      if (ignoreSelected && set.state.selectedPlayer === name) continue
+      if (ignoreGlowing && set.state.glowingPlayers.includes(name) === true) continue
     }
     resetPlayer(player)
   }
@@ -225,7 +225,7 @@ function terminate () {
   // cmd1.unregister()
   set.state.started = false
   if (set.state.tickLoop) JsMacros.off('Tick', set.state.tickLoop)
-  if (World && World.isWorldLoaded()) resetPlayers(false)
+  if (World && World.isWorldLoaded()) resetPlayers()
   set.state.tickLoop = null
   return true
 }
