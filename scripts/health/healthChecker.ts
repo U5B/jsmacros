@@ -11,7 +11,7 @@ const set = { // static variables
   raytrace: {
     enabled: true,
     reach: 30, // Hallowed Beam range (cannot be decimal)
-    persist: false, // if true, persist if crosshair moves away from entity
+    persist: true, // if true, persist if crosshair moves away from entity
     depth: true, // run depth checks on entities to not show them through walls
     color: { r: 255, g: 165, b: 0 } // used for when selecting an entity in blatant mode
   },
@@ -106,13 +106,13 @@ function highlightPlayerCursorHealth () {
   const player = rayTraceEntity()
   const valid = checkPlayer(player)
   if (!valid) {
-    if (set.raytrace.persist === false) {
+    if (set.raytrace.persist === true) {
+      checkPlayers()
+      return true
+    } else if (set.raytrace.persist === false) {
       set.state.selectedPlayer = ''
       resetPlayers(false)
       return false
-    } else {
-      checkPlayers()
-      return true
     }
   } else {
     set.state.selectedPlayer = player.getName()?.getString()
@@ -124,7 +124,8 @@ function highlightPlayerCursorHealth () {
 function checkPlayers () {
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
   for (const player of World.getLoadedPlayers()) {
-    const valid = checkPlayer(player)
+    let valid
+    if (set.blatant.enabled === true || (set.raytrace.enabled === true && set.raytrace.persist === true && set.state.selectedPlayer === player.getName()?.getString())) valid = checkPlayer(player)
     if (!valid) resetPlayer(player)
   }
 }
@@ -137,7 +138,6 @@ function checkPlayer (player) {
   if (!isPlayerVisible(player)) return false // only accept players
   const name = player.getName()?.getString()
   if (set.whitelist.enabled === true && set.whitelist.players.includes(name) === false) return false
-  if (set.raytrace.enabled === true && set.state.selectedPlayer !== name) return false
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
@@ -167,8 +167,8 @@ function resetPlayers (ignore = false) {
   for (const player of World.getLoadedPlayers()) {
     if (ignore === true) { // run check only if ignore is true
       const name = player.getName().getString()
-      if (set.state.glowingPlayers.includes(name) === true) continue
       if (set.state.selectedPlayer === name) continue
+      if (set.state.glowingPlayers.includes(name) === true) continue
     }
     resetPlayer(player)
   }
@@ -217,7 +217,7 @@ function terminate () {
   // cmd1.unregister()
   set.state.started = false
   if (set.state.tickLoop) JsMacros.off('Tick', set.state.tickLoop)
-  resetPlayers(false)
+  if (World && World.isWorldLoaded()) resetPlayers(false)
   set.state.tickLoop = null
   return true
 }
