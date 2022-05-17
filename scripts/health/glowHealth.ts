@@ -1,16 +1,18 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 
 // Configuration Start
-import { getConfig } from './config'
+import { getConfig } from "./config"
 // modes:
 // 'espBlatant': esp for all
+// 'espGlowing' esp for all meets glowing players through walls
 // 'espLegit': esp for all meets a wall
-// 'persistBlatant': esp for one person
+// 'persistBlatant': esp for one
+// 'persistGlowing': esp for one meets glowing players through walls
 // 'persistLegit':  esp for one meets a wall and a reach limit
 // 'raytraceBlatant': aim is required
+// 'raytraceGlowing': aim is required to see glowing players through walls
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
-// '': invalid
 const mode = getConfig('espLegit')
 // Configuration End
 
@@ -60,10 +62,7 @@ function rayTraceEntity () {
   return entity
 }
 
-/**
- * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>} entity
- */
-function isPlayerVisible (entity) {
+function isPlayerVisible (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (!isPlayer(entity)) return null
   if (mode.raytrace.depth === false) return true
   if (isPlayerGlowing(entity) === true) return true
@@ -73,7 +72,7 @@ function isPlayerVisible (entity) {
   return result
 }
 
-function isPlayerGlowing (player) {
+function isPlayerGlowing (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (mode.raytrace.ignoreGlowing === false) return false
   const forceGlowing = player.isGlowing()
   player.resetGlowing()
@@ -126,10 +125,7 @@ function checkPlayers () {
 }
 
 // Check if a player has lost health and update their glowing status and color
-/**
- * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
- */
-function checkPlayer (player) {
+function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (!isPlayerVisible(player)) return false // only accept players
   const name = player.getName()?.getString()
   if (mode.whitelist.enabled === true && mode.whitelist.players.includes(name) === false) return false
@@ -146,10 +142,7 @@ function checkPlayer (player) {
 }
 
 // Reset player to their previous glowing state
-/**
- * @param {Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>} player
- */
-function resetPlayer (player) {
+function resetPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (!isPlayer(player)) return false // only accept players
   player.resetGlowing() // no more G L O W
   player.resetGlowingColor()
@@ -172,10 +165,7 @@ function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
 
 // determine the health color based on health decimal
 // maybe in the future I multiply by 100 so I can Math.floor/Math.round values
-/**
- * @param {Number} decimalHealth
- */
-function determineColor (decimalHealth) {
+function determineColor (decimalHealth:Number) {
   const color = { glow: false, color: mode.health.color.base }
   if (decimalHealth > mode.health.low) color.color = mode.health.color.good // good
   else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical) color.color = mode.health.color.low // needs healing
@@ -183,7 +173,7 @@ function determineColor (decimalHealth) {
   return color
 }
 
-function isPlayer (player) {
+function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (!player) return false
   if (player.getType() === 'minecraft:player') {
     if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
