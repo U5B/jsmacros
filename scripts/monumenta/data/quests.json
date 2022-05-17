@@ -1,0 +1,716 @@
+{
+  "A Beast of a Book": {
+    "name": "A Beast of a Book",
+    "description": "You learned from an expert hunter and earned your own Bestiary.",
+    "region": "King's Valley",
+    "city": "Farr"
+  },
+  "A Crew to Remember": {
+    "name": "A Crew to Remember",
+    "description": "Captain Indigo now has a motley crew of eccentric pirates, ready to sail thanks to your help.",
+    "region": "King's Valley",
+    "city": "Lowtide"
+  },
+  "A Crown of Madness": {
+    "name": "A Crown of Madness",
+    "description": "Aimee has been cured and the King has been saved from the plot of a sneaky Son of the Forest.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Crown of Majesty": {
+    "name": "A Crown of Majesty",
+    "description": "Getting three more gems for Aimee, she now has everything she needs to make a crown for King Petrus II.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Crown of Topaz": {
+    "name": "A Crown of Topaz",
+    "description": "Braving the mineshaft north of Sierhaven, you got a topaz gem for Aimee to use.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Little Spark": {
+    "name": "A Little Spark",
+    "description": "You helped Cinevra out by getting her an arc-crystal.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Pigculiar Problem": {
+    "name": "A Pigculiar Problem",
+    "description": "You've learned the secrets of how pigs can speak and helped Walter Jr. live his dream.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Study in Crimson Part One": {
+    "name": "A Study in Crimson Part One",
+    "description": "The Crimson King called in your contract. You worked with him to dig through memories, searching for a way to restore the Crimson Wool.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Vault of Glass": {
+    "name": "A Vault of Glass",
+    "description": "Commanded by the Order of Glass to uncover Octavius's misdeeds, you failed when the evidence was taken by Duchess Emmeline.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Bandit Troubles": {
+    "name": "Bandit Troubles",
+    "description": "Raiding two bandit camps, you learned the truth of Octavius's shady business dealings.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Bane of the Bakers": {
+    "name": "Bane of the Bakers",
+    "description": "Stefan needed a pretzel recipe, and you stole it for him in exchange for some strange rewards.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Buried Blade": {
+    "name": "Buried Blade",
+    "description": "A landslide ruined Blackjack Stan's smuggling den. Of course, he sent you into a deadly cave to retrieve a sword he needed.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Burning Bright": {
+    "name": "Burning Bright",
+    "description": "Because of your actions, Oceangate Lighthouse burns brighter than ever before.",
+    "region": "King's Valley",
+    "city": "Oceangate"
+  },
+  "Casting for Help": {
+    "name": "Casting for Help",
+    "description": "Working with Nurse Deidre, you made a cast for Melinda and repaired more than just a bone.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Clear As Glass": {
+    "name": "Clear As Glass",
+    "description": "After defeating Virius, Nelfine's memory has truly returned and with it her friendship with Arian.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Clucked Up": {
+    "name": "Clucked Up",
+    "description": "You went on a clucking silly adventure, and defeated the god of pigs.",
+    "region": "King's Valley",
+    "city": "Nyr"
+  },
+  "Crazy, Cupid, Love": {
+    "name": "Crazy, Cupid, Love",
+    "description": "You solved mysterious puzzles leading to Psychie's lost love, Cupid.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "A Dish To Die For": {
+    "name": "A Dish To Die For",
+    "description": "You helped Claude make his culinary masterpiece. After fighting him, his appetite for human flesh should be gone.",
+    "region": "King's Valley",
+    "city": "Lowtide"
+  },
+  "Finished Business": {
+    "name": "Finished Business",
+    "description": "You helped a weird little man be slightly less weird and stop writing fanfiction about you.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Flash in the Pan": {
+    "name": "Flash in the Pan",
+    "description": "You've completed a race around Sierhaven. Search towns around the world for more races.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Fountain of Miracles": {
+    "name": "Fountain of Miracles",
+    "description": "You've purified the waters of the Fountain of Miracles, corrupted by dark magic from deep in the jungle.",
+    "region": "King's Valley",
+    "city": "Farr"
+  },
+  "Halid's Song": {
+    "name": "Halid's Song",
+    "description": "You helped an old Tlaxan regain his musical talent, and got music of your own in return...",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "A Hero's Return": {
+    "name": "A Hero's Return",
+    "description": "Choose your class proper and carry on with your adventure!",
+    "region": "King's Valley",
+    "city": null
+  },
+  "Into Thin Air": {
+    "name": "Into Thin Air",
+    "description": "Following in the footsteps of Aurora, you discovered the truth behind her disappearance...",
+    "region": "King's Valley",
+    "city": "Oceangate"
+  },
+  "Lights Beyond": {
+    "name": "Lights Beyond",
+    "description": "The lights have shown you the way in the darkness, where you found a strange letter...",
+    "region": "King's Valley",
+    "city": "Oceangate"
+  },
+  "Lost in My Mind": {
+    "name": "Lost in My Mind",
+    "description": "A secret warehouse lies beneath Sierhaven, filled with missing people. Eowen has closure, but mysteries still remain.",
+    "region": "King's Valley",
+    "city": "Farr"
+  },
+  "Mage's Legacy": {
+    "name": "Mage's Legacy",
+    "description": "Helping Archmage Vargos, you translated an ancient Tlaxan poem and learned the tragic history of the mage council.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Memories of Battle": {
+    "name": "Memories of Battle",
+    "description": "You investigated the secrets of the Arena, instead discovering the Crimson King was involved the whole time.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Runaway Pet": {
+    "name": "Runaway Pet",
+    "description": "You reunited Leonard and his adorable pet Mr. Snuggles.",
+    "region": "King's Valley",
+    "city": "Farr"
+  },
+  "Missing Soldiers": {
+    "name": "Missing Soldiers",
+    "description": "Sergeant Sigrun needed your help finding her soldiers. Unfortunately, the Jaguar Tribes found them first.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Nelfine's Curse": {
+    "name": "Nelfine's Curse",
+    "description": "You helped restore Nelfine's memory. Hopefully she'll remember more and more with time...",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Of Monks and Magic": {
+    "name": "Of Monks and Magic",
+    "description": "You saved the Axtan Monks from the Sons of the Forest, a shadowy cabal of druids.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Outer Demons": {
+    "name": "Outer Demons",
+    "description": "What seemed like a mission to find a lost book turned into a search through the mysterious Grove, where you encountered the demon summoner Azacor.",
+    "region": "King's Valley",
+    "city": "Lowtide"
+  },
+  "A Pirate's Life": {
+    "name": "A Pirate's Life",
+    "description": "Levyn is more of a pirate than ever after you found him a parrot and peg-leg.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Pyromania": {
+    "name": "Pyromania",
+    "description": "Braving several lava-filled caverns, you brought Carbocius magma samples from around the valley.",
+    "region": "King's Valley",
+    "city": "Farr"
+  },
+  "Siege of Highwatch": {
+    "name": "Siege of Highwatch",
+    "description": "Highwatch is saved from a swarm of ghasts and blazes, and you've uncovered the true plans of the Sons of the Forest.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Snow Man Left Behind": {
+    "name": "Snow Man Left Behind",
+    "description": "The hunt for the Snow Wool led you to its destruction, and you battled its spirit to save the holidays!",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Sons of the Forest": {
+    "name": "Sons of the Forest",
+    "description": "You stole a powerful binding spell from the Sons of the Forest, hindering their plans! No doubt they are planning their revenge...",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Starrier Night": {
+    "name": "Starrier Night",
+    "description": "You repaired another spyglass, this time for Mayleen's friend Montana. While secretive, it seems there's more here than just stargazing...",
+    "region": "King's Valley",
+    "city": "Nyr"
+  },
+  "Starriest Night": {
+    "name": "Starriest Night",
+    "description": "You repaired the telescope, but something more sinister is yet to unfold...",
+    "region": "King's Valley",
+    "city": "Oceangate"
+  },
+  "Starry Night": {
+    "name": "Starry Night",
+    "description": "By breaking into an armory and spinning gears, you helped Mayleen fix her telescope.",
+    "region": "King's Valley",
+    "city": "Nyr"
+  },
+  "Supply and Demand": {
+    "name": "Supply and Demand",
+    "description": "After running around Sierhaven, you helped deliver a package of supplies to the small town of Nyr.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "The Crystal Connection": {
+    "name": "The Crystal Connection",
+    "description": "Overcoming another trip into Velara and an attack by the Sons of the Forest, you connected Ta'Eldim and Sierhaven.",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "The Elder's Scrolls": {
+    "name": "The Elder's Scrolls",
+    "description": "When T'Xoc asked for your help to locate a missing Tlaxan Elder, you followed their trail back to the Verdant Fortress... What lurks inside?",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "The Plague": {
+    "name": "The Plague",
+    "description": "Nyr was at risk of falling to a deadly plague, but you and C'Taz created an ancient medicine to save the town.",
+    "region": "King's Valley",
+    "city": "Nyr"
+  },
+  "The Salmon": {
+    "name": "The Salmon",
+    "description": "You caught a royal fish (with strange defenders) and won a fishing contest. Display the trophy proudly.",
+    "region": "King's Valley",
+    "city": "Lowtide"
+  },
+  "The Scout's Codex": {
+    "name": "The Scout's Codex",
+    "description": "You helped Laura find her diary. With the information stored in the book, the northern path to Sierhaven may be a lot safer now!",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Time to Reflect": {
+    "name": "Time to Reflect",
+    "description": "By solving the mirror puzzles in Ta'Eldim's shrine, you gained the trust of Barras, the Shrinetender.",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "Tlaxan Troubles": {
+    "name": "Tlaxan Troubles",
+    "description": "T'Lm told you of his people's hidden town, Ta'Eldim. While you have gained entry, not all the townspeople trust you yet...",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "True Genius": {
+    "name": "True Genius",
+    "description": "You have earned the title of Dreamwalker by interacting with the dreamers.",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "Truer Genius": {
+    "name": "Truer Genius",
+    "description": "You have continued your journey of Dreamwalker, into realms never before walked.",
+    "region": "King's Valley",
+    "city": "Ta'Eldim"
+  },
+  "Unveiled": {
+    "name": "Unveiled",
+    "description": "The Masked Man, an agent of Calder, has been stopped and the Black Shard reclaimed from the Sons of the Forest. They will no longer threaten the valley with their dark magic.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Words Upon Hushed Lips": {
+    "name": "Words Upon Hushed Lips",
+    "description": "Dimitri's mentor, Ignos, has vanished, but you found closure and a clue in his cryptic journal.",
+    "region": "King's Valley",
+    "city": "Sierhaven"
+  },
+  "Aiming For Success": {
+    "name": "Aiming For Success",
+    "description": "You passed the Frostgate Target Test and learned the Ranger Specialization. Found in the Chillwind Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "A Lich in the System": {
+    "name": "A Lich in the System",
+    "description": "With the help of some researchers, you fought against the former Vizier of Al Malakut, Hekawt, now a lich, and prevented him from causing further destruction.",
+    "region": "Celsian Isles",
+    "city": "Breachpoint"
+  },
+  "A Lost Cause": {
+    "name": "A Lost Cause",
+    "description": "The Ishnir Trade may have suffered a catastrophic loss, but with your help they should be able to recover.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Alric's Legacy": {
+    "name": "Alric's Legacy",
+    "description": "You learned from the Giant slayer himself and fought a Giant yourself, preventing total destruction of the Isles.",
+    "region": "Celsian Isles",
+    "city": "Nightroost"
+  },
+  "A Merchant's Woe": {
+    "name": "A Merchant's Woe",
+    "description": "You've helped Riaz recover his lost supplies.",
+    "region": "Celsian Isles",
+    "city": "Rahkeri"
+  },
+  "An Alcoholic Accord": {
+    "name": "An Alcoholic Accord",
+    "description": "You helped Levyn with a deal to get information, but ended up getting tricked in the process.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "An Otherworldly Hunt": {
+    "name": "An Otherworldly Hunt",
+    "description": "You gather the pelts of rare creatures and learned the Hunter Specialization. Found in the Ishnir Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "An Unlikely Partnership": {
+    "name": "An Unlikely Partnership",
+    "description": "The Duchess used you to spy on diplomats. Will it be you that puts an end to her reign of terror?",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "A Simple Favor": {
+    "name": "A Simple Favor",
+    "description": "You assisted in retrieving a hitlist from pirates and learned the Assassin Specialization. Found in Mistport.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "A Sunken Feeling": {
+    "name": "A Sunken Feeling",
+    "description": "You helped save Mistport's massive underground farm.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "A Towering Objective": {
+    "name": "A Towering Objective",
+    "description": "You assisted in disrupting a tower's magic and learned the Berserker Specialization. Found in the Ishnir Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Bleeding Proof": {
+    "name": "Bleeding Proof",
+    "description": "You sought out a survivor of the Congress, but things didn't quite go as expected.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Bloody Banquet": {
+    "name": "Bloody Banquet",
+    "description": "You investigated a brutal murder of a rich Countess! You caught the murderer! He's behind bars... for now.",
+    "region": "Celsian Isles",
+    "city": "Frostgate"
+  },
+  "Bring Him Baack": {
+    "name": "Bring Him Baack",
+    "description": "You followed a mysterious and baffling trail that may have brought back a friend...",
+    "region": "Celsian Isles",
+    "city": "Wispervale"
+  },
+  "Dealbreaker": {
+    "name": "Dealbreaker",
+    "description": "Safar was pleased with your work, The Ishnir Trade knows of your name now...",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Death's Swiftness": {
+    "name": "Death's Swiftness",
+    "description": "You fought illusions of the past and learned the Harbinger Specialization. Found in the Ishnir Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Depths Charge": {
+    "name": "Depths Charge",
+    "description": "Following the path of a Lieutenant of the Black Mist, you discovered a Breach below the ocean where something evil approaches.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "A Well Deserved Rest": {
+    "name": "A Well Deserved Rest",
+    "description": "You may have destroyed the castle's floor and table, but the Marshall can get some rest.",
+    "region": "Celsian Isles",
+    "city": "Frostgate"
+  },
+  "Fabled Destiny": {
+    "name": "Fabled Destiny",
+    "description": "You've helped Herriot realise a new destiny which is awaiting for him.",
+    "region": "Celsian Isles",
+    "city": "Frostgate"
+  },
+  "Fishy Business": {
+    "name": "Fishy Business",
+    "description": "Whether you like it or not, Lincoln's pesky client has been dealt with.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Flock and Key": {
+    "name": "Flock and Key",
+    "description": "Your first initial heist as a Night Rooster.",
+    "region": "Celsian Isles",
+    "city": "Nightroost"
+  },
+  "Guarding the Guarded": {
+    "name": "Guarding the Guarded",
+    "description": "You helped Galablad protect Grethony and learned the Guardian Specialization. Found in the Chillwind Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Healthful Networking": {
+    "name": "Healthful Networking",
+    "description": "You helped Ellen establish a communication network and learned the Hierophant Specialization. Found in the Chillwind Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Here There Be Dragons": {
+    "name": "Here There Be Dragons",
+    "description": "Working with Izzy, Levyn, and clearly Not Samwell, you went on a piratey adventure and discovered something below the City of Bones.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Kingdom Of Lies": {
+    "name": "Kingdom Of Lies",
+    "description": "You rooted out the Masked in Ishnir's government after getting unexpectedly arrested.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Life Is Of The Essence": {
+    "name": "Life Is Of The Essence",
+    "description": "You helped Bero continue his experiments and learned the Reaper Specialization. Found in the Viridian Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Long Way Down": {
+    "name": "Long Way Down",
+    "description": "You've assisted Myra in conquering her fear.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Lost in the Dark": {
+    "name": "Lost in the Dark",
+    "description": "You found your way through a very dark maze and learned the Tenebrist Specialization. Found in Alnera.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Master of All": {
+    "name": "Master of All",
+    "description": "Complete all Specialization Trials in the Celsian Isles.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Master of One": {
+    "name": "Master of One",
+    "description": "You helped out the Teacher in Mistport to reopen the Specialization School.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Older Magic": {
+    "name": "Older Magic",
+    "description": "You helped create a barrier spell and learned the Arcanist Specialization. Found in Rahkeri.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Out With A Bang": {
+    "name": "Out With A Bang",
+    "description": "Ebonee and her friends are now known among their peers for legendary pranks.",
+    "region": "Celsian Isles",
+    "city": "Wispervale"
+  },
+  "Overdoomed": {
+    "name": "Overdoomed",
+    "description": "Retrieved by any means necessary, the book is now back in Saanavi's hands.",
+    "region": "Celsian Isles",
+    "city": "Wispervale"
+  },
+  "Primeval Creations: 013-2 Wools": {
+    "name": "Primeval Creations: 013-2 Wools",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Teal Wool, and Selari's future plans.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations I": {
+    "name": "Primeval Creations I",
+    "description": "You discovered the workshop of a mysterious man named Selari and learned more about the nature of the White Wool.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations II": {
+    "name": "Primeval Creations II",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Orange and Magenta Wools.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations III": {
+    "name": "Primeval Creations III",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Light Blue and Yellow Wools.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations III.9": {
+    "name": "Primeval Creations III.9",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Crimson Wool and Selari himself.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations IV": {
+    "name": "Primeval Creations IV",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Lime and Pink Wools.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations V": {
+    "name": "Primeval Creations V",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Gray and Light Gray Wools.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Primeval Creations VI": {
+    "name": "Primeval Creations VI",
+    "description": "You delved further into Selari's workshop and learned more about the nature of the Cyan and Purple Wools.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Purtrefaction and Purification": {
+    "name": "Purtrefaction and Purification",
+    "description": "You slayed a Wither and learned the Paladin Specialization. Found in Nightroost.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Pyre and Prejudice": {
+    "name": "Pyre and Prejudice",
+    "description": "You've assisted Nitreia in fixing Steelmeld's agricultural problems.",
+    "region": "Celsian Isles",
+    "city": "Steelmeld"
+  },
+  "Raiding Party": {
+    "name": "Raiding Party",
+    "description": "You assisted Captain Lamis and ended up getting attacked by a strange assailant.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "R Is For Reprisal": {
+    "name": "R Is For Reprisal",
+    "description": "You rooted out the Masked in the Chillwind's government while trying to protect Wispervale from Mage Hunters.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Sabotage": {
+    "name": "Sabotage",
+    "description": "The Fist of Turaal is operational once again now that you have helped Lt. Aulber.",
+    "region": "Celsian Isles",
+    "city": "Rahkeri"
+  },
+  "Scientists of Steelmeld I": {
+    "name": "Scientists of Steelmeld I",
+    "description": "You have completed the Professor's challenges... for now.",
+    "region": "Celsian Isles",
+    "city": "Steelmeld"
+  },
+  "Scientists of Steelmeld II": {
+    "name": "Scientists of Steelmeld II",
+    "description": "You have completed even more of the Professor's challenges... for science!",
+    "region": "Celsian Isles",
+    "city": "Steelmeld"
+  },
+  "Stablemaster's Request": {
+    "name": "Stablemaster's Request",
+    "description": "Now Miane's stable is full of life once more!",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Ten Thousand Bets": {
+    "name": "Ten Thousand Bets",
+    "description": "You retrieved Myriad's lost chestplate, but his luck remains missing...",
+    "region": "Celsian Isles",
+    "city": "Wispervale"
+  },
+  "The Doctor's Orders": {
+    "name": "The Doctor's Orders",
+    "description": "You helped find a 'cure' for the queen of Frostgate and learned the Apothecary Specialization. Found in Frostgate.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "The End Chimes": {
+    "name": "The End Chimes",
+    "description": "Following the ramblings of a drunken pirate, you discovered the ghost ship of Captain Varcosa - the Black Mist.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "The Foreign Soldier": {
+    "name": "The Foreign Soldier",
+    "description": "You searched out information about the truth of the war, and ended up siding with a nation.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "The Rooster Crows at Midnight": {
+    "name": "The Rooster Crows at Midnight",
+    "description": "You've proven yourself to the Night Roosters and joined their ranks.",
+    "region": "Celsian Isles",
+    "city": "Nightroost"
+  },
+  "Treasure for the Future": {
+    "name": "Treasure for the Future",
+    "description": "You discovered ruins beneath the Silver Tower, and activated an ancient mechanism. The ruins collapsed behind you as you escaped, leaving the artifacts and the knight sealed within...",
+    "region": "Celsian Isles",
+    "city": "Frostgate"
+  },
+  "Treasure of the Past": {
+    "name": "Treasure of the Past",
+    "description": "You've found an ancient temple of the Viridian Empire and retrieved a cursed artifact.",
+    "region": "Celsian Isles",
+    "city": "Alnera"
+  },
+  "Unyielding Potential": {
+    "name": "Unyielding Potential",
+    "description": "You defeated Richter the Unyielding and learned the Swordsage Specialization. Found in the Chillwind Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Vital Needs": {
+    "name": "Vital Needs",
+    "description": "Now with the Doctor's ingredients retrieved, you have gained access to his remedy in Mistport!",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Voyage of Discovery": {
+    "name": "Voyage of Discovery",
+    "description": "You assembled your pirate crew once again and embarked on a journey to the Celsian Isles.",
+    "region": "Celsian Isles",
+    "city": null
+  },
+  "What Lies Within": {
+    "name": "What Lies Within",
+    "description": "You unlocked your subconscious through meditation and learned the Elementalist Specialization. Found in the Ishnir Overworld.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "The Wizard's Apprentice": {
+    "name": "The Wizard's Apprentice",
+    "description": "You investigated the death of Vargos' apprentice and found Xeno at the center of the incident.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  },
+  "Woof!": {
+    "name": "Woof!",
+    "description": "Woof! Woof! Aruff!",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Woof Woof! 10!": {
+    "name": "Woof Woof! 10!",
+    "description": "Woof! Woof! Aruff! Awooooooo! 10 Woofs!",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Woof Woof! Aruff! Bark! 100!": {
+    "name": "Woof Woof! Aruff! Bark! 100!",
+    "description": "Woof! Woof! Aruff! Awooo! 100 Woofs!",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Woof Woof! Aruff! 50!": {
+    "name": "Woof Woof! Aruff! 50!",
+    "description": "Woof! Woof! Aruff! Ruff! 50 Woofs!",
+    "region": "Celsian Isles",
+    "city": "Molta"
+  },
+  "Xenophobia": {
+    "name": "Xenophobia",
+    "description": "You searched out clues for Xeno and discovered his connection with Calder.",
+    "region": "Celsian Isles",
+    "city": "Mistport"
+  }
+}

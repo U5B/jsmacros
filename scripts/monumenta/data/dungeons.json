@@ -1,0 +1,192 @@
+{
+  "Cyan Dungeon": {
+    "name": "Cyan Dungeon",
+    "description": "Deep below the ground lies an abandoned mineshaft, stained with secrets long forgotten. For what is a greater folly of man than the sin of greed?",
+    "poi": "Basanite Bore",
+    "coordinates": {
+      "x": "41",
+      "y": "114",
+      "z": "285"
+    }
+  },
+  "Darkest Depths": {
+    "name": "Darkest Depths",
+    "description": "Far, far below the waves lies a disturbance, a tear into our world. What possibly could have caused this?",
+    "poi": null,
+    "coordinates": {
+      "x": "-702",
+      "y": "9",
+      "z": "-186"
+    }
+  },
+  "The Fallen Forum": {
+    "name": "The Fallen Forum",
+    "description": "Having passed through the time itself in the ruins of the Congress, the Fallen Forum awaits.",
+    "poi": null,
+    "coordinates": {
+      "x": "-600",
+      "y": "1",
+      "z": "525"
+    }
+  },
+  "City of Shifting Waters": {
+    "name": "City of Shifting Waters",
+    "description": "Deep below Steelmeld, sealed away by its unknown former inhabitants, lies secrets long since forgotten.",
+    "poi": "Steelmeld Passage",
+    "coordinates": {
+      "x": "-433",
+      "y": "14",
+      "z": "-495"
+    }
+  },
+  "Gray Dungeon": {
+    "name": "Gray Dungeon",
+    "description": "What would force a kingdom to lock off their capital? Al Malakut awaits its rediscovery.",
+    "poi": "Lost Sands City",
+    "coordinates": {
+      "x": "239",
+      "y": "66",
+      "z": "394"
+    }
+  },
+  "Alchemy Labs Dungeon": {
+    "name": "Alchemy Labs Dungeon",
+    "description": "Ahead lies the Alchemy Labs, bandits, and their cache of explosives.",
+    "poi": null,
+    "coordinates": {
+      "x": "-748",
+      "y": "95",
+      "z": "-87"
+    }
+  },
+  "Light Blue Dungeon": {
+    "name": "Light Blue Dungeon",
+    "description": "There must be secrets hiding within this ancient place.",
+    "poi": "Creeper Farm",
+    "coordinates": {
+      "x": "797",
+      "y": "174",
+      "z": "-317"
+    }
+  },
+  "Light Gray Dungeon": {
+    "name": "Light Gray Dungeon",
+    "description": "Hidden within a citadel; hidden within a mirror. Alutana's palace stands strong.",
+    "poi": "Whitecliffe Citadel",
+    "coordinates": {
+      "x": "-1605",
+      "y": "129",
+      "z": "3"
+    }
+  },
+  "Lime Dungeon": {
+    "name": "Lime Dungeon",
+    "description": "Before you stands an empire lost to time, independent of Ishnir and Chillwind. What secrets from the distant past lie within?",
+    "poi": "Bastion at Sea",
+    "coordinates": {
+      "x": "-551",
+      "y": "40",
+      "z": "703"
+    }
+  },
+  "Magenta Dungeon": {
+    "name": "Magenta Dungeon",
+    "description": "From the depths, you can feel a sickness pouring. What lies below?",
+    "poi": "Grand Maw",
+    "coordinates": {
+      "x": "350",
+      "y": "71",
+      "z": "82"
+    }
+  },
+  "Orange Dungeon": {
+    "name": "Orange Dungeon",
+    "description": "You discovered a lost outpost of the Tlaxans, hiding more than just loot...",
+    "poi": "Abandoned Tunnels",
+    "coordinates": {
+      "x": "109",
+      "y": "79",
+      "z": "143"
+    }
+  },
+  "Pink Dungeon": {
+    "name": "Pink Dungeon",
+    "description": "Seasons bend and twist rapidly here. Deep in this dungeon lies a dark secret, do you dare seek it out?",
+    "poi": "Sealed Descent",
+    "coordinates": {
+      "x": "-1098",
+      "y": "116",
+      "z": "680"
+    }
+  },
+  "Purple Dungeon": {
+    "name": "Purple Dungeon",
+    "description": "Below the mythical island of Corsair's Claw, the legendary pirate Varcosa awaits you.",
+    "poi": "Corsair's Claw",
+    "coordinates": {
+      "x": "551",
+      "y": "81",
+      "z": "1405"
+    }
+  },
+  "The Black Willows": {
+    "name": "The Black Willows",
+    "description": "A lost grove stretches before you, filled with riches.",
+    "poi": "Cave of Secrets",
+    "coordinates": {
+      "x": "458",
+      "y": "74",
+      "z": "-103"
+    }
+  },
+  "Malevolent Reverie": {
+    "name": "Malevolent Reverie",
+    "description": "One man's dream is the Narsens' nightmare.",
+    "poi": "Verdant Fortress?",
+    "coordinates": {
+      "x": "916",
+      "y": "106",
+      "z": "182"
+    }
+  },
+  "Ephemeral Corridors Dungeon": {
+    "name": "Ephemeral Corridors Dungeon",
+    "description": "You find a maze of twisty little passages, all alike.",
+    "poi": "Anthill",
+    "coordinates": {
+      "x": "819",
+      "y": "110",
+      "z": "209"
+    }
+  },
+  "Echoes of Oblivion": {
+    "name": "Echoes of Oblivion",
+    "description": "Having passed through the Sacrarium of Aeons, a strange place lost to time now sits before you.",
+    "poi": "Sacrarium of Aeons",
+    "coordinates": {
+      "x": "-860",
+      "y": "32",
+      "z": "-450"
+    }
+  },
+  "White Dungeon": {
+    "name": "White Dungeon",
+    "description": "Before you lies the ancient sacrificial temple to a lost god...",
+    "poi": "Tlaxan Ziggurat",
+    "coordinates": {
+      "x": "215",
+      "y": "125",
+      "z": "-109"
+    }
+  },
+  "Yellow Dungeon": {
+    "name": "Yellow Dungeon",
+    "description": "The seasons rage before you, a curse on the Sons of the Forest. Can you overcome them?",
+    "poi": "Cursed Forest",
+    "coordinates": {
+      "x": "1100",
+      "y": "104",
+      "z": "60"
+    }
+  }
+}
