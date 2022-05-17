@@ -1,7 +1,7 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 
 // Configuration Start
-import { getConfig } from "./config"
+import { getConfig } from './config'
 // modes:
 // 'espBlatant': esp for all
 // 'espLegit': esp for all meets a wall
@@ -30,7 +30,7 @@ function tick () {
   try {
     if (World && World.isWorldLoaded() && state.started === true) {
       if (state.running === false) {
-        Chat.log('[GlowHealth] Started!')
+        logInfo('Started!')
         Chat.getLogger('usb').warn('[GlowHealth] Service is now running...')
         state.running = true
       }
@@ -74,6 +74,7 @@ function isPlayerVisible (entity) {
 }
 
 function isPlayerGlowing (player) {
+  if (mode.raytrace.ignoreGlowing === false) return false
   const forceGlowing = player.isGlowing()
   player.resetGlowing()
   const value = player.isGlowing()
@@ -205,6 +206,7 @@ function stop (error) {
 }
 
 function terminate () {
+  logInfo('Stopped!')
   Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...')
   // cmd1.unregister()
   state.started = false
@@ -215,6 +217,10 @@ function terminate () {
   if (World && World.isWorldLoaded()) resetPlayers()
   state.tickLoop = null
   return true
+}
+
+function logInfo (string) {
+  Chat.log(`§7[§aGlowHealth§7] §e${string}`)
 }
 
 start()

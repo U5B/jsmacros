@@ -20,8 +20,10 @@ const config = {
     persist: false,
     // set to true to not display players (that you can't already see) through walls
     // applies to blatant mode
-    // ignores already glowing players
     depth: false,
+    // ignores already glowing players in depth check
+    // set to false to not ignore glowing players
+    ignoreGlowing: true,
     // used for blatant mode to highlight the player you have selected
     color: { r: 255, g: 165, b: 0 }
   },
@@ -33,32 +35,50 @@ const config = {
     low: 0.7, // health is 70%
     // glowing colors in RGB format
     color: {
-      critical: { r: 255, g: 0, b: 0 },   // red
-      low: { r: 255, g: 255, b: 0 },      // yellow
-      good: { r: 0, g: 255, b: 0 },       // green
-      base: { r: 255, g: 255, b: 255 }    // white
+      critical: { r: 255, g: 0, b: 0 }, // red
+      low: { r: 255, g: 255, b: 0 }, // yellow
+      good: { r: 0, g: 255, b: 0 }, // green
+      base: { r: 255, g: 255, b: 255 } // white
     }
   }
 }
 
 function getConfig (mode = 'custom') {
-  let modifiedConfig = config
+  const modifiedConfig = config
   modifiedConfig.name = mode
   switch (mode) {
     case 'espBlatant': { // esp for all
       modifiedConfig.blatant.enabled = true
       modifiedConfig.raytrace.depth = false
+      modifiedConfig.raytrace.ignoreGlowing = true
+      break
+    }
+    case 'espGlowing': { // esp meets wall
+      modifiedConfig.blatant.enabled = true
+      modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'espLegit': { // esp meets wall
       modifiedConfig.blatant.enabled = true
-      modifiedConfig.raytrace.depth = false
+      modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = false
       break
     }
     case 'persistBlatant': { // esp for one person
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.persist = true
+      modifiedConfig.raytrace.depth = false
+      modifiedConfig.raytrace.ignoreGlowing = true
+      break
+    }
+    case 'persistGlowing': { // esp for one person meets a wall
+      modifiedConfig.blatant.enabled = false
+      modifiedConfig.raytrace.enabled = true
+      modifiedConfig.raytrace.persist = true
+      modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'persistLegit': { // esp for one person meets a wall
@@ -66,17 +86,28 @@ function getConfig (mode = 'custom') {
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.persist = true
       modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = false
       break
     }
     case 'raytraceBlatant': { // aim is required
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
+      modifiedConfig.raytrace.depth = false
+      modifiedConfig.raytrace.ignoreGlowing = true
+      break
+    }
+    case 'raytraceGlowing': { // aim is required meets a wall
+      modifiedConfig.blatant.enabled = false
+      modifiedConfig.raytrace.enabled = true
+      modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'raytraceLegit': { // aim is required meets a wall
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.depth = true
+      modifiedConfig.raytrace.ignoreGlowing = false
       break
     }
   }
