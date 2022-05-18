@@ -21,15 +21,13 @@ function makeSearchTerms () {
 
 function searchPoi (input) {
   const response = []
-  for (const [name, content] of Object.entries(poiData)) { // exact match
-    if (name.includes(input)) return content
+  for (const [name, content] of Object.entries(poiData)) { // exact match 'Air Shrine'
+    if (name === input) return content
   }
-  /*
-  for (const [name, content] of Object.entries(poiData)) { // fuzzy match
-    if (cleanString(name).includes(cleanString(input))) return content
+  for (const [name, content] of Object.entries(poiData)) { // fuzzy match 'airshrine'
+    if (cleanString(name) === cleanString(input)) return content
   }
-  */
-  for (const [name, content] of Object.entries(poiData)) { // tag match
+  for (const [name, content] of Object.entries(poiData)) { // tag match ['air', 'shrine']
     const tags = trimString(name).split(' ')
     if (tags.includes(trimString(input))) response.push(content)
   }
@@ -39,16 +37,26 @@ function searchPoi (input) {
 function runCommand (ctx) {
   const poiInput = ctx.getArg('poi')
   const response = searchPoi(poiInput)
-  if (!response || (Array.isArray(response) && response.length === 0)) {
-    Chat.log(`${poiInput}: No POI found.`)
-    return false
-  } else if (Array.isArray(response)) {
+  Chat.log(response)
+  if (Array.isArray(response)) {
     for (const rep of response) {
-      Chat.log(`${rep.name} in ${rep.shard}: (${rep.coordinates.x}, ${rep.coordinates.y}, ${rep.coordinates.z})`)
+      if (rep.coordinates) {
+        Chat.log(`${rep.name} in ${rep.shard}: (${rep.coordinates.x}, ${rep.coordinates.y}, ${rep.coordinates.z})`)
+      } else if (rep && !rep.coordinates) {
+        Chat.log(`${rep.name}: POI is missing coordinates...`)
+      } else {
+        continue
+      }
     }
-  } else {
+  } else if (response.coordinates) {
     // @ts-ignore
     Chat.log(`${response.name} in ${response.shard}: (${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`)
+  } else if (response && !response.coordinates) {
+    Chat.log(`${response.name}: POI is missing coordinates...`)
+    return false
+  } else {
+    Chat.log(`${poiInput}: No POI found.`)
+    return false
   }
   return true
 }
