@@ -1,17 +1,8 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 import poiData from './data/pois.json'
 const poiSuggestions = []
-
-const map = {
-  isles: 'isles',
-  'isles-2': 'isles',
-  'isles-3': 'isles',
-  valley: 'valley',
-  'valley-2': 'valley',
-  'valley-3': 'valley'
-}
-
-const command = Chat.createCommandBuilder('poi')
+// @ts-ignore
+let nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 
 function makeSearchTerms () {
   for (const [poiName, poi] of Object.entries(poiData)) {
@@ -24,38 +15,50 @@ function searchPoi (input) {
   for (const [name, content] of Object.entries(poiData)) { // exact match 'Air Shrine'
     if (name === input) return content
   }
-  for (const [name, content] of Object.entries(poiData)) { // fuzzy match 'airshrine'
-    if (cleanString(name) === cleanString(input)) return content
-  }
   for (const [name, content] of Object.entries(poiData)) { // tag match ['air', 'shrine']
     const tags = trimString(name).split(' ')
     if (tags.includes(trimString(input))) response.push(content)
+  }
+  if (response.length === 0) { // if there is already a response, ignore it
+    for (const [name, content] of Object.entries(poiData)) { // fuzzy match 'airshrine'
+      if (cleanString(name).includes(cleanString(input))) response.push(content)
+    }
   }
   return response
 }
 
 function runCommand (ctx) {
   const poiInput = ctx.getArg('poi')
-  const response = searchPoi(poiInput)
-  Chat.log(response)
-  if (Array.isArray(response)) {
+  return validatePoi(poiInput)
+}
+
+function validatePoi (input) {
+  if (!input || input.trim().length <= 3) {
+    debug(`'${input}': Invalid input.`)
+    return false
+  }
+  const response = searchPoi(input)
+  let value = true
+  debug(response)
+  if (Array.isArray(response) && response.length > 0) {
     for (const rep of response) {
-      if (rep.coordinates) {
-        Chat.log(`${rep.name} in ${rep.shard}: (${rep.coordinates.x}, ${rep.coordinates.y}, ${rep.coordinates.z})`)
-      } else if (rep && !rep.coordinates) {
-        Chat.log(`${rep.name}: POI is missing coordinates...`)
-      } else {
-        continue
-      }
+      responsePoi(rep)
     }
-  } else if (response.coordinates) {
-    // @ts-ignore
-    Chat.log(`${response.name} in ${response.shard}: (${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`)
+  } else if (response && !Array.isArray(response)) {
+    value = responsePoi(response)
+  }
+  if (value === false || !response || (Array.isArray(response) && response.length === 0)) {
+    debug(`'${input}': No POI found.`)
+  }
+}
+
+function responsePoi (response) {
+  if (response.coordinates) {
+    debug(`'${response.name}': (${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`)
   } else if (response && !response.coordinates) {
-    Chat.log(`${response.name}: POI is missing coordinates...`)
+    debug(`'${response.name}': POI is missing coordinates...`)
     return false
   } else {
-    Chat.log(`${poiInput}: No POI found.`)
     return false
   }
   return true
@@ -63,23 +66,29 @@ function runCommand (ctx) {
 
 function start () {
   logInfo('Starting service...')
-  Chat.getLogger('usb').warn('[POI] Starting service...')
   makeSearchTerms()
-  command.greedyStringArg('poi').suggestMatching(poiSuggestions)
-  command.executes(JavaWrapper.methodToJava(runCommand))
-  command.register()
+  commander()
   return true
 }
 
 function terminate () {
   logInfo('Stopping service...')
-  Chat.getLogger('usb').fatal('[POI] Stopping service...')
-  command.unregister()
+  commander(true)
   return true
 }
 
-function logInfo (string) {
-  Chat.log(`§7[§aPOI§7] §e${string}`)
+let command
+function commander (destroy = false) {
+  if (nodeEnv) return false
+  if (command) {
+    command.unregister()
+    command = null
+    if (destroy === true) return true
+  }
+  command = Chat.createCommandBuilder('poi')
+  command.greedyStringArg('poi').suggestMatching(poiSuggestions)
+  command.executes(JavaWrapper.methodToJava(runCommand))
+  command.register()
 }
 
 function cleanString (str) {
@@ -98,12 +107,31 @@ function trimString (str) {
 }
 
 start()
+if (nodeEnv) {
+  // @ts-ignore
+  const args = process.argv.slice(2)
+  const poi = args.join(' ')
+  debug(poi)
+  validatePoi(poi)
+}
 // @ts-ignore
-event.stopListener = JavaWrapper.methodToJava(terminate)
+if (!nodeEnv) event.stopListener = JavaWrapper.methodToJava(terminate)
+
+function logInfo (string) {
+  if (!nodeEnv) {
+    Chat.getLogger('usb').warn(`[POI] ${string}`)
+    Chat.log(`§7[§aPOI§7] §e${string}`)
+  } else {
+    debug(`[POI]: ${string}`)
+  }
+}
+
 function debug (input) { // node debug
   // @ts-ignore
-  if ((typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)) {
+  if (nodeEnv) {
     // @ts-ignore
     console.log(input)
+  } else {
+    Chat.log(input)
   }
 }
