@@ -39,7 +39,6 @@ function validatePoi (input) {
   }
   const response = searchPoi(input)
   let value = true
-  debug(response)
   if (Array.isArray(response) && response.length > 0) {
     for (const rep of response) {
       responsePoi(rep)
@@ -54,7 +53,7 @@ function validatePoi (input) {
 
 function responsePoi (response) {
   if (response.coordinates) {
-    debug(`'${response.name}': (${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`)
+    logInfo(`'${response.name}': (${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`)
   } else if (response && !response.coordinates) {
     debug(`'${response.name}': POI is missing coordinates...`)
     return false
@@ -111,7 +110,6 @@ if (nodeEnv) {
   // @ts-ignore
   const args = process.argv.slice(2)
   const poi = args.join(' ')
-  debug(poi)
   validatePoi(poi)
 }
 // @ts-ignore
