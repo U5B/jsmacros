@@ -14,7 +14,7 @@ const config_1 = require("./config");
 // 'raytraceGlowing': aim is required to see glowing players through walls
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
-const mode = (0, config_1.getConfig)('espGlowing');
+const mode = (0, config_1.getConfig)('espLegit');
 // Configuration End
 const state = {
     tickLoop: undefined,
@@ -27,32 +27,26 @@ function rgbToDecimal(rgb = { r: 0, g: 0, b: 0 }) {
     return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b));
 }
 function tick() {
-    try {
-        if (World && World.isWorldLoaded() && state.started === true) {
-            if (state.running === false) {
-                logInfo('Started!');
-                Chat.getLogger('usb').warn('[GlowHealth] Service is now running...');
-                state.running = true;
-            }
+    if (World && World.isWorldLoaded() && state.started === true) {
+        if (state.running === false) {
+            logInfo('Started!');
+            Chat.getLogger('usb').warn('[GlowHealth] Service is now running...');
+            state.running = true;
         }
-        else
-            return false;
-        if (mode.blatant.enabled === true) {
-            state.glowingPlayers = []; // reset all players being affected by this
-            // Check all loaded players
-            checkPlayers();
-            if (mode.raytrace.enabled === true)
-                highlightPlayerCursor();
-        }
-        else if (mode.raytrace.enabled === true) {
-            highlightPlayerCursorHealth();
-        }
-        return true;
     }
-    catch (e) {
-        stop(e);
+    else
         return false;
+    if (mode.blatant.enabled === true) {
+        state.glowingPlayers = []; // reset all players being affected by this
+        // Check all loaded players
+        checkPlayers();
+        if (mode.raytrace.enabled === true)
+            highlightPlayerCursor();
     }
+    else if (mode.raytrace.enabled === true) {
+        highlightPlayerCursorHealth();
+    }
+    return true;
 }
 function rayTraceEntity() {
     // @ts-ignore # DebugRenderer.getTargetedEntity()
