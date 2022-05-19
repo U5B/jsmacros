@@ -2,10 +2,10 @@
 import poiData from './data/pois.json'
 const poiSuggestions = []
 // @ts-ignore
-let nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
+const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 
 function makeSearchTerms () {
-  for (const [poiName, poi] of Object.entries(poiData)) {
+  for (const [, poi] of Object.entries(poiData)) {
     poiSuggestions.push(poi.name)
   }
 }

@@ -13,7 +13,7 @@ import { getConfig } from "./config"
 // 'raytraceGlowing': aim is required to see glowing players through walls
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
-const mode = getConfig('espLegit')
+const mode = getConfig('espGlowing')
 // Configuration End
 
 const state = {
@@ -67,7 +67,7 @@ function isPlayerVisible (entity:Java.xyz.wagyourtail.jsmacros.client.api.helper
   if (mode.raytrace.depth === false) return true
   if (isPlayerGlowing(entity) === true) return true
   const javaEntity = entity.asLiving().getRaw()
-  // @ts-ignore
+  // @ts-ignore # LivingEntity.canSee
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
   return result
 }
@@ -191,7 +191,7 @@ function start () {
 
 function stop (error) {
   if (state.started === false) return
-  Chat.getLogger('usb').fatal('[GlowHealth] Error:', error)
+  Chat.getLogger('usb').fatal(error)
   terminate()
 }
 
