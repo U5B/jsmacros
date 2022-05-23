@@ -1,4 +1,4 @@
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
 
 // Configuration Start
 import { getConfig, getModes } from "./config"
@@ -208,7 +208,7 @@ function terminate () {
 }
 
 function logInfo (string) {
-  Chat.log(`§7[§aGlowHealth§7] §e${string}`)
+  Chat.log(`§7[§aGlowHealth§7]§r ${string}`)
 }
 
 let command
@@ -227,6 +227,7 @@ function commander (destroy = false) {
 function runCommand (ctx) {
   const configOption = ctx.getArg('config')
   mode = getConfig(configOption)
+  logInfo(`Running with config: '${mode.name}'`)
   return true
 }
 

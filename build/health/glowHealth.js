@@ -1,5 +1,5 @@
 "use strict";
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
 Object.defineProperty(exports, "__esModule", { value: true });
 // Configuration Start
 const config_1 = require("./config");
@@ -219,7 +219,7 @@ function terminate() {
     return true;
 }
 function logInfo(string) {
-    Chat.log(`§7[§aGlowHealth§7] §e${string}`);
+    Chat.log(`§7[§aGlowHealth§7]§r ${string}`);
 }
 let command;
 function commander(destroy = false) {
@@ -237,6 +237,7 @@ function commander(destroy = false) {
 function runCommand(ctx) {
     const configOption = ctx.getArg('config');
     mode = (0, config_1.getConfig)(configOption);
+    logInfo(`Running with config: '${mode.name}'`);
     return true;
 }
 start();

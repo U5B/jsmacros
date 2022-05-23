@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
+// default config
 const config = {
-    name: 'custom',
+    name: 'default',
     blatant: {
         enabled: true
     },
@@ -46,7 +48,7 @@ const config = {
     }
 };
 function getModes() {
-    const modes = ['espBlatant', 'espGlowing', 'espLegit', 'persistBlatant', 'persistGlowing', 'persistLegit', 'raytraceBlatant', 'raytraceGlowing', 'raytraceLegit', 'custom'];
+    const modes = ['espBlatant', 'espGlowing', 'espLegit', 'persistBlatant', 'persistGlowing', 'persistLegit', 'raytraceBlatant', 'raytraceGlowing', 'raytraceLegit', 'custom', 'default'];
     return modes;
 }
 exports.getModes = getModes;
@@ -119,14 +121,19 @@ function getConfig(mode = 'custom') {
         }
         case 'custom': {
             if (FS.exists('./config.json')) {
-                const customConfig = FS.open('./config.json').read();
                 try {
+                    const file = FS.open('./config.json');
+                    const customConfig = file.read();
                     modifiedConfig = JSON.parse(customConfig);
                 }
                 catch (e) {
                     modifiedConfig = config;
                 }
             }
+            break;
+        }
+        case 'default': {
+            modifiedConfig = config;
         }
     }
     writeCustomConfig(modifiedConfig);
