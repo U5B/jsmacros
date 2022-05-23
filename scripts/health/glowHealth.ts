@@ -1,4 +1,5 @@
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHealth"
 
 // Configuration Start
 import { getConfig, getModes } from "./config"
@@ -42,6 +43,7 @@ function onTick () {
     } else if (mode.raytrace.enabled === true) {
       highlightPlayerCursorHealth()
     }
+    if (mode.draw.enabled === true) drawHealthTick()
   return true
   } catch (e) {
     stop(e)
@@ -197,6 +199,7 @@ function terminate () {
   logInfo('Stopped!')
   Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...')
   commander(true)
+  drawHealthStop()
   state.started = false
   state.running = false
   state.glowingPlayers = []

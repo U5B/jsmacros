@@ -1,4 +1,4 @@
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 import poiData from './data/pois.json'
 const poiSuggestions = []
 // @ts-ignore # figure out if it is a node env

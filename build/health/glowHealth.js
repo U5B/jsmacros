@@ -1,6 +1,7 @@
 "use strict";
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
 Object.defineProperty(exports, "__esModule", { value: true });
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+const drawHealth_1 = require("./drawHealth");
 // Configuration Start
 const config_1 = require("./config");
 // modes:
@@ -44,6 +45,8 @@ function onTick() {
         else if (mode.raytrace.enabled === true) {
             highlightPlayerCursorHealth();
         }
+        if (mode.draw.enabled === true)
+            (0, drawHealth_1.onTick)();
         return true;
     }
     catch (e) {
@@ -207,6 +210,7 @@ function terminate() {
     logInfo('Stopped!');
     Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...');
     commander(true);
+    (0, drawHealth_1.terminate)();
     state.started = false;
     state.running = false;
     state.glowingPlayers = [];

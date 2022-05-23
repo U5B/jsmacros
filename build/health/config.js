@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS */
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 // default config
 const config = {
     name: 'default',
     blatant: {
         enabled: true
+    },
+    draw: {
+        enabled: false
     },
     whitelist: {
         // only allow specific players to glow
@@ -52,7 +55,7 @@ function getModes() {
     return modes;
 }
 exports.getModes = getModes;
-function getConfig(mode = 'custom') {
+function getConfig(mode = 'custom', options = { whitelist: false, whitelistedPlayers: [] }) {
     let modifiedConfig = config;
     modifiedConfig.name = mode;
     switch (mode) {
@@ -117,6 +120,15 @@ function getConfig(mode = 'custom') {
             modifiedConfig.raytrace.enabled = true;
             modifiedConfig.raytrace.depth = true;
             modifiedConfig.raytrace.ignoreGlowing = false;
+            break;
+        }
+        case 'whitelist': { // modify whitelist
+            if (options.whitelistedPlayers && options.whitelistedPlayers.length > 0) {
+                modifiedConfig.whitelist.players = options.whitelistedPlayers;
+            }
+            else {
+                modifiedConfig.whitelist.enabled = options.whitelist;
+            }
             break;
         }
         case 'custom': {

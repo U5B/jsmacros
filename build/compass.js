@@ -1,3 +1,4 @@
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 function getCompass() {
     // @ts-ignore
     const position = World.getRespawnPos();
@@ -6,13 +7,13 @@ function getCompass() {
 }
 function onKeyPress(event) {
     if (World && World.isWorldLoaded()) {
-        if (event.key == 'key.attack' && event.action == 0) { // trigger on attack
+        if (event.key === 'key.mouse.left' && event.action === 1) { // trigger on attack press
             const item = Player.getPlayer().getMainHand().getItemID(); // get id of currently held item
             switch (item) {
                 case 'minecraft:compass': { // if it is a compass, make a special string
                     const coord = getCompass();
                     const builder = Chat.createTextBuilder();
-                    builder.append(`§7[§aCOMPASS§7]§r `);
+                    builder.append('§7[§aCOMPASS§7]§r ');
                     const coordinates = `(${coord.x}, ${coord.y}, ${coord.z})`;
                     builder.append(coordinates);
                     builder.withColor(0xa);
@@ -29,10 +30,10 @@ function onKeyPress(event) {
     }
     return false;
 }
-let listener = JsMacros.on('eventKey', JavaWrapper.methodToJava(onKeyPress));
+const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress));
 function terminate() {
     if (listener)
-        JsMacros.off('eventKey', listener);
+        JsMacros.off('Key', listener);
 }
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate);
