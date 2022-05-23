@@ -25,7 +25,7 @@ const state = {
   selectedPlayer: ''
 }
 
-function tick () {
+function onTick () {
   try {
     if (World && World.isWorldLoaded() && state.started === true) {
       if (state.running === false) {
@@ -182,7 +182,7 @@ function start () {
   Chat.getLogger('usb').warn('[GlowHealth] Starting service...')
   commander(false)
   state.started = true
-  if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
+  if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick)) // ignore if already started
   return true
 }
 
