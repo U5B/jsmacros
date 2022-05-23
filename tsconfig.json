@@ -11,6 +11,7 @@
     },
     "include": [
       "scripts/**/*.ts",
+      "scripts/**/*.js",
       "headers/*.d.ts"
     ],
     "exclude": [

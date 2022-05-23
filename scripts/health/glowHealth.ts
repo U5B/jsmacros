@@ -1,7 +1,7 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java */
 
 // Configuration Start
-import { getConfig } from "./config"
+import { getConfig, getModes } from "./config"
 // modes:
 // 'espBlatant': esp for all
 // 'espGlowing' esp for all meets glowing players through walls
@@ -13,7 +13,8 @@ import { getConfig } from "./config"
 // 'raytraceGlowing': aim is required to see glowing players through walls
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
-const mode = getConfig('espLegit')
+
+let mode = getConfig('custom')
 // Configuration End
 
 const state = {
@@ -24,27 +25,27 @@ const state = {
   selectedPlayer: ''
 }
 
-function rgbToDecimal (rgb = { r: 0, g: 0, b: 0 }) {
-  return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b))
-}
-
 function tick () {
-  if (World && World.isWorldLoaded() && state.started === true) {
-    if (state.running === false) {
-      logInfo('Started!')
-      Chat.getLogger('usb').warn('[GlowHealth] Service is now running...')
-      state.running = true
+  try {
+    if (World && World.isWorldLoaded() && state.started === true) {
+      if (state.running === false) {
+        logInfo('Started!')
+        Chat.getLogger('usb').warn('[GlowHealth] Service is now running...')
+        state.running = true
+      }
+    } else return false
+    if (mode.blatant.enabled === true) {
+      state.glowingPlayers = [] // reset all players being affected by this
+      // Check all loaded players
+      checkPlayers()
+      if (mode.raytrace.enabled === true) highlightPlayerCursor()
+    } else if (mode.raytrace.enabled === true) {
+      highlightPlayerCursorHealth()
     }
-  } else return false
-  if (mode.blatant.enabled === true) {
-    state.glowingPlayers = [] // reset all players being affected by this
-    // Check all loaded players
-    checkPlayers()
-    if (mode.raytrace.enabled === true) highlightPlayerCursor()
-  } else if (mode.raytrace.enabled === true) {
-    highlightPlayerCursorHealth()
-  }
   return true
+  } catch (e) {
+    stop(e)
+  }
 }
 
 function rayTraceEntity () {
@@ -83,7 +84,7 @@ function highlightPlayerCursor () {
     resetPlayers(true, false) // we want to ignore glowing players
     return false
   }
-  const color = rgbToDecimal(mode.raytrace.color)
+  const color = mode.raytrace.color
   player.setGlowing(true)
   player.setGlowingColor(color)
   state.selectedPlayer = player.getName()?.getString()
@@ -129,7 +130,7 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
   const decimalHealth = Number(health / maxHealth)
   const color = determineColor(decimalHealth)
-  const decimalColor = rgbToDecimal(color.color)
+  const decimalColor = color.color
   player.setGlowingColor(decimalColor)
   player.setGlowing(true)
   state.glowingPlayers.push(name)
@@ -179,6 +180,7 @@ function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Playe
 
 function start () {
   Chat.getLogger('usb').warn('[GlowHealth] Starting service...')
+  commander(false)
   state.started = true
   if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)) // ignore if already started
   return true
@@ -188,12 +190,13 @@ function stop (error) {
   if (state.started === false) return
   Chat.getLogger('usb').fatal(error)
   terminate()
+  throw error
 }
 
 function terminate () {
   logInfo('Stopped!')
   Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...')
-  // cmd1.unregister()
+  commander(true)
   state.started = false
   state.running = false
   state.glowingPlayers = []
@@ -206,6 +209,25 @@ function terminate () {
 
 function logInfo (string) {
   Chat.log(`§7[§aGlowHealth§7] §e${string}`)
+}
+
+let command
+function commander (destroy = false) {
+  if (command) {
+    command.unregister()
+    command = null
+    if (destroy === true) return true
+  }
+  command = Chat.createCommandBuilder('glowhealth')
+  command.greedyStringArg('config').suggestMatching(getModes())
+  command.executes(JavaWrapper.methodToJava(runCommand))
+  command.register()
+}
+
+function runCommand (ctx) {
+  const configOption = ctx.getArg('config')
+  mode = getConfig(configOption)
+  return true
 }
 
 start()

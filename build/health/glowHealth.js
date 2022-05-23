@@ -14,7 +14,7 @@ const config_1 = require("./config");
 // 'raytraceGlowing': aim is required to see glowing players through walls
 // 'raytraceLegit': aim is required meets a wall and a reach limit
 // 'custom': use default options in config.ts
-const mode = (0, config_1.getConfig)('espLegit');
+let mode = (0, config_1.getConfig)('custom');
 // Configuration End
 const state = {
     tickLoop: undefined,
@@ -23,30 +23,32 @@ const state = {
     glowingPlayers: [],
     selectedPlayer: ''
 };
-function rgbToDecimal(rgb = { r: 0, g: 0, b: 0 }) {
-    return Number((rgb.r << 16) + (rgb.g << 8) + (rgb.b));
-}
 function tick() {
-    if (World && World.isWorldLoaded() && state.started === true) {
-        if (state.running === false) {
-            logInfo('Started!');
-            Chat.getLogger('usb').warn('[GlowHealth] Service is now running...');
-            state.running = true;
+    try {
+        if (World && World.isWorldLoaded() && state.started === true) {
+            if (state.running === false) {
+                logInfo('Started!');
+                Chat.getLogger('usb').warn('[GlowHealth] Service is now running...');
+                state.running = true;
+            }
         }
+        else
+            return false;
+        if (mode.blatant.enabled === true) {
+            state.glowingPlayers = []; // reset all players being affected by this
+            // Check all loaded players
+            checkPlayers();
+            if (mode.raytrace.enabled === true)
+                highlightPlayerCursor();
+        }
+        else if (mode.raytrace.enabled === true) {
+            highlightPlayerCursorHealth();
+        }
+        return true;
     }
-    else
-        return false;
-    if (mode.blatant.enabled === true) {
-        state.glowingPlayers = []; // reset all players being affected by this
-        // Check all loaded players
-        checkPlayers();
-        if (mode.raytrace.enabled === true)
-            highlightPlayerCursor();
+    catch (e) {
+        stop(e);
     }
-    else if (mode.raytrace.enabled === true) {
-        highlightPlayerCursorHealth();
-    }
-    return true;
 }
 function rayTraceEntity() {
     // @ts-ignore # DebugRenderer.getTargetedEntity()
@@ -86,7 +88,7 @@ function highlightPlayerCursor() {
         resetPlayers(true, false); // we want to ignore glowing players
         return false;
     }
-    const color = rgbToDecimal(mode.raytrace.color);
+    const color = mode.raytrace.color;
     player.setGlowing(true);
     player.setGlowingColor(color);
     state.selectedPlayer = player.getName()?.getString();
@@ -135,7 +137,7 @@ function checkPlayer(player) {
     const maxHealth = player.getMaxHealth(); /* + player.getRaw().method_6067() */
     const decimalHealth = Number(health / maxHealth);
     const color = determineColor(decimalHealth);
-    const decimalColor = rgbToDecimal(color.color);
+    const decimalColor = color.color;
     player.setGlowingColor(decimalColor);
     player.setGlowing(true);
     state.glowingPlayers.push(name);
@@ -188,6 +190,7 @@ function isPlayer(player) {
 }
 function start() {
     Chat.getLogger('usb').warn('[GlowHealth] Starting service...');
+    commander(false);
     state.started = true;
     if (!state.tickLoop)
         state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)); // ignore if already started
@@ -198,11 +201,12 @@ function stop(error) {
         return;
     Chat.getLogger('usb').fatal(error);
     terminate();
+    throw error;
 }
 function terminate() {
     logInfo('Stopped!');
     Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...');
-    // cmd1.unregister()
+    commander(true);
     state.started = false;
     state.running = false;
     state.glowingPlayers = [];
@@ -216,6 +220,24 @@ function terminate() {
 }
 function logInfo(string) {
     Chat.log(`§7[§aGlowHealth§7] §e${string}`);
+}
+let command;
+function commander(destroy = false) {
+    if (command) {
+        command.unregister();
+        command = null;
+        if (destroy === true)
+            return true;
+    }
+    command = Chat.createCommandBuilder('glowhealth');
+    command.greedyStringArg('config').suggestMatching((0, config_1.getModes)());
+    command.executes(JavaWrapper.methodToJava(runCommand));
+    command.register();
+}
+function runCommand(ctx) {
+    const configOption = ctx.getArg('config');
+    mode = (0, config_1.getConfig)(configOption);
+    return true;
 }
 start();
 // @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent
