@@ -23,7 +23,7 @@ const state = {
     glowingPlayers: [],
     selectedPlayer: ''
 };
-function tick() {
+function onTick() {
     try {
         if (World && World.isWorldLoaded() && state.started === true) {
             if (state.running === false) {
@@ -193,7 +193,7 @@ function start() {
     commander(false);
     state.started = true;
     if (!state.tickLoop)
-        state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(tick)); // ignore if already started
+        state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick)); // ignore if already started
     return true;
 }
 function stop(error) {
