@@ -6,11 +6,13 @@ const textLines_1 = require("./textLines");
 let healthTable;
 let h2d;
 let playerMap = {};
+let mode;
 let started = false;
-function onTick() {
+function onTick(inputMode) {
     if (World && World.isWorldLoaded()) {
+        mode = inputMode;
         if (World.getTime() % 100 !== 0)
-            return; // 5 seconds
+            return; // every 5 seconds, check if a player has been unloaded
         if (started === false)
             startListeners();
         playerMap = {};
@@ -44,6 +46,25 @@ function parseEntity(entity) {
     };
     drawHealthOverlay();
 }
+// hardcoded colors because uh, json is a pain
+function determineColor(decimalHealth) {
+    let color = 0xc;
+    if (decimalHealth > mode.health.low)
+        color = 0xa;
+    else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical)
+        color = 0x6; // needs healing
+    else if (decimalHealth <= mode.health.critical)
+        color = 0x4; // needs healing now
+    return color;
+}
+function determineHealthColor([name, player]) {
+    const color = determineColor(player.hp / player.maxHp);
+    const builder = Chat.createTextBuilder();
+    builder.append(`${Math.round(player?.hp)}/${Math.round(player?.maxHp)} ${name}`);
+    builder.withColor(color);
+    const message = builder.build();
+    return message;
+}
 function drawHealthOverlay() {
     if (!healthTable)
         healthTable = drawHealthStartup();
@@ -52,7 +73,7 @@ function drawHealthOverlay() {
             // @ts-ignore # sort by health decimal
             .sort(([, a], [, b]) => (a.hp / a.maxHp) - (b.hp / b.maxHp))
             // @ts-ignore # map to names
-            .map(([name, hp]) => `§c${Math.round(hp?.hp)}/${Math.round(hp?.maxHp)} §r${name}`)
+            .map(determineHealthColor)
     ];
     return true;
 }

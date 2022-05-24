@@ -49,7 +49,7 @@ const config = {
 }
 
 function getModes () {
-  const modes = ['espBlatant', 'espGlowing', 'espLegit', 'persistBlatant', 'persistGlowing', 'persistLegit', 'raytraceBlatant', 'raytraceGlowing', 'raytraceLegit', 'custom', 'default']
+  const modes = ['espGlowing', 'espLegit', 'persistGlowing', 'persistLegit', 'raytraceGlowing', 'raytraceLegit', 'custom', 'default']
   return modes
 }
 
@@ -57,13 +57,7 @@ function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPl
   let modifiedConfig = config
   modifiedConfig.name = mode
   switch (mode) {
-    case 'espBlatant': { // esp for all
-      modifiedConfig.blatant.enabled = true
-      modifiedConfig.raytrace.depth = false
-      modifiedConfig.raytrace.ignoreGlowing = true
-      break
-    }
-    case 'espGlowing': { // esp meets wall
+    case 'espGlowing': { // esp meets wall except for glowingg players
       modifiedConfig.blatant.enabled = true
       modifiedConfig.raytrace.depth = true
       modifiedConfig.raytrace.ignoreGlowing = true
@@ -73,14 +67,6 @@ function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPl
       modifiedConfig.blatant.enabled = true
       modifiedConfig.raytrace.depth = true
       modifiedConfig.raytrace.ignoreGlowing = false
-      break
-    }
-    case 'persistBlatant': { // esp for one person
-      modifiedConfig.blatant.enabled = false
-      modifiedConfig.raytrace.enabled = true
-      modifiedConfig.raytrace.persist = true
-      modifiedConfig.raytrace.depth = false
-      modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'persistGlowing': { // esp for one person meets a wall
@@ -97,13 +83,6 @@ function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPl
       modifiedConfig.raytrace.persist = true
       modifiedConfig.raytrace.depth = true
       modifiedConfig.raytrace.ignoreGlowing = false
-      break
-    }
-    case 'raytraceBlatant': { // aim is required
-      modifiedConfig.blatant.enabled = false
-      modifiedConfig.raytrace.enabled = true
-      modifiedConfig.raytrace.depth = false
-      modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'raytraceGlowing': { // aim is required meets a wall

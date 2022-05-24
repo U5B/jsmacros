@@ -4,17 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const drawHealth_1 = require("./drawHealth");
 // Configuration Start
 const config_1 = require("./config");
-// modes:
-// 'espBlatant': esp for all
-// 'espGlowing' esp for all meets glowing players through walls
-// 'espLegit': esp for all meets a wall
-// 'persistBlatant': esp for one
-// 'persistGlowing': esp for one meets glowing players through walls
-// 'persistLegit':  esp for one meets a wall and a reach limit
-// 'raytraceBlatant': aim is required
-// 'raytraceGlowing': aim is required to see glowing players through walls
-// 'raytraceLegit': aim is required meets a wall and a reach limit
-// 'custom': use default options in config.ts
 let mode = (0, config_1.getConfig)('custom');
 // Configuration End
 const state = {
@@ -46,7 +35,7 @@ function onTick() {
             highlightPlayerCursorHealth();
         }
         if (mode.draw.enabled === true)
-            (0, drawHealth_1.onTick)();
+            (0, drawHealth_1.onTick)(mode);
         return true;
     }
     catch (e) {

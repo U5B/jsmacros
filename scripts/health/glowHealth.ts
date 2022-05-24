@@ -3,18 +3,6 @@ import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHea
 
 // Configuration Start
 import { getConfig, getModes } from "./config"
-// modes:
-// 'espBlatant': esp for all
-// 'espGlowing' esp for all meets glowing players through walls
-// 'espLegit': esp for all meets a wall
-// 'persistBlatant': esp for one
-// 'persistGlowing': esp for one meets glowing players through walls
-// 'persistLegit':  esp for one meets a wall and a reach limit
-// 'raytraceBlatant': aim is required
-// 'raytraceGlowing': aim is required to see glowing players through walls
-// 'raytraceLegit': aim is required meets a wall and a reach limit
-// 'custom': use default options in config.ts
-
 let mode = getConfig('custom')
 // Configuration End
 
@@ -43,7 +31,7 @@ function onTick () {
     } else if (mode.raytrace.enabled === true) {
       highlightPlayerCursorHealth()
     }
-    if (mode.draw.enabled === true) drawHealthTick()
+    if (mode.draw.enabled === true) drawHealthTick(mode)
   return true
   } catch (e) {
     stop(e)
