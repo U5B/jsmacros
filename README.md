@@ -1,1 +1,8 @@
-[Download](https://github.com/wagyourtail/JsMacros/releases/tag/1.6.5)
+# Scripts made for the [JsMacro mod](https://github.com/wagyourtail/JsMacros)
+| Scripts | Small Description |
+| --- | --- |
+| GlowHealth | Uses Minecraft built-in glowing effect to display player's health. Used for optimal healing on Monumenta. |
+| POI | Uses Monumenta's Advancements API to give coordinates to every POI in the ~~game~~ API. |
+| Compass | Gives coordinates for where your compass is pointing to. Used for doing quests in Monumenta. |
+## Check out the [Wiki](https://github.com/U5B/jsmacros/wiki) for more information.
+Feel free to open an issue or ping me on discord (usb#3568) if you need any assistance.
