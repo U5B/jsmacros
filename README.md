@@ -5,4 +5,4 @@
 | POI | Uses Monumenta's Advancements API to give coordinates to every POI in the ~~game~~ API. |
 | Compass | Gives coordinates for where your compass is pointing to. Used for doing quests in Monumenta. |
 ## Check out the [Wiki](https://github.com/U5B/jsmacros/wiki) for more information.
-Feel free to open an issue or ping me on discord (usb#3568) if you need any assistance.
+Feel free to open an issue if you have a feature request or found a bug.
