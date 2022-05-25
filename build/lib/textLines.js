@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TextLines = void 0;
 class TextLines {
     constructor(draw2d, x, y, rightShift = false) {
-        /** @type Java.xyz.wagyourtail.jsmacros.client.api.classes.Draw2D */
+        /** @type Draw2D */
         this.draw2d = draw2d;
         /** @type  Java.xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text[] */
         this._lines = [];
@@ -17,12 +17,7 @@ class TextLines {
     set lines(lines) {
         // ensure enough text lines
         for (let i = this._lines.length; i < lines.length; i++) {
-            let xPos = this.x;
-            let yPos = this.y + 12 * i;
-            let txt = this.draw2d.addText('', xPos, yPos, 0xffffff, true);
-            if (this.rightShift)
-                txt.setPos(this.x - txt.width, this.y + 12 * i);
-            this._lines.push(txt);
+            this._lines.push(this.draw2d.addText('', this.x, this.y + 12 * i, 0xffffff, true));
         }
         // Delete extras
         this._lines.slice(lines.length).forEach(l => {
