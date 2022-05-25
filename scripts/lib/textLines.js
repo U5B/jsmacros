@@ -1,11 +1,12 @@
 class TextLines {
-  constructor (draw2d, x, y) {
+  constructor (draw2d, x, y, rightShift = false) {
     /** @type Draw2D */
     this.draw2d = draw2d
     /** @type  Java.xyz.wagyourtail.jsmacros.client.api.sharedclasses.RenderCommon$Text[] */
     this._lines = []
     this.x = x
     this.y = y
+    this.rightShift = rightShift
   }
 
   get lines () {

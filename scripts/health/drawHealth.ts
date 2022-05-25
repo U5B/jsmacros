@@ -1,5 +1,5 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
-import { TextLines } from './textLines'
+import { TextLines } from '../lib/textLines'
 let healthTable
 let h2d
 let playerMap = {}

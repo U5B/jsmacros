@@ -1,4 +1,5 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+import * as util from '../lib/util'
 import poiData from './data/pois.json'
 const poiSuggestions = []
 // @ts-ignore # figure out if it is a node env
@@ -16,21 +17,16 @@ function searchPoi (input) {
     if (name === input) return content
   }
   for (const [name, content] of Object.entries(poiData)) { // tag match ['air', 'shrine']
-    const tags = trimString(name).split(' ')
-    if (tags.includes(trimString(input))) response.push(content)
+    const tags = util.trimString(name).split(' ')
+    if (tags.includes(util.trimString(input))) response.push(content)
   }
   if (response.length === 0) { // if there is already a response, ignore it
     for (const [name, content] of Object.entries(poiData)) { // fuzzy match 'airshrine'
-      if (cleanString(name).includes(cleanString(input))) response.push(content)
+      if (util.cleanString(name).includes(util.cleanString(input))) response.push(content)
     }
   }
   if (response) return response
   return null
-}
-
-function runCommand (ctx) {
-  const poiInput = ctx.getArg('poi')
-  return validatePoi(poiInput)
 }
 
 function validatePoi (input) {
@@ -94,32 +90,22 @@ function terminate () {
 }
 
 let command
-function commander (destroy = false) {
+function commander (stop = false) {
   if (nodeEnv) return false
   if (command) {
     command.unregister()
     command = null
-    if (destroy === true) return true
+    if (stop === true) return true
   }
   command = Chat.createCommandBuilder('poi')
-  command.greedyStringArg('poi').suggestMatching(poiSuggestions)
+  command.greedyStringArg('arg1').suggestMatching(poiSuggestions)
   command.executes(JavaWrapper.methodToJava(runCommand))
   command.register()
 }
 
-function cleanString (str) {
-  return str
-    .replaceAll(/'/g, '')
-    .replaceAll(/\n/g, '')
-    .replaceAll(/ /g, '')
-    .trim()
-    .toLowerCase()
-}
-
-function trimString (str) {
-  return str
-    .trim()
-    .toLowerCase()
+function runCommand (ctx) {
+  const poiInput = ctx.getArg('arg1')
+  return validatePoi(poiInput)
 }
 
 start()

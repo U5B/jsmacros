@@ -1,9 +1,33 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+const util = __importStar(require("../lib/util"));
 const pois_json_1 = __importDefault(require("./data/pois.json"));
 const poiSuggestions = [];
 // @ts-ignore # figure out if it is a node env
@@ -20,23 +44,19 @@ function searchPoi(input) {
             return content;
     }
     for (const [name, content] of Object.entries(pois_json_1.default)) { // tag match ['air', 'shrine']
-        const tags = trimString(name).split(' ');
-        if (tags.includes(trimString(input)))
+        const tags = util.trimString(name).split(' ');
+        if (tags.includes(util.trimString(input)))
             response.push(content);
     }
     if (response.length === 0) { // if there is already a response, ignore it
         for (const [name, content] of Object.entries(pois_json_1.default)) { // fuzzy match 'airshrine'
-            if (cleanString(name).includes(cleanString(input)))
+            if (util.cleanString(name).includes(util.cleanString(input)))
                 response.push(content);
         }
     }
     if (response)
         return response;
     return null;
-}
-function runCommand(ctx) {
-    const poiInput = ctx.getArg('poi');
-    return validatePoi(poiInput);
 }
 function validatePoi(input) {
     if (!input || input.trim().length <= 3) {
@@ -100,32 +120,23 @@ function terminate() {
     return true;
 }
 let command;
-function commander(destroy = false) {
+function commander(stop = false) {
     if (nodeEnv)
         return false;
     if (command) {
         command.unregister();
         command = null;
-        if (destroy === true)
+        if (stop === true)
             return true;
     }
     command = Chat.createCommandBuilder('poi');
-    command.greedyStringArg('poi').suggestMatching(poiSuggestions);
+    command.greedyStringArg('arg1').suggestMatching(poiSuggestions);
     command.executes(JavaWrapper.methodToJava(runCommand));
     command.register();
 }
-function cleanString(str) {
-    return str
-        .replaceAll(/'/g, '')
-        .replaceAll(/\n/g, '')
-        .replaceAll(/ /g, '')
-        .trim()
-        .toLowerCase();
-}
-function trimString(str) {
-    return str
-        .trim()
-        .toLowerCase();
+function runCommand(ctx) {
+    const poiInput = ctx.getArg('arg1');
+    return validatePoi(poiInput);
 }
 start();
 if (nodeEnv) {

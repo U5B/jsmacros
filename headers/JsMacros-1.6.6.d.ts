@@ -6294,7 +6294,7 @@ declare namespace Java {
                             toString(): string;
                             
                         }
-                        export interface PlayerListEntryHelper extends Java.xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* minecraft classes, as any, because obfuscation: */ any> {
+                        export interface PlayerListEntryHelper<T> extends Java.xyz.wagyourtail.jsmacros.core.helpers.BaseHelper</* minecraft classes, as any, because obfuscation: */ any> {
                             
                         
                             

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onTick = exports.terminate = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
-const textLines_1 = require("./textLines");
+const textLines_1 = require("../lib/textLines");
 let healthTable;
 let h2d;
 let playerMap = {};

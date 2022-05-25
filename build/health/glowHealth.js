@@ -1,6 +1,30 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+const util = __importStar(require("../lib/util"));
 const drawHealth_1 = require("./drawHealth");
 // Configuration Start
 const config_1 = require("./config");
@@ -42,16 +66,6 @@ function onTick() {
         stop(e);
     }
 }
-function rayTraceEntity() {
-    // @ts-ignore # DebugRenderer.getTargetedEntity()
-    const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), mode.raytrace.reach);
-    // @ts-ignore # Check if the result is empty
-    if (result.isEmpty())
-        return false;
-    // @ts-ignore
-    const entity = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper').create(result.get());
-    return entity;
-}
 function isPlayerVisible(entity) {
     if (!isPlayer(entity))
         return null;
@@ -74,7 +88,7 @@ function isPlayerGlowing(player) {
     return value;
 }
 function highlightPlayerCursor() {
-    const player = rayTraceEntity();
+    const player = util.rayTraceEntity(mode.raytrace.reach);
     if (!isPlayerVisible(player)) { // check needed since we don't use checkPlayer() here
         state.selectedPlayer = '';
         resetPlayers(true, false); // we want to ignore glowing players
@@ -88,7 +102,7 @@ function highlightPlayerCursor() {
     return true;
 }
 function highlightPlayerCursorHealth() {
-    const player = rayTraceEntity();
+    const player = util.rayTraceEntity(mode.raytrace.reach);
     const valid = checkPlayer(player);
     if (!valid) {
         if (mode.raytrace.persist === true) {
@@ -215,13 +229,13 @@ function logInfo(string) {
     Chat.log(`§7[§aGlowHealth§7]§r ${string}`);
 }
 let command;
-function commander(destroy = false) {
+function commander(stop = false) {
     if (command) {
         command.unregister();
         command = null;
-        if (destroy === true)
-            return true;
     }
+    if (stop === true)
+        return true;
     command = Chat.createCommandBuilder('glowhealth');
     command.greedyStringArg('config').suggestMatching((0, config_1.getModes)());
     command.executes(JavaWrapper.methodToJava(runCommand));

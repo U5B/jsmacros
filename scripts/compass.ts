@@ -34,7 +34,7 @@ function onKeyPress (event) {
 
 const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress))
 function terminate () {
-  if (listener) JsMacros.off('Key', listener)
+  JsMacros.off('Key', listener)
 }
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate)

@@ -1,5 +1,7 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+import * as util from "../lib/util"
 import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHealth"
+
 
 // Configuration Start
 import { getConfig, getModes } from "./config"
@@ -38,16 +40,6 @@ function onTick () {
   }
 }
 
-function rayTraceEntity () {
-  // @ts-ignore # DebugRenderer.getTargetedEntity()
-  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), mode.raytrace.reach)
-  // @ts-ignore # Check if the result is empty
-  if (result.isEmpty()) return false
-  // @ts-ignore
-  const entity = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper').create(result.get())
-  return entity
-}
-
 function isPlayerVisible (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
   if (!isPlayer(entity)) return null
   if (mode.raytrace.depth === false) return true
@@ -68,7 +60,7 @@ function isPlayerGlowing (player:Java.xyz.wagyourtail.jsmacros.client.api.helper
 }
 
 function highlightPlayerCursor () {
-  const player = rayTraceEntity()
+  const player = util.rayTraceEntity(mode.raytrace.reach)
   if (!isPlayerVisible(player)) { // check needed since we don't use checkPlayer() here
     state.selectedPlayer = ''
     resetPlayers(true, false) // we want to ignore glowing players
@@ -83,7 +75,7 @@ function highlightPlayerCursor () {
 }
 
 function highlightPlayerCursorHealth () {
-  const player = rayTraceEntity()
+  const player = util.rayTraceEntity(mode.raytrace.reach)
   const valid = checkPlayer(player)
   if (!valid) {
     if (mode.raytrace.persist === true) {
@@ -203,12 +195,12 @@ function logInfo (string) {
 }
 
 let command
-function commander (destroy = false) {
+function commander (stop = false) {
   if (command) {
     command.unregister()
     command = null
-    if (destroy === true) return true
   }
+  if (stop === true) return true
   command = Chat.createCommandBuilder('glowhealth')
   command.greedyStringArg('config').suggestMatching(getModes())
   command.executes(JavaWrapper.methodToJava(runCommand))
