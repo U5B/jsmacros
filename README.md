@@ -1,4 +1,5 @@
 # Scripts made for the [JsMacro mod](https://github.com/wagyourtail/JsMacros)
+## Keep in mind that only [releases](https://github.com/U5B/jsmacros/releases) are guaranteed to be working at all!
 | Scripts | Small Description |
 | --- | --- |
 | GlowHealth | Uses Minecraft built-in glowing effect to display player's health. Used for optimal healing on Monumenta. |
