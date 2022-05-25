@@ -1,4 +1,5 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+import * as util from '../lib/util'
 import { TextLines } from '../lib/textLines'
 let healthTable
 let h2d
@@ -32,9 +33,9 @@ function parseEntity (entity) {
   const player = entity.asPlayer()
   const name = player.getName().getString()
   // if (name === Player.getPlayer().getName().getString()) return
-  const currentHealth = player.getHealth()
-  let maxHealth = player.getMaxHealth()
-  if (maxHealth === 0) maxHealth = 1 // dividing by 0 is bad
+  const currentHealth = Math.round(player.getHealth())
+  let maxHealth = Math.round(player.getMaxHealth())
+  if (maxHealth === 0) maxHealth = 0.001 // dividing by 0 is bad
   playerMap[name] = {
     hp: currentHealth,
     maxHp: maxHealth
@@ -44,24 +45,24 @@ function parseEntity (entity) {
 
 // hardcoded colors because uh, json is a pain
 function determineColor (decimalHealth:Number) {
-  let color = 0xc
-  if (decimalHealth > mode.health.low) color = 0xa
-  else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical) color = 0x6 // needs healing
-  else if (decimalHealth <= mode.health.critical) color = 0x4 // needs healing now
+  let color = util.decimalToRGB(mode.health.color.base)
+  if (decimalHealth > mode.health.low) color = util.decimalToRGB(mode.health.color.good) // good
+  else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical) color = util.decimalToRGB(mode.health.color.low) // needs healing
+  else if (decimalHealth <= mode.health.critical) color = util.decimalToRGB(mode.health.color.critical) // needs healing now
   return color
 }
 
 function determineHealthColor ([name, player]) {
-  const color = determineColor(player.hp / player.maxHp)
+  const [r, g, b] = determineColor(player.hp / player.maxHp)
   const builder = Chat.createTextBuilder()
-  builder.append(`${Math.round(player?.hp)}/${Math.round(player?.maxHp)} ${name}`)
-  builder.withColor(color)
+  builder.append(`${player.hp}/${player.maxHp} ${name}`)
+  builder.withColor(r, g, b)
   const message = builder.build()
   return message
 }
 
 function drawHealthOverlay () {
-  if (!healthTable) healthTable = drawHealthStartup()
+  if (!healthTable) drawHealthStartup()
   healthTable.lines = [
     ...Object.entries(playerMap)
       // @ts-ignore # sort by health decimal
@@ -81,7 +82,7 @@ function drawHealthStartup () {
   if (healthTable) return healthTable
   h2d = Hud.createDraw2D()
   h2d.register()
-  healthTable = new TextLines(h2d, 425, 30)
+  healthTable = new TextLines(h2d, 425, 30, 0)
   healthTable.lines = []
   return healthTable
 }

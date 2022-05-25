@@ -4,9 +4,13 @@ const decimalToRGB = (color: number): [number, number, number] => [
   color & 0xFF
 ]
 
+const rgbToDecimal = (rgb: [number, number, number]): number => (
+  (rgb[0] << 16) + (rgb[1] << 8) + (rgb[2])
+)
+
 function rayTraceEntity (reach: number) {
   // @ts-ignore # DebugRenderer.getTargetedEntity()
-  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reachj)
+  const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reach)
   // @ts-ignore # Check if the result is empty
   if (result.isEmpty()) return false
   // @ts-ignore
@@ -29,4 +33,4 @@ function trimString (str) {
     .toLowerCase()
 }
 
-export { decimalToRGB, rayTraceEntity, cleanString, trimString }
+export { decimalToRGB, rgbToDecimal, rayTraceEntity, cleanString, trimString }

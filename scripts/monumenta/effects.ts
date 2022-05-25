@@ -51,7 +51,7 @@ function start (start: boolean = true) {
   commander(false)
   h2d = Hud.createDraw2D()
   h2d.register()
-  table = new TextLines(h2d, config.x, config.y, true)
+  table = new TextLines(h2d, config.x, config.y, 1)
   table.lines = []
   tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick))
 }

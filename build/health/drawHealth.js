@@ -1,7 +1,31 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onTick = exports.terminate = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+const util = __importStar(require("../lib/util"));
 const textLines_1 = require("../lib/textLines");
 let healthTable;
 let h2d;
@@ -36,10 +60,10 @@ function parseEntity(entity) {
     const player = entity.asPlayer();
     const name = player.getName().getString();
     // if (name === Player.getPlayer().getName().getString()) return
-    const currentHealth = player.getHealth();
-    let maxHealth = player.getMaxHealth();
+    const currentHealth = Math.round(player.getHealth());
+    let maxHealth = Math.round(player.getMaxHealth());
     if (maxHealth === 0)
-        maxHealth = 1; // dividing by 0 is bad
+        maxHealth = 0.001; // dividing by 0 is bad
     playerMap[name] = {
         hp: currentHealth,
         maxHp: maxHealth
@@ -48,26 +72,26 @@ function parseEntity(entity) {
 }
 // hardcoded colors because uh, json is a pain
 function determineColor(decimalHealth) {
-    let color = 0xc;
+    let color = util.decimalToRGB(mode.health.color.base);
     if (decimalHealth > mode.health.low)
-        color = 0xa;
+        color = util.decimalToRGB(mode.health.color.good); // good
     else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical)
-        color = 0x6; // needs healing
+        color = util.decimalToRGB(mode.health.color.low); // needs healing
     else if (decimalHealth <= mode.health.critical)
-        color = 0x4; // needs healing now
+        color = util.decimalToRGB(mode.health.color.critical); // needs healing now
     return color;
 }
 function determineHealthColor([name, player]) {
-    const color = determineColor(player.hp / player.maxHp);
+    const [r, g, b] = determineColor(player.hp / player.maxHp);
     const builder = Chat.createTextBuilder();
-    builder.append(`${Math.round(player?.hp)}/${Math.round(player?.maxHp)} ${name}`);
-    builder.withColor(color);
+    builder.append(`${player.hp}/${player.maxHp} ${name}`);
+    builder.withColor(r, g, b);
     const message = builder.build();
     return message;
 }
 function drawHealthOverlay() {
     if (!healthTable)
-        healthTable = drawHealthStartup();
+        drawHealthStartup();
     healthTable.lines = [
         ...Object.entries(playerMap)
             // @ts-ignore # sort by health decimal
@@ -87,7 +111,7 @@ function drawHealthStartup() {
         return healthTable;
     h2d = Hud.createDraw2D();
     h2d.register();
-    healthTable = new textLines_1.TextLines(h2d, 425, 30);
+    healthTable = new textLines_1.TextLines(h2d, 425, 30, 0);
     healthTable.lines = [];
     return healthTable;
 }
