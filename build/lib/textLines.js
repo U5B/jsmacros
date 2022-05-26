@@ -18,13 +18,14 @@ const getAlignCapable = (txt) => {
         set(target, p, value, receiver) {
             if (p === 'align') {
                 align = value;
-                return;
+                return true;
             }
             if (p === 'x')
                 x = value;
             target[p] = value;
             if (align !== 0)
                 realign();
+            return true;
         },
         get(target, p, receiver) {
             switch (p) {
@@ -45,7 +46,7 @@ const getAlignCapable = (txt) => {
                         realign();
                     };
                 default:
-                    return target[p];
+                    return target;
             }
         }
     });
@@ -74,7 +75,7 @@ class TextLines {
         }
         // Delete extras
         this._lines.slice(lines.length).forEach(l => {
-            this.draw2d.removeText(l);
+            l.removeSelf();
         });
         this._lines = this._lines.slice(0, lines.length);
         // Populate with data
