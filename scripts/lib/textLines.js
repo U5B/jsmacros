@@ -1,12 +1,13 @@
-const realign = (text, x, align) => {
-  let scale = text.scale ?? 1
-  let w
-  try {
-    w = text?.getWidth()
-  } catch {
-    w = text.length
-  }  
-  const xValue = x - align*w*scale;
+/**
+ * @param {RenderCommon$Text} text
+ * @param {Number} x
+ * @param {Number} align
+ * @return Number
+ */
+const realignX = (text, x, align) => {
+  const scale = text.scale ?? 1
+  const w = text.width
+  const xValue = x - align*w*scale
   return xValue
 }
 
@@ -31,8 +32,7 @@ class TextLines {
   set lines (lines) {
     // ensure enough text lines
     for (let i = this._lines.length; i < lines.length; i++) {
-      let raw = this.draw2d.addText('', this.x, this.y + 12 * i, 0xffffff, true)
-      this._lines.push(raw)
+      this._lines.push(this.draw2d.addText('', this.x, this.y + 12 * i, 0xffffff, true))
     }
     // Delete extras
     this._lines.slice(lines.length).forEach(l => {
@@ -41,9 +41,9 @@ class TextLines {
     this._lines = this._lines.slice(0, lines.length)
     // Populate with data
     lines.forEach((txt, i) => {
-      const newX = realign(this._lines[i], this.x, this.align)
-      this._lines[i].setPos(newX, this.y + 12 * i)
       this._lines[i].setText(txt)
+      const newX = realignX(this._lines[i], this.x, this.align)
+      this._lines[i].setPos(newX, this.y + 12 * i)
     })
   }
 }
