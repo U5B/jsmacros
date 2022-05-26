@@ -1,52 +1,13 @@
-/**
- * @param {RenderCommon$Text} txt
- * @return {RenderCommon$Text & {
- *   align: number
- * }}
- */
-const getAlignCapable = (txt) => {
-  let align = 0
-  let x = txt.x;
-
-  const realign = () => {
-    const w = txt.getWidth();
-    txt.x = x - align*w*txt.scale;
-  }
-  return new Proxy(txt, {
-    set(target, p, value, receiver) {
-      if (p ==='align') {
-        align = value
-        return true
-      }
-      if (p === 'x')
-        x = value;
-      target[p] = value;
-      if (align !== 0) realign();
-      return true
-    },
-    get(target, p, receiver) {
-      switch(p) {
-        case 'setText':
-          return (params) => {
-            target.setText(params)
-            realign();
-          }
-        case 'setPos':
-          return (nx,ny) => {
-            x = nx;
-            txt.setPos(nx,ny)
-            realign()
-          }
-        case 'setScale':
-          return (scale) => {
-            txt.setScale(scale)
-            realign()
-          }
-        default:
-          return target
-      }
-    }
-  })
+const realign = (text, x, align) => {
+  let scale = text.scale ?? 1
+  let w
+  try {
+    w = text?.getWidth()
+  } catch {
+    w = text.length
+  }  
+  const xValue = x - align*w*scale;
+  return xValue
 }
 
 class TextLines {
@@ -70,19 +31,21 @@ class TextLines {
   set lines (lines) {
     // ensure enough text lines
     for (let i = this._lines.length; i < lines.length; i++) {
-      this._lines.push(getAlignCapable(this.draw2d.addText('', this.x, this.y + 12 * i, 0xffffff, true)))
+      let raw = this.draw2d.addText('', this.x, this.y + 12 * i, 0xffffff, true)
+      this._lines.push(raw)
     }
     // Delete extras
     this._lines.slice(lines.length).forEach(l => {
-      l.removeSelf()
+      this.draw2d.removeText(l)
     })
     this._lines = this._lines.slice(0, lines.length)
     // Populate with data
     lines.forEach((txt, i) => {
-      this._lines[i].align = this.align // set align here
+      const newX = realign(this._lines[i], this.x, this.align)
+      this._lines[i].setPos(newX, this.y + 12 * i)
       this._lines[i].setText(txt)
     })
   }
 }
 
-export { TextLines, getAlignCapable }
+export { TextLines }
