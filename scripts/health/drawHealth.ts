@@ -76,7 +76,6 @@ function drawHealthOverlay () {
 function drawHealthStartup () {
   if (h2d) {
     h2d.unregister()
-    Hud.clearDraw2Ds()
     return
   }
   if (healthTable) return healthTable

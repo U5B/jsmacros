@@ -108,7 +108,6 @@ function terminate() {
     JsMacros.off('Tick', tickLoop);
     commander(true);
     h2d.unregister();
-    Hud.clearDraw2Ds();
 }
 start(true);
 // @ts-ignore
