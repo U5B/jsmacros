@@ -8,11 +8,12 @@ let tickLoop
 let effectList = []
 let config = {
   x: 0, 
-  y: 0
+  y: 0,
+  align: 0 // left shift
 }
 
 function onTick () {
-  if (!World || !World.isWorldLoaded() || World.getTime() % 5 != 0) return
+  if (!World || !World.isWorldLoaded() || World.getTime() % 2 != 0) return
   effectList = []
   const players = World.getPlayers()
   // @ts-ignore
@@ -51,7 +52,7 @@ function start (start: boolean = true) {
   commander(false)
   h2d = Hud.createDraw2D()
   h2d.register()
-  table = new TextLines(h2d, config.x, config.y, 1)
+  table = new TextLines(h2d, config.x, config.y, config.align)
   table.lines = []
   tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick))
 }
@@ -64,25 +65,54 @@ function commander (stop = false) {
   }
   if (stop === true) return true
   command = Chat.createCommandBuilder('drawEffects')
-  command.intArg('x')
-  command.intArg('y')
-  command.executes(JavaWrapper.methodToJava(runCommand))
+  command.wordArg('select')
+    .literalArg('move')
+      .intArg('x') // x pos
+      .intArg('y') // y pos
+      .wordArg('align').suggestMatching(['left', 'center', 'right']) // align
+      .executes(JavaWrapper.methodToJava(runCommand))
   command.register()
 }
 
 function runCommand (ctx) {
+  switch (ctx.getArg('select')){
+    case 'config':
+      configure(ctx)
+      break
+    default:
+      configure(ctx)
+      break
+  }
+}
+function configure (ctx) {
   config.x = ctx.getArg('x')
   config.y = ctx.getArg('y')
+  let align = ctx.getArg('align')
+  switch (align) {
+    case 'left':
+      config.align = 0
+      break
+    case 'center':
+      config.align = 0.5
+      break
+    case 'right':
+      config.align = 1
+      break
+    default:
+      config.align = 0
+      break
+  }
   writeConfig(config)
   start(true)
   return true
 }
 
+const configPath = '../../config/effects.json'
 function getConfig () {
   let modifiedConfig = config
-  if (FS.exists('./effectsConfig.json')) {
+  if (FS.exists(configPath)) {
     try {
-      const file = FS.open('./effectsConfig.json')
+      const file = FS.open(configPath)
       const customConfig = file.read()
       modifiedConfig = JSON.parse(customConfig)
     } catch (e) {
@@ -94,7 +124,7 @@ function getConfig () {
 
 function writeConfig (config) {
   try {
-    FS.open('./effectsConfig.json').write(JSON.stringify(config, null, 2))
+    FS.open(configPath).write(JSON.stringify(config, null, 2))
     return true
   } catch (e) {
     return false
@@ -112,3 +142,4 @@ function terminate () {
 start(true)
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate)
+export {}

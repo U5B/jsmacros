@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 function getCompass() {
     // @ts-ignore
@@ -33,6 +35,7 @@ function onKeyPress(event) {
 const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress));
 function terminate() {
     JsMacros.off('Key', listener);
+    return true;
 }
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate);

@@ -35,9 +35,18 @@ const state = {
     started: false,
     running: false,
     glowingPlayers: [],
+    nearbyPlayers: [],
     selectedPlayer: ''
 };
+function currentNearbyPlayers() {
+    return state.nearbyPlayers;
+}
+function currentGlowingPlayers() {
+    return state.glowingPlayers;
+}
 function onTick() {
+    if (mode.enabled === false)
+        return;
     try {
         if (World && World.isWorldLoaded() && state.started === true) {
             if (state.running === false) {
@@ -122,10 +131,13 @@ function highlightPlayerCursorHealth() {
     }
 }
 function checkPlayers() {
+    state.nearbyPlayers = [];
     // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
     for (const player of World.getLoadedPlayers()) {
         let valid = false;
-        if (mode.blatant.enabled === true || (mode.raytrace.enabled === true && mode.raytrace.persist === true && state.selectedPlayer === player.getName()?.getString()))
+        const name = player.getName()?.getString();
+        state.nearbyPlayers.push(player.getName()?.getString());
+        if (mode.blatant.enabled === true || (mode.raytrace.enabled === true && mode.raytrace.persist === true && state.selectedPlayer === name))
             valid = checkPlayer(player);
         if (!valid)
             resetPlayer(player);
@@ -237,14 +249,79 @@ function commander(stop = false) {
     if (stop === true)
         return true;
     command = Chat.createCommandBuilder('glowhealth');
-    command.greedyStringArg('config').suggestMatching((0, config_1.getModes)());
-    command.executes(JavaWrapper.methodToJava(runCommand));
+    command
+        .literalArg('preset')
+        .greedyStringArg('config').suggestMatching((0, config_1.getModes)())
+        .executes(JavaWrapper.methodToJava(cmdPreset))
+        .or(1)
+        .literalArg('toggle')
+        .booleanArg('enabled')
+        .executes(JavaWrapper.methodToJava(cmdToggle))
+        .or(1)
+        .literalArg('whitelist')
+        .literalArg('add')
+        .wordArg('player')
+        .executes(JavaWrapper.methodToJava(cmdWhitelistAdd))
+        .or(2)
+        .literalArg('remove')
+        .wordArg('player')
+        .executes(JavaWrapper.methodToJava(cmdWhitelistRemove))
+        .or(2)
+        .literalArg('list')
+        .executes(JavaWrapper.methodToJava(cmdWhitelistList))
+        .or(2)
+        .literalArg('clear')
+        .executes(JavaWrapper.methodToJava(cmdWhitelistClear))
+        .or(2)
+        .literalArg('toggle')
+        .booleanArg('enabled')
+        .executes(JavaWrapper.methodToJava(cmdWhitelistToggle));
     command.register();
 }
-function runCommand(ctx) {
+function cmdPreset(ctx) {
     const configOption = ctx.getArg('config');
     mode = (0, config_1.getConfig)(configOption);
     logInfo(`Running with config: '${mode.name}'`);
+    return true;
+}
+function cmdToggle(ctx) {
+    const enabled = ctx.getArg('enabled');
+    mode = (0, config_1.getConfig)();
+    mode.enabled = enabled;
+    logInfo(`Glow is now ${enabled ? 'enabled' : 'disabled'}`);
+    (0, config_1.writeCustomConfig)(mode);
+    return true;
+}
+function cmdWhitelistAdd(ctx) {
+    const player = ctx.getArg('player');
+    mode = (0, config_1.getConfig)();
+    mode.whitelist.players.push(player);
+    (0, config_1.writeCustomConfig)(mode);
+    return true;
+}
+function cmdWhitelistRemove(ctx) {
+    const player = ctx.getArg('player');
+    mode = (0, config_1.getConfig)();
+    mode.whitelist.players = mode.whitelist.players.filter(p => p !== player);
+    (0, config_1.writeCustomConfig)(mode);
+    return true;
+}
+function cmdWhitelistClear() {
+    mode = (0, config_1.getConfig)();
+    mode.whitelist.players = [];
+    (0, config_1.writeCustomConfig)(mode);
+    return true;
+}
+function cmdWhitelistList() {
+    mode = (0, config_1.getConfig)();
+    logInfo(`Whitelisted: [${mode.whitelist.players}]`);
+    return true;
+}
+function cmdWhitelistToggle(ctx) {
+    const boolean = ctx.getArg('enabled');
+    mode = (0, config_1.getConfig)();
+    mode.whitelist.enabled = boolean;
+    (0, config_1.writeCustomConfig)(mode);
     return true;
 }
 start();

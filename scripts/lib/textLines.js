@@ -7,7 +7,7 @@
 const realignX = (text, x, align) => {
   const scale = text.scale ?? 1
   const w = text.width
-  const xValue = x - align*w*scale
+  const xValue = Math.round(x - align*w*scale)
   return xValue
 }
 

@@ -95,8 +95,8 @@ function commander (stop = false) {
   if (command) {
     command.unregister()
     command = null
-    if (stop === true) return true
   }
+  if (stop === true) return true
   command = Chat.createCommandBuilder('poi')
   command.greedyStringArg('arg1').suggestMatching(poiSuggestions)
   command.executes(JavaWrapper.methodToJava(runCommand))
@@ -135,3 +135,4 @@ function debug (input) { // node debug
     Chat.getLogger('usb').warn(input)
   }
 }
+export {}

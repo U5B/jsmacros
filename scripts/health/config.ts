@@ -1,7 +1,9 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 // default config
+const configPath = '../../config/glowHealth.json'
 const config = {
   name: 'default',
+  enabled: true,
   blatant: { // esp mode
     enabled: true
   },
@@ -53,7 +55,7 @@ function getModes () {
   return modes
 }
 
-function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPlayers: [] }) {
+function getConfig (mode = 'custom') {
   let modifiedConfig = config
   modifiedConfig.name = mode
   switch (mode) {
@@ -99,18 +101,10 @@ function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPl
       modifiedConfig.raytrace.ignoreGlowing = false
       break
     }
-    case 'whitelist': { // modify whitelist
-      if (options.whitelistedPlayers && options.whitelistedPlayers.length > 0) {
-        modifiedConfig.whitelist.players = options.whitelistedPlayers
-      } else {
-        modifiedConfig.whitelist.enabled = options.whitelist
-      }
-      break
-    }
     case 'custom': {
-      if (FS.exists('./config.json')) {
+      if (FS.exists(configPath)) {
         try {
-          const file = FS.open('./config.json')
+          const file = FS.open(configPath)
           const customConfig = file.read()
           modifiedConfig = JSON.parse(customConfig)
         } catch (e) {
@@ -129,7 +123,7 @@ function getConfig (mode = 'custom', options = { whitelist: false, whitelistedPl
 
 function writeCustomConfig (config) {
   try {
-    FS.open('./config.json').write(JSON.stringify(config, null, 2))
+    FS.open(configPath).write(JSON.stringify(config, null, 2))
     return true
   } catch (e) {
     return false

@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 // default config
+const configPath = '../../config/glowHealth.json';
 const config = {
     name: 'default',
+    enabled: true,
     blatant: {
         enabled: true
     },
@@ -55,7 +57,7 @@ function getModes() {
     return modes;
 }
 exports.getModes = getModes;
-function getConfig(mode = 'custom', options = { whitelist: false, whitelistedPlayers: [] }) {
+function getConfig(mode = 'custom') {
     let modifiedConfig = config;
     modifiedConfig.name = mode;
     switch (mode) {
@@ -101,19 +103,10 @@ function getConfig(mode = 'custom', options = { whitelist: false, whitelistedPla
             modifiedConfig.raytrace.ignoreGlowing = false;
             break;
         }
-        case 'whitelist': { // modify whitelist
-            if (options.whitelistedPlayers && options.whitelistedPlayers.length > 0) {
-                modifiedConfig.whitelist.players = options.whitelistedPlayers;
-            }
-            else {
-                modifiedConfig.whitelist.enabled = options.whitelist;
-            }
-            break;
-        }
         case 'custom': {
-            if (FS.exists('./config.json')) {
+            if (FS.exists(configPath)) {
                 try {
-                    const file = FS.open('./config.json');
+                    const file = FS.open(configPath);
                     const customConfig = file.read();
                     modifiedConfig = JSON.parse(customConfig);
                 }
@@ -133,7 +126,7 @@ function getConfig(mode = 'custom', options = { whitelist: false, whitelistedPla
 exports.getConfig = getConfig;
 function writeCustomConfig(config) {
     try {
-        FS.open('./config.json').write(JSON.stringify(config, null, 2));
+        FS.open(configPath).write(JSON.stringify(config, null, 2));
         return true;
     }
     catch (e) {

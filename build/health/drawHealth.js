@@ -132,6 +132,7 @@ function terminate() {
     JsMacros.off('EntityDamaged', eventListeners.damage);
     drawHealthStartup();
     started = false;
+    return true;
 }
 exports.terminate = terminate;
 // @ts-ignore
