@@ -2,8 +2,6 @@
 import * as util from '../lib/util'
 import poiData from './data/pois.json'
 const poiSuggestions = []
-// @ts-ignore # figure out if it is a node env
-const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 
 function makeSearchTerms () {
   for (const [, poi] of Object.entries(poiData)) {
@@ -53,7 +51,7 @@ function responsePoi (input, response) {
     logInfo(`'${input}': No POI found.`)
     return false
   } else if (response && response.coordinates && response.coordinates.x && response.coordinates.y && response.coordinates.z) {
-    if (!nodeEnv) {
+    if (!util.nodeEnv) {
       const builder = Chat.createTextBuilder()
       builder.append(`§7[§aPOI§7]§r '${response.name}': `)
       const coordinates = `(${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`
@@ -91,7 +89,7 @@ function terminate () {
 
 let command
 function commander (stop = false) {
-  if (nodeEnv) return false
+  if (util.nodeEnv) return false
   if (command) {
     command.unregister()
     command = null
@@ -109,30 +107,17 @@ function runCommand (ctx) {
 }
 
 start()
-if (nodeEnv) {
+if (util.nodeEnv) {
   // @ts-ignore
   const args = process.argv.slice(2)
   const poi = args.join(' ')
   validatePoi(poi)
 }
 // @ts-ignore
-if (!nodeEnv) event.stopListener = JavaWrapper.methodToJava(terminate)
+if (!util.nodeEnv) event.stopListener = JavaWrapper.methodToJava(terminate)
 
 function logInfo (string, noChat = false) {
-  if (!nodeEnv && noChat === false) {
-    Chat.log(`§7[§aPOI§7]§r ${string}`)
-  }
-  string = string.replaceAll(/§./g, '')
-  debug(`[POI]: ${string}`)
+  util.logInfo(string, 'POI', noChat)
 }
 
-function debug (input) { // node debug
-  // @ts-ignore
-  if (nodeEnv) {
-    // @ts-ignore
-    console.log(input)
-  } else {
-    Chat.getLogger('usb').warn(input)
-  }
-}
 export {}

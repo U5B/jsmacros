@@ -30,8 +30,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const util = __importStar(require("../lib/util"));
 const pois_json_1 = __importDefault(require("./data/pois.json"));
 const poiSuggestions = [];
-// @ts-ignore # figure out if it is a node env
-const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1);
 function makeSearchTerms() {
     for (const [, poi] of Object.entries(pois_json_1.default)) {
         poiSuggestions.push(poi.name);
@@ -84,7 +82,7 @@ function responsePoi(input, response) {
         return false;
     }
     else if (response && response.coordinates && response.coordinates.x && response.coordinates.y && response.coordinates.z) {
-        if (!nodeEnv) {
+        if (!util.nodeEnv) {
             const builder = Chat.createTextBuilder();
             builder.append(`§7[§aPOI§7]§r '${response.name}': `);
             const coordinates = `(${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`;
@@ -121,7 +119,7 @@ function terminate() {
 }
 let command;
 function commander(stop = false) {
-    if (nodeEnv)
+    if (util.nodeEnv)
         return false;
     if (command) {
         command.unregister();
@@ -139,29 +137,15 @@ function runCommand(ctx) {
     return validatePoi(poiInput);
 }
 start();
-if (nodeEnv) {
+if (util.nodeEnv) {
     // @ts-ignore
     const args = process.argv.slice(2);
     const poi = args.join(' ');
     validatePoi(poi);
 }
 // @ts-ignore
-if (!nodeEnv)
+if (!util.nodeEnv)
     event.stopListener = JavaWrapper.methodToJava(terminate);
 function logInfo(string, noChat = false) {
-    if (!nodeEnv && noChat === false) {
-        Chat.log(`§7[§aPOI§7]§r ${string}`);
-    }
-    string = string.replaceAll(/§./g, '');
-    debug(`[POI]: ${string}`);
-}
-function debug(input) {
-    // @ts-ignore
-    if (nodeEnv) {
-        // @ts-ignore
-        console.log(input);
-    }
-    else {
-        Chat.getLogger('usb').warn(input);
-    }
+    util.logInfo(string, 'POI', noChat);
 }

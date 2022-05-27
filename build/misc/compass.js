@@ -32,7 +32,7 @@ function onKeyPress(event) {
     }
     return false;
 }
-Chat.log('§7[§aCOMPASS§7]§r Started. Left click a compass to begin.');
+Chat.log('§7[§aCOMPASS§7]§r Started. Left click with a compass to begin.');
 const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress));
 function terminate() {
     JsMacros.off('Key', listener);

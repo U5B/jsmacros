@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.trimString = exports.cleanString = exports.rayTraceEntity = exports.rgbToDecimal = exports.decimalToRGB = exports.determineColor = exports.isPlayer = void 0;
+exports.nodeEnv = exports.logInfo = exports.debugInfo = exports.trimString = exports.cleanString = exports.rayTraceEntity = exports.rgbToDecimal = exports.decimalToRGB = exports.determineColor = exports.isPlayer = void 0;
+// @ts-ignore
+const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1);
+exports.nodeEnv = nodeEnv;
 const config_1 = require("../health/config");
 const decimalToRGB = (color) => [
     (color >> 16) & 0xFF,
@@ -63,3 +66,21 @@ function trimString(str) {
         .toLowerCase();
 }
 exports.trimString = trimString;
+function debugInfo(input) {
+    // @ts-ignore
+    if (nodeEnv) {
+        // @ts-ignore
+        console.log(input);
+    }
+    else {
+        Chat.getLogger('usb').warn(input);
+    }
+}
+exports.debugInfo = debugInfo;
+function logInfo(string, prefix = 'USB', noChat = false) {
+    if (!nodeEnv && noChat === false)
+        Chat.log(`§7[§a${prefix}§7]§r ${string}`);
+    string = string.replaceAll(/§./g, '');
+    debugInfo(`[${prefix}]: ${string}`);
+}
+exports.logInfo = logInfo;

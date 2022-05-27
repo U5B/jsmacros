@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-ignore # figure out if it is a node env
+const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1);
 // Line 1: Pineapple
 // Line 2: _______________
 // Line 3: Buy for 69 ccs
@@ -18,24 +20,41 @@ const region = {
     r2: { hyper: 'hcs', concentrated: 'ccs', standard: 'cs', region: 'r2' }
 };
 const currencyMap = {
-    hcs: region.r2,
-    ccs: region.r2,
-    cs: region.r2,
-    hxp: region.r1,
-    cxp: region.r1,
-    xp: region.r1
+    hcs: { type: 'hyper', region: region.r2 },
+    ccs: { type: 'concentrated', region: region.r2 },
+    cs: { type: 'standard', region: region.r2 },
+    hxp: { type: 'hyper', region: region.r1 },
+    cxp: { type: 'concentrated', region: region.r1 },
+    xp: { type: 'standard', region: region.r1 },
+};
+const conversion = {
+    hyper: {
+        up: 1,
+        down: 64,
+        child: 'concentrated'
+    },
+    concentrated: {
+        up: 64,
+        down: 8,
+        child: 'standard'
+    },
+    standard: {
+        up: 8,
+        down: 1,
+        child: ''
+    }
 };
 function convertToHyper(price, currency) {
-    if (currency === 'cs' || currency === 'xp') {
-        price = price / 8;
-        price = price / 64;
+    if (currencyMap[currency].type === 'standard') {
+        price = price / conversion['standard'].up;
+        price = price / conversion['concentrated'].up;
     }
-    else if (currency === 'ccs' || currency === 'cxp')
-        price = price / 64;
+    else if (currencyMap[currency].type === 'concentrated')
+        price = price / conversion['concentrated'].up;
     return price;
 }
 function calculateCurrencyColor(currency) {
-    const region = currencyMap[currency].region;
+    const region = currencyMap[currency].region.region;
     let color = '§r';
     if (region === 'r1')
         color = colors.r1;
@@ -101,23 +120,38 @@ function regularCalculator(ctx) {
     Chat.log(`§7[§aUMarket§7]§r ${colors.item}${itemCount}x items§r: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
     return true;
 }
-function calculator(price, item, currency) {
-    let totalPrice = price * item;
-    totalPrice = convertToHyper(totalPrice, currency);
-    let output = { color: calculateCurrencyColor(currency), hyper: { count: 0, name: currencyMap[currency].hyper }, concentrated: { count: 0, name: currencyMap[currency].concentrated }, standard: { count: 0, name: currencyMap[currency].standard } };
+function calculator(price, itemCount, currency) {
+    let total = price * itemCount;
+    let output = { color: calculateCurrencyColor(currency), hyper: { count: 0, name: currencyMap[currency].region.hyper }, concentrated: { count: 0, name: currencyMap[currency].region.concentrated }, standard: { count: 0, name: currencyMap[currency].region.standard } };
     // determine region color (gold for region 1, blue for region 2)
     // determine hyper, concentrated, and standard currency count
-    if (totalPrice > 0) { // calculate if greater than 0
-        output.hyper.count = Math.floor(totalPrice);
-        totalPrice = totalPrice - output.hyper.count;
-        if (totalPrice > 0) { // calculate if greater than 0
-            output.concentrated.count = Math.floor(totalPrice * 64);
-            totalPrice = totalPrice - output.concentrated.count;
-            if (totalPrice > 0)
-                output.standard.count = Math.floor(totalPrice * 8);
-        }
+    const hyperTotal = convertToHyper(total, currency);
+    currencyObject = { hyper: 0, concentrated: 0, standard: 0 };
+    const count = calculateCurrency(hyperTotal, 'hyper', 1);
+    output.hyper.count = count.hyper;
+    output.concentrated.count = count.concentrated;
+    output.standard.count = count.standard;
+    /*
+    if (total > 0) { // calculate if greater than 0
+      output.hyper.count = Math.floor(total)
+      total = total - output.hyper.count
+      if (total > 0) { // calculate if greater than 0
+        output.concentrated.count = Math.floor(total * conversion['concentrated'].down)
+        total = total - output.concentrated.count
+        if (total > 0) output.standard.count = Math.floor(total * conversion['standard'].down)
+      }
     }
+    */
     return output;
+}
+let currencyObject = { hyper: 0, concentrated: 0, standard: 0 };
+function calculateCurrency(total, currency, multiplier) {
+    const count = Math.floor(total * multiplier);
+    currencyObject[currency] = count;
+    total = total - count;
+    if (total > 0)
+        currencyObject = calculateCurrency(total, conversion[currency].child, conversion[currency].down);
+    return currencyObject;
 }
 function help() {
     Chat.log(`§7[§aUMarket§7]§r Help:
@@ -161,6 +195,13 @@ function terminate() {
     commander(true);
     return true;
 }
-start();
-// @ts-ignore
-event.stopListener = JavaWrapper.methodToJava(terminate);
+if (!nodeEnv) {
+    start();
+    // @ts-ignore
+    event.stopListener = JavaWrapper.methodToJava(terminate);
+}
+else {
+    const test = calculator(33, 2, 'ccs');
+    // @ts-ignore
+    console.log(test);
+}

@@ -48,7 +48,6 @@ function onTick() {
         if (World && World.isWorldLoaded() && state.started === true) {
             if (state.running === false) {
                 logInfo('Started!');
-                Chat.getLogger('usb').warn('[GlowHealth] Service is now running...');
                 state.running = true;
             }
         }
@@ -182,7 +181,6 @@ function resetPlayers(ignoreGlowing = false, ignoreSelected = false) {
     return true;
 }
 function start() {
-    Chat.getLogger('usb').warn('[GlowHealth] Starting service...');
     commander(false);
     state.started = true;
     if (!state.tickLoop)
@@ -198,7 +196,6 @@ function stop(error) {
 }
 function terminate() {
     logInfo('Stopped!');
-    Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...');
     commander(true);
     (0, drawHealth_1.terminate)();
     state.started = false;
@@ -250,7 +247,14 @@ function commander(stop = false) {
         .or(2)
         .literalArg('toggle')
         .booleanArg('enabled')
-        .executes(JavaWrapper.methodToJava(cmdWhitelistToggle));
+        .executes(JavaWrapper.methodToJava(cmdWhitelistToggle))
+        .or(1)
+        .literalArg('draw')
+        .literalArg('move')
+        .intArg('x')
+        .intArg('y')
+        .wordArg('align').suggestMatching(['left', 'center', 'right'])
+        .executes(JavaWrapper.methodToJava(cmdDrawMove));
     command.register();
 }
 function cmdPreset(ctx) {
@@ -298,6 +302,30 @@ function cmdWhitelistToggle(ctx) {
     mode.whitelist.enabled = boolean;
     (0, config_1.writeCustomConfig)(mode);
     return true;
+}
+function cmdDrawMove(ctx) {
+    const x = ctx.getArg('x');
+    const y = ctx.getArg('y');
+    let align = ctx.getArg('align');
+    switch (align) {
+        case 'left':
+            align = 0;
+            break;
+        case 'center':
+            align = 0.5;
+            break;
+        case 'right':
+            align = 1;
+            break;
+        default:
+            align = 0;
+            break;
+    }
+    mode = (0, config_1.getConfig)();
+    mode.draw.x = x;
+    mode.draw.y = y;
+    mode.draw.align = align;
+    (0, config_1.writeCustomConfig)(mode);
 }
 start();
 // @ts-ignore # Typescript screams at me since event.stopListener doesn't exist on Events.BaseEvent

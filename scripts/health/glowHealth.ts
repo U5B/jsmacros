@@ -15,6 +15,7 @@ const state = {
   nearbyPlayers: [],
   selectedPlayer: ''
 }
+
 function suggestNearbyPlayers (ctx, builder) {
   builder.suggestMatching(state.nearbyPlayers)
 }
@@ -25,7 +26,6 @@ function onTick () {
     if (World && World.isWorldLoaded() && state.started === true) {
       if (state.running === false) {
         logInfo('Started!')
-        Chat.getLogger('usb').warn('[GlowHealth] Service is now running...')
         state.running = true
       }
     } else return false
@@ -149,7 +149,6 @@ function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
 }
 
 function start () {
-  Chat.getLogger('usb').warn('[GlowHealth] Starting service...')
   commander(false)
   state.started = true
   if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick)) // ignore if already started
@@ -165,7 +164,6 @@ function stop (error) {
 
 function terminate () {
   logInfo('Stopped!')
-  Chat.getLogger('usb').fatal('[GlowHealth] Stopping service...')
   commander(true)
   drawHealthStop()
   state.started = false
@@ -217,7 +215,13 @@ function commander (stop = false) {
       .literalArg('toggle')
       .booleanArg('enabled')
       .executes(JavaWrapper.methodToJava(cmdWhitelistToggle))
-
+  .or(1)
+    .literalArg('draw')
+      .literalArg('move')
+        .intArg('x')
+        .intArg('y')
+        .wordArg('align').suggestMatching(['left', 'center', 'right'])
+        .executes(JavaWrapper.methodToJava(cmdDrawMove))
 
   command.register()
 }
@@ -273,6 +277,31 @@ function cmdWhitelistToggle (ctx) {
   mode.whitelist.enabled = boolean
   writeCustomConfig(mode)
   return true
+}
+
+function cmdDrawMove (ctx) {
+  const x = ctx.getArg('x')
+  const y = ctx.getArg('y')
+  let align = ctx.getArg('align')
+  switch (align) {
+    case 'left':
+      align = 0
+      break
+    case 'center':
+      align = 0.5
+      break
+    case 'right':
+      align = 1
+      break
+    default:
+      align = 0
+      break
+  }
+  mode = getConfig()
+  mode.draw.x = x
+  mode.draw.y = y
+  mode.draw.align = align
+  writeCustomConfig(mode)
 }
 
 start()

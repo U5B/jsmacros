@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf build/ && tsc"
   },
   "dependencies": {
     "eslint": "^8.15.0",

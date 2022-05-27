@@ -11,11 +11,16 @@ const config = {
         enabled: true
     },
     draw: {
-        enabled: false
+        /// draw a hud with nearby player health
+        // if you just want this without glow, then turn off raytrace and blatant
+        enabled: false,
+        x: 0,
+        y: 0,
+        align: 0 // 0 = left, center = 0.5, right = 1
     },
     whitelist: {
         // only allow specific players to glow
-        // useful if you have specific people that you want to heal that  are extremely good at dying
+        // useful if you have specific people that you want to heal that are extremely good at dying
         // Example: ['T0OFU', 'Beatq']
         enabled: false,
         players: [] // list of players in string format (['Player1', 'Player2']) to whitelist
@@ -35,11 +40,11 @@ const config = {
         // set to false to not ignore glowing players
         ignoreGlowing: true,
         // used for blatant mode to highlight the player you have selected
-        color: 0xFFA500
+        color: 0xFFA500 // orange
     },
     // Max health is usually 20hp. 1 heart = 2hp
-    // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
-    // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
+    // Hallowed Beam 2 is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
+    // Hand of Light 2 is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
     health: {
         critical: {
             color: 0xFF0000,

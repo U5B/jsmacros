@@ -10,7 +10,7 @@ let started = false
 function onTick (inputMode) {
   if (World && World.isWorldLoaded()) {
     mode = inputMode
-    if (World.getTime() % 100 !== 0) return // every 5 seconds, check if a player has been unloaded
+    if (World.getTime() % 20 !== 0) return // every second, check if a player has been unloaded
     if (started === false) startListeners()
     playerMap = {}
     const players = World.getLoadedPlayers()
@@ -29,13 +29,13 @@ function parseHealthChange (event) {
 }
 
 function parseEntity (entity) {
-  if (entity?.getType() !== 'minecraft:player') return
+  if (util.isPlayer(entity)) return
   const player = entity.asPlayer()
   const name = player.getName().getString()
   // if (name === Player.getPlayer().getName().getString()) return
   const currentHealth = Math.round(player.getHealth())
   let maxHealth = Math.round(player.getMaxHealth())
-  if (maxHealth === 0) maxHealth = 0.001 // dividing by 0 is bad
+  if (maxHealth === 0) maxHealth = 1 // dividing by 0 is bad
   playerMap[name] = {
     hp: currentHealth,
     maxHp: maxHealth
@@ -54,7 +54,8 @@ function determineHealthColor ([name, player]) {
 }
 
 function drawHealthOverlay () {
-  if (!healthTable) drawHealthStartup()
+  // configuration check? probably should be moved
+  if (!healthTable || state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) drawHealthStartup()
   healthTable.lines = [
     ...Object.entries(playerMap)
       // @ts-ignore # sort by health decimal
@@ -64,16 +65,20 @@ function drawHealthOverlay () {
   ]
   return true
 }
-
-function drawHealthStartup () {
-  if (h2d) {
-    h2d.unregister()
-    return
-  }
-  if (healthTable) return healthTable
+const state = {
+  x: 0,
+  y: 0,
+  align: 0
+}
+function drawHealthStartup (stop = false) {
+  if (h2d) h2d.unregister()
+  if (stop === true) return
   h2d = Hud.createDraw2D()
   h2d.register()
-  healthTable = new TextLines(h2d, 425, 30, 0)
+  healthTable = new TextLines(h2d, mode.draw.x, mode.draw.y, mode.draw.align) // hardcoded is bad
+  state.x = mode.draw.x
+  state.y = mode.draw.y
+  state.align = mode.draw.align
   healthTable.lines = []
   return healthTable
 }
@@ -95,11 +100,14 @@ function terminate () {
   JsMacros.off('Tick', eventListeners.tick)
   JsMacros.off('EntityHealed', eventListeners.heal)
   JsMacros.off('EntityDamaged', eventListeners.damage)
-  drawHealthStartup()
+  eventListeners.tick = null
+  eventListeners.heal = null
+  eventListeners.damage = null
+  drawHealthStartup(true)
   started = false
   return true
 }
 
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate)
-export { terminate, onTick }
+export { terminate, onTick, drawHealthStartup }

@@ -1,3 +1,5 @@
+// @ts-ignore
+const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 import { config } from "../health/config"
 
 const decimalToRGB = (color: number): [number, number, number] => [
@@ -56,4 +58,20 @@ function trimString (str) {
     .toLowerCase()
 }
 
-export { isPlayer, determineColor, decimalToRGB, rgbToDecimal, rayTraceEntity, cleanString, trimString }
+function debugInfo (input) { // node debug
+  // @ts-ignore
+  if (nodeEnv) {
+    // @ts-ignore
+    console.log(input)
+  } else {
+    Chat.getLogger('usb').warn(input)
+  }
+}
+
+function logInfo (string, prefix = 'USB', noChat = false) {
+  if (!nodeEnv && noChat === false) Chat.log(`§7[§a${prefix}§7]§r ${string}`)
+  string = string.replaceAll(/§./g, '')
+  debugInfo(`[${prefix}]: ${string}`)
+}
+
+export { isPlayer, determineColor, decimalToRGB, rgbToDecimal, rayTraceEntity, cleanString, trimString, debugInfo, logInfo, nodeEnv }
