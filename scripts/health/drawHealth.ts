@@ -43,17 +43,9 @@ function parseEntity (entity) {
   drawHealthOverlay()
 }
 
-// hardcoded colors because uh, json is a pain
-function determineColor (decimalHealth:Number) {
-  let color = util.decimalToRGB(mode.health.color.base)
-  if (decimalHealth > mode.health.low) color = util.decimalToRGB(mode.health.color.good) // good
-  else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical) color = util.decimalToRGB(mode.health.color.low) // needs healing
-  else if (decimalHealth <= mode.health.critical) color = util.decimalToRGB(mode.health.color.critical) // needs healing now
-  return color
-}
-
 function determineHealthColor ([name, player]) {
-  const [r, g, b] = determineColor(player.hp / player.maxHp)
+  const colorObject = util.determineColor(player.hp / player.maxHp, mode.health)
+  const [r, g ,b] = colorObject.rgb
   const builder = Chat.createTextBuilder()
   builder.append(`${player.hp}/${player.maxHp} ${name}`)
   builder.withColor(r, g, b)

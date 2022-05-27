@@ -38,14 +38,29 @@ const config = {
   // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
   // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
   health: {
-    critical: 0.5, // health is 50%
-    low: 0.7, // health is 70%
-    // glowing colors in RGB format
-    color: {
-      critical: 0xFF0000, // red
-      low: 0xFFFF00, // yellow
-      good: 0x00FF00, // green
-      base: 0xFFFFFF // white
+    critical: {
+      color: 0xFF0000, // green
+      rgb: [255, 255, 255],
+      percent: 0.5, // health is 50%
+      glow: true
+    },
+    low: {
+      color: 0xFFFF00, // yellow
+      rgb: [255, 255, 255],
+      percent: 0.7, // health is 70%
+      glow: true,
+    },
+    good: {
+      color: 0x00FF00,
+      rgb: [255, 255, 255],
+      percent: 1.0,
+      glow: false
+    },
+    base: {
+      color: 0xFFFFFF,
+      rgb: [255, 255, 255],
+      percent: 1.0,
+      glow: false
     }
   }
 }
@@ -130,4 +145,4 @@ function writeCustomConfig (config) {
   }
 }
 
-export { getConfig, writeCustomConfig, getModes }
+export { getConfig, writeCustomConfig, getModes, config }

@@ -1,7 +1,7 @@
-// Line 1: Item
-// Line 2: spacer
-// Line 3: Buy Price & Currency
-// Line 4: Sell Price & Currency
+// Line 1: Pineapple
+// Line 2: _______________
+// Line 3: Buy for 69 ccs
+// Line 4: Sell for 42 ccs
 // $1 - item name, $2 - buy price, $3 - buy currency, $4 - sell price, $5 - sell currency
 const stonkRegex = /(.+) _{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/
 const lastStonkCoSign = {

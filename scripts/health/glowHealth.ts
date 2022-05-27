@@ -2,7 +2,6 @@
 import * as util from "../lib/util"
 import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHealth"
 
-
 // Configuration Start
 import { getConfig, getModes, writeCustomConfig } from "./config"
 let mode = getConfig('custom')
@@ -16,13 +15,8 @@ const state = {
   nearbyPlayers: [],
   selectedPlayer: ''
 }
-
-function currentNearbyPlayers () {
-  return state.nearbyPlayers
-}
-
-function currentGlowingPlayers () {
-  return state.glowingPlayers
+function suggestNearbyPlayers (ctx, builder) {
+  builder.suggestMatching(state.nearbyPlayers)
 }
 
 function onTick () {
@@ -51,7 +45,7 @@ function onTick () {
 }
 
 function isPlayerVisible (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
-  if (!isPlayer(entity)) return null
+  if (!util.isPlayer(entity)) return null
   if (mode.raytrace.depth === false) return true
   if (isPlayerGlowing(entity) === true) return true
   const javaEntity = entity.asLiving().getRaw()
@@ -123,8 +117,8 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
   // player.getRaw().method_6067() is absorption hearts
   const health = player.getHealth() /* + player.getRaw().method_6067() */
   const maxHealth = player.getMaxHealth() /* + player.getRaw().method_6067() */
-  const decimalHealth = Number(health / maxHealth)
-  const color = determineColor(decimalHealth)
+  const percentHealth = Number(health / maxHealth)
+  const color = util.determineColor(percentHealth, mode.health)
   const decimalColor = color.color
   player.setGlowingColor(decimalColor)
   player.setGlowing(true)
@@ -134,7 +128,7 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
 
 // Reset player to their previous glowing state
 function resetPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
-  if (!isPlayer(player)) return false // only accept players
+  if (!util.isPlayer(player)) return false // only accept players
   player.resetGlowing() // no more G L O W
   player.resetGlowingColor()
   return true
@@ -152,25 +146,6 @@ function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
     resetPlayer(player)
   }
   return true
-}
-
-// determine the health color based on health decimal
-// maybe in the future I multiply by 100 so I can Math.floor/Math.round values
-function determineColor (decimalHealth:Number) {
-  const color = { glow: false, color: mode.health.color.base }
-  if (decimalHealth > mode.health.low) color.color = mode.health.color.good // good
-  else if (decimalHealth <= mode.health.low && decimalHealth > mode.health.critical) color.color = mode.health.color.low // needs healing
-  else if (decimalHealth <= mode.health.critical) color.color = mode.health.color.critical // needs healing now
-  return color
-}
-
-function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
-  if (!player) return false
-  if (player.getType() === 'minecraft:player') {
-    if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
-    return true
-  }
-  return false
 }
 
 function start () {
@@ -226,11 +201,11 @@ function commander (stop = false) {
   .or(1)
     .literalArg('whitelist')
       .literalArg('add')
-      .wordArg('player')
+      .wordArg('player').suggest(suggestNearbyPlayers)
       .executes(JavaWrapper.methodToJava(cmdWhitelistAdd))
     .or(2)
       .literalArg('remove')
-      .wordArg('player')
+      .wordArg('player').suggest(suggestNearbyPlayers)
       .executes(JavaWrapper.methodToJava(cmdWhitelistRemove))
     .or(2)
       .literalArg('list')

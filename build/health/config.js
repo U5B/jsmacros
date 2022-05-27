@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
+exports.config = exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 // default config
 const configPath = '../../config/glowHealth.json';
@@ -41,17 +41,33 @@ const config = {
     // Hallowed Beam is 30% of max health (6hp).        Total Healing: 6hp (3 hearts)
     // Hand of Light is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
     health: {
-        critical: 0.5,
-        low: 0.7,
-        // glowing colors in RGB format
-        color: {
-            critical: 0xFF0000,
-            low: 0xFFFF00,
-            good: 0x00FF00,
-            base: 0xFFFFFF // white
+        critical: {
+            color: 0xFF0000,
+            rgb: [255, 255, 255],
+            percent: 0.5,
+            glow: true
+        },
+        low: {
+            color: 0xFFFF00,
+            rgb: [255, 255, 255],
+            percent: 0.7,
+            glow: true,
+        },
+        good: {
+            color: 0x00FF00,
+            rgb: [255, 255, 255],
+            percent: 1.0,
+            glow: false
+        },
+        base: {
+            color: 0xFFFFFF,
+            rgb: [255, 255, 255],
+            percent: 1.0,
+            glow: false
         }
     }
 };
+exports.config = config;
 function getModes() {
     const modes = ['espGlowing', 'espLegit', 'persistGlowing', 'persistLegit', 'raytraceGlowing', 'raytraceLegit', 'custom', 'default'];
     return modes;

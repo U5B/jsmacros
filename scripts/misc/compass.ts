@@ -17,9 +17,9 @@ function onKeyPress (event) {
           builder.append('§7[§aCOMPASS§7]§r ')
           const coordinates = `(${coord.x}, ${coord.y}, ${coord.z})`
           builder.append(coordinates)
-          builder.withColor(0xa)
+          builder.withColor(0xa) // green
           builder.append(' [COPY]')
-          builder.withColor(0xc)
+          builder.withColor(0xc) // red
           builder.withClickEvent('copy_to_clipboard', coordinates)
           builder.withShowTextHover(Chat.createTextHelperFromString('Click to copy coordinates to clipboard.'))
           Chat.log(builder.build())
@@ -32,6 +32,7 @@ function onKeyPress (event) {
   return false
 }
 
+Chat.log('§7[§aCOMPASS§7]§r Started. Left click a compass to begin.')
 const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress))
 
 function terminate () {
