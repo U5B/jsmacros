@@ -34,7 +34,7 @@ function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Playe
 }
 
 // health = { color: { base, good, low, critical }}
-function determineColor (healthPercent: number, health = config.health,) {
+function determineColor (healthPercent: number, health = config.health) {
   let color = health.base
   if (healthPercent > health.low.percent) color = health.good
   else if (healthPercent <= health.low.percent && healthPercent > health.critical.percent) color = health.low // needs healing

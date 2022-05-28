@@ -1,4 +1,5 @@
 import { TextLines } from "../lib/textLines"
+import * as util from "../lib/util"
 
 const fakePlayerRegex = /~BTLP[0-9a-z]{8} (\d+)/
 const fakePlayerNumbers = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19']
@@ -57,6 +58,12 @@ function start (start: boolean = true) {
   tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick))
 }
 
+function help () {
+  logInfo(`Usage:
+/meffects move <x> <y> <align>
+/meffects help`)
+  return true
+}
 let command
 function commander (stop = false) {
   if (command) {
@@ -64,26 +71,20 @@ function commander (stop = false) {
     command = null
   }
   if (stop === true) return true
-  command = Chat.createCommandBuilder('drawEffects')
-  command.wordArg('select')
+  logInfo(`Started MEffects! Type /meffects help for more info.`)
+  command = Chat.createCommandBuilder('meffects')
+  command
     .literalArg('move')
-      .intArg('x') // x pos
-      .intArg('y') // y pos
-      .wordArg('align').suggestMatching(['left', 'center', 'right']) // align
-      .executes(JavaWrapper.methodToJava(runCommand))
+    .intArg('x') // x pos
+    .intArg('y') // y pos
+    .wordArg('align').suggestMatching(['left', 'center', 'right']) // align
+    .executes(JavaWrapper.methodToJava(configure))
+  .or(1)
+    .literalArg('help')
+    .executes(JavaWrapper.methodToJava(help))
   command.register()
 }
 
-function runCommand (ctx) {
-  switch (ctx.getArg('select')){
-    case 'config':
-      configure(ctx)
-      break
-    default:
-      configure(ctx)
-      break
-  }
-}
 function configure (ctx) {
   config.x = ctx.getArg('x')
   config.y = ctx.getArg('y')
@@ -103,6 +104,7 @@ function configure (ctx) {
       break
   }
   writeConfig(config)
+  logInfo(`Effects configured: x: ${config.x}, y: ${config.y}, align: ${config.align}`)
   start(true)
   return true
 }
@@ -137,7 +139,9 @@ function terminate () {
   h2d.unregister()
 }
 
-
+function logInfo (string, noChat = false) {
+  util.logInfo(string, 'MEffects', noChat)
+}
 
 start(true)
 // @ts-ignore

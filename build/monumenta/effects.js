@@ -1,6 +1,30 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const textLines_1 = require("../lib/textLines");
+const util = __importStar(require("../lib/util"));
 const fakePlayerRegex = /~BTLP[0-9a-z]{8} (\d+)/;
 const fakePlayerNumbers = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
 let table;
@@ -61,6 +85,12 @@ function start(start = true) {
     table.lines = [];
     tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick));
 }
+function help() {
+    logInfo(`Usage:
+/meffects move <x> <y> <align>
+/meffects help`);
+    return true;
+}
 let command;
 function commander(stop = false) {
     if (command) {
@@ -69,24 +99,18 @@ function commander(stop = false) {
     }
     if (stop === true)
         return true;
-    command = Chat.createCommandBuilder('drawEffects');
-    command.wordArg('select')
+    logInfo(`Started MEffects! Type /meffects help for more info.`);
+    command = Chat.createCommandBuilder('meffects');
+    command
         .literalArg('move')
         .intArg('x') // x pos
         .intArg('y') // y pos
         .wordArg('align').suggestMatching(['left', 'center', 'right']) // align
-        .executes(JavaWrapper.methodToJava(runCommand));
+        .executes(JavaWrapper.methodToJava(configure))
+        .or(1)
+        .literalArg('help')
+        .executes(JavaWrapper.methodToJava(help));
     command.register();
-}
-function runCommand(ctx) {
-    switch (ctx.getArg('select')) {
-        case 'config':
-            configure(ctx);
-            break;
-        default:
-            configure(ctx);
-            break;
-    }
 }
 function configure(ctx) {
     config.x = ctx.getArg('x');
@@ -107,6 +131,7 @@ function configure(ctx) {
             break;
     }
     writeConfig(config);
+    logInfo(`Effects configured: x: ${config.x}, y: ${config.y}, align: ${config.align}`);
     start(true);
     return true;
 }
@@ -138,6 +163,9 @@ function terminate() {
     JsMacros.off('Tick', tickLoop);
     commander(true);
     h2d.unregister();
+}
+function logInfo(string, noChat = false) {
+    util.logInfo(string, 'MEffects', noChat);
 }
 start(true);
 // @ts-ignore

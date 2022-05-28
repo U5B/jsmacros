@@ -1,13 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-ignore # figure out if it is a node env
 const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1);
+const util = __importStar(require("../lib/util"));
 // Line 1: Pineapple
 // Line 2: _______________
 // Line 3: Buy for 69 ccs
 // Line 4: Sell for 42 ccs
 // $1 - item name, $2 - buy price, $3 - buy currency, $4 - sell price, $5 - sell currency
-const stonkRegex = /(.+) _{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/;
+const stonkRegex = /([\w\d ]+) _{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/;
 const lastStonkCoSign = {
     item: '',
     buy: 0,
@@ -89,13 +113,12 @@ function checkForStonkCoSign(chat) {
     lastStonkCoSign.sellCurrency = sellCurrency;
     const buyCurrencyColor = calculateCurrencyColor(buyCurrency);
     const sellCurrencyColor = calculateCurrencyColor(sellCurrency);
-    Chat.log(`§7[§aUMarket§7]§r StonkCo ${colors.item}'${item}'§r: ${colors.buy}buy:§r ${buyCurrencyColor}${buyPrice}${buyCurrency}§r, ${colors.sell}sell:§r ${sellCurrencyColor}${sellPrice}${sellCurrency}§r`);
-    resetSignData();
+    Chat.log(`§7[§aMMarket§7]§r StonkCo ${colors.item}'${item}'§r: ${colors.buy}buy:§r ${buyCurrencyColor}${buyPrice}${buyCurrency}§r, ${colors.sell}sell:§r ${sellCurrencyColor}${sellPrice}${sellCurrency}§r`);
     return true;
 }
 function stonkCoCalculator(ctx) {
     if (lastStonkCoSign.item === '')
-        return Chat.log('§7[§aUMarket§7]§r No StonkCo sign found. Right-click a StonkCo sign first or use the /umarket calc command.');
+        return Chat.log('§7[§aMMarket§7]§r No StonkCo sign found. Right-click a StonkCo sign first or use the /mmarket calc command.');
     const itemCount = ctx.getArg('item count');
     const buying = ctx.getArg('buy/sell') === 'buy';
     let price = 0;
@@ -109,7 +132,8 @@ function stonkCoCalculator(ctx) {
         currency = lastStonkCoSign.sellCurrency;
     }
     const output = calculator(price, itemCount, currency);
-    Chat.log(`§7[§aUMarket§7]§r ${colors.item}${itemCount}x '${lastStonkCoSign.item}'§r: ${buying ? `${colors.buy}Buy§r` : `${colors.sell}Sell§r`}: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
+    Chat.log(`§7[§aMMarket§7]§r ${colors.item}${itemCount}x '${lastStonkCoSign.item}'§r: ${buying ? `${colors.buy}Buy§r` : `${colors.sell}Sell§r`}: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
+    resetSignData(); // reset sign data after usage
     return true;
 }
 function regularCalculator(ctx) {
@@ -117,7 +141,7 @@ function regularCalculator(ctx) {
     const price = ctx.getArg('price');
     const currency = ctx.getArg('currency');
     const output = calculator(price, itemCount, currency);
-    Chat.log(`§7[§aUMarket§7]§r ${colors.item}${itemCount}x items§r: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
+    Chat.log(`§7[§aMMarket§7]§r ${colors.item}${itemCount}x items§r: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
     return true;
 }
 function calculator(price, itemCount, currency) {
@@ -154,11 +178,11 @@ function calculateCurrency(total, currency, multiplier) {
     return currencyObject;
 }
 function help() {
-    Chat.log(`§7[§aUMarket§7]§r Help:
-/umarket stonk buy/sell <item count>
-  for StonkCo signs
-/umarket calc <currency> <price> <item count>
-  regular calculator`);
+    logInfo(`Usage:
+/mmarket stonk buy/sell <item count>
+/mmarket calc <currency> <price> <item count>
+/mmarket help
+`);
     return true;
 }
 let command;
@@ -169,7 +193,7 @@ function commander(stop = false) {
     }
     if (stop === true)
         return true;
-    command = Chat.createCommandBuilder('umarket');
+    command = Chat.createCommandBuilder('mmarket');
     command
         .literalArg('stonk')
         .wordArg('buy/sell').suggestMatching(['buy', 'sell'])
@@ -187,6 +211,7 @@ function commander(stop = false) {
     command.register();
 }
 function start() {
+    logInfo('Started! Type /mmarket help for more info.');
     commander();
     JsMacros.on('RecvMessage', JavaWrapper.methodToJavaAsync(checkForStonkCoSign));
     JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(resetSignData));
@@ -204,4 +229,7 @@ else {
     const test = calculator(33, 2, 'ccs');
     // @ts-ignore
     console.log(test);
+}
+function logInfo(string, noChat = false) {
+    util.logInfo(string, 'MMarket', noChat);
 }

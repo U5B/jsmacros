@@ -11,7 +11,13 @@ function onTick (inputMode) {
   if (World && World.isWorldLoaded()) {
     mode = inputMode
     if (World.getTime() % 20 !== 0) return // every second, check if a player has been unloaded
-    if (started === false) startListeners()
+    if (started === false) {
+      startListeners()
+      drawHealthStartup()
+    } else if (state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) {
+      drawHealthStartup()
+    }
+    healthTable.lines = []
     playerMap = {}
     const players = World.getLoadedPlayers()
     // @ts-ignore
@@ -29,7 +35,7 @@ function parseHealthChange (event) {
 }
 
 function parseEntity (entity) {
-  if (util.isPlayer(entity)) return
+  if (!util.isPlayer(entity)) return
   const player = entity.asPlayer()
   const name = player.getName().getString()
   // if (name === Player.getPlayer().getName().getString()) return
@@ -54,8 +60,6 @@ function determineHealthColor ([name, player]) {
 }
 
 function drawHealthOverlay () {
-  // configuration check? probably should be moved
-  if (!healthTable || state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) drawHealthStartup()
   healthTable.lines = [
     ...Object.entries(playerMap)
       // @ts-ignore # sort by health decimal
@@ -97,6 +101,8 @@ function startListeners () {
 }
 
 function terminate () {
+  if (started === false) return
+  healthTable.lines = []
   JsMacros.off('Tick', eventListeners.tick)
   JsMacros.off('EntityHealed', eventListeners.heal)
   JsMacros.off('EntityDamaged', eventListeners.damage)

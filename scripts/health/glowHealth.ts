@@ -25,7 +25,7 @@ function onTick () {
   try {
     if (World && World.isWorldLoaded() && state.started === true) {
       if (state.running === false) {
-        logInfo('Started!')
+        logInfo('Started! Type /glowhealth help for more info.')
         state.running = true
       }
     } else return false
@@ -38,6 +38,7 @@ function onTick () {
       highlightPlayerCursorHealth()
     }
     if (mode.draw.enabled === true) drawHealthTick(mode)
+    else drawHealthStop()
   return true
   } catch (e) {
     stop(e)
@@ -180,6 +181,19 @@ function logInfo (string) {
   Chat.log(`§7[§aGlowHealth§7]§r ${string}`)
 }
 
+function help () {
+  logInfo(`Usage: 
+/glowhealth preset <preset>
+/glowhealth toggle <true/false>
+/glowhealth whiteliist <add/remove> <player>
+/glowhealth whitelist <list>
+/glowhealth whitelist clear
+/glowhealth toggle <true/false>
+/glowhealth draw move <x> <y> <align>
+/glowhealth draw toggle <true/false>
+/glowhealth help`)
+}
+
 let command
 function commander (stop = false) {
   if (command) {
@@ -199,11 +213,11 @@ function commander (stop = false) {
   .or(1)
     .literalArg('whitelist')
       .literalArg('add')
-      .wordArg('player').suggest(suggestNearbyPlayers)
+      .wordArg('player').suggest(JavaWrapper.methodToJava(suggestNearbyPlayers))
       .executes(JavaWrapper.methodToJava(cmdWhitelistAdd))
     .or(2)
       .literalArg('remove')
-      .wordArg('player').suggest(suggestNearbyPlayers)
+      .wordArg('player').suggest(JavaWrapper.methodToJava(suggestNearbyPlayers))
       .executes(JavaWrapper.methodToJava(cmdWhitelistRemove))
     .or(2)
       .literalArg('list')
@@ -222,6 +236,13 @@ function commander (stop = false) {
         .intArg('y')
         .wordArg('align').suggestMatching(['left', 'center', 'right'])
         .executes(JavaWrapper.methodToJava(cmdDrawMove))
+    .or(2)
+      .literalArg('toggle')
+      .booleanArg('enabled')
+      .executes(JavaWrapper.methodToJava(cmdDrawToggle))
+  .or(1)
+    .literalArg('help')
+    .executes(JavaWrapper.methodToJava(help))
 
   command.register()
 }
@@ -246,6 +267,7 @@ function cmdWhitelistAdd (ctx) {
   const player = ctx.getArg('player')
   mode = getConfig()
   mode.whitelist.players.push(player)
+  logInfo('Added ' + player + ' to the whitelist')
   writeCustomConfig(mode)
   return true
 }
@@ -254,6 +276,7 @@ function cmdWhitelistRemove (ctx) {
   const player = ctx.getArg('player')
   mode = getConfig()
   mode.whitelist.players = mode.whitelist.players.filter(p => p !== player)
+  logInfo('Removed ' + player + ' from the whitelist')
   writeCustomConfig(mode)
   return true
 }
@@ -261,6 +284,7 @@ function cmdWhitelistRemove (ctx) {
 function cmdWhitelistClear () {
   mode = getConfig()
   mode.whitelist.players = []
+  logInfo('Cleared the whitelist')
   writeCustomConfig(mode)
   return true
 }
@@ -275,6 +299,7 @@ function cmdWhitelistToggle (ctx) {
   const boolean = ctx.getArg('enabled')
   mode = getConfig()
   mode.whitelist.enabled = boolean
+  logInfo('Whitelist is now ' + (boolean ? 'enabled' : 'disabled'))
   writeCustomConfig(mode)
   return true
 }
@@ -301,7 +326,19 @@ function cmdDrawMove (ctx) {
   mode.draw.x = x
   mode.draw.y = y
   mode.draw.align = align
+  logInfo(`Draw configured: x: ${x}, y: ${y}, align: ${align}`)
+
   writeCustomConfig(mode)
+  return true
+}
+
+function cmdDrawToggle (ctx) {
+  const boolean = ctx.getArg('enabled')
+  mode = getConfig()
+  mode.draw.enabled = boolean
+  logInfo('Draw is now ' + (boolean ? 'enabled' : 'disabled'))
+  writeCustomConfig(mode)
+  return true
 }
 
 start()
