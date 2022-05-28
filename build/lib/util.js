@@ -20,7 +20,6 @@ function rayTraceEntity(reach) {
     // @ts-ignore # DebugRenderer.getTargetedEntity()
     const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reach);
     // @ts-ignore # Check if the result is empty
-    Chat.log(result);
     if (!result || result?.isEmpty())
         return false;
     // @ts-ignore
