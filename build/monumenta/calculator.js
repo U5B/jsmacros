@@ -31,7 +31,8 @@ const util = __importStar(require("../lib/util"));
 // Line 3: Buy for 69 ccs
 // Line 4: Sell for 42 ccs
 // $1 - item name, $2 - buy price, $3 - buy currency, $4 - sell price, $5 - sell currency
-const stonkRegex = /([\w\d ]+) _{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/;
+const stonkRegex = /([\w\d\. ]+) _{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/;
+const stonkCurrencyRegex = /([\w\d\. ]+) _{15} 1/;
 const lastStonkCoSign = {
     item: '',
     buy: 0,

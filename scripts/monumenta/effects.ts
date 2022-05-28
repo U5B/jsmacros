@@ -1,6 +1,7 @@
 import { TextLines } from "../lib/textLines"
 import * as util from "../lib/util"
 
+let started = false
 const fakePlayerRegex = /~BTLP[0-9a-z]{8} (\d+)/
 const fakePlayerNumbers = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19']
 let table
@@ -14,7 +15,7 @@ let config = {
 }
 
 function onTick () {
-  if (!World || !World.isWorldLoaded() || World.getTime() % 2 != 0) return
+  if (!World || !World.isWorldLoaded() || World.getTime() % 5 != 0) return
   effectList = []
   const players = World.getPlayers()
   // @ts-ignore
@@ -51,11 +52,13 @@ function start (start: boolean = true) {
   }
   config = getConfig()
   commander(false)
+  if (started === false) logInfo(`Started MEffects! Type /meffects help for more info.`)
   h2d = Hud.createDraw2D()
   h2d.register()
   table = new TextLines(h2d, config.x, config.y, config.align)
   table.lines = []
   tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick))
+  started = true
 }
 
 function help () {
@@ -71,7 +74,6 @@ function commander (stop = false) {
     command = null
   }
   if (stop === true) return true
-  logInfo(`Started MEffects! Type /meffects help for more info.`)
   command = Chat.createCommandBuilder('meffects')
   command
     .literalArg('move')
@@ -137,6 +139,7 @@ function terminate () {
   JsMacros.off('Tick', tickLoop)
   commander(true)
   h2d.unregister()
+  started = false
 }
 
 function logInfo (string, noChat = false) {

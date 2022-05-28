@@ -38,12 +38,7 @@ const state = {
     nearbyPlayers: [],
     selectedPlayer: ''
 };
-function suggestNearbyPlayers(ctx, builder) {
-    builder.suggestMatching(state.nearbyPlayers);
-}
 function onTick() {
-    if (mode.enabled === false)
-        return;
     try {
         if (World && World.isWorldLoaded() && state.started === true) {
             if (state.running === false) {
@@ -53,15 +48,20 @@ function onTick() {
         }
         else
             return false;
-        if (mode.blatant.enabled === true) {
-            state.glowingPlayers = []; // reset all players being affected by this
-            // Check all loaded players
-            checkPlayers();
-            if (mode.raytrace.enabled === true)
-                highlightPlayerCursor();
+        if (mode.enabled === true) {
+            if (mode.blatant.enabled === true) {
+                state.glowingPlayers = []; // reset all players being affected by this
+                // Check all loaded players
+                checkPlayers();
+                if (mode.raytrace.enabled === true)
+                    highlightPlayerCursor();
+            }
+            else if (mode.raytrace.enabled === true) {
+                highlightPlayerCursorHealth();
+            }
         }
-        else if (mode.raytrace.enabled === true) {
-            highlightPlayerCursorHealth();
+        else {
+            resetPlayers(false, false);
         }
         if (mode.draw.enabled === true)
             (0, drawHealth_1.onTick)(mode);
@@ -146,7 +146,7 @@ function checkPlayer(player) {
     if (!isPlayerVisible(player))
         return false; // only accept players
     const name = player.getName()?.getString();
-    if (mode.whitelist.enabled === true && mode.whitelist.players.includes(name) === false)
+    if (mode.whitelist.enabled === true && mode.whitelist.players.length > 0 && mode.whitelist.players.includes(name) === false)
         return false;
     // player.getRaw().method_6067() is absorption hearts
     const health = player.getHealth(); /* + player.getRaw().method_6067() */
@@ -246,11 +246,11 @@ function commander(stop = false) {
         .or(1)
         .literalArg('whitelist')
         .literalArg('add')
-        .wordArg('player').suggest(JavaWrapper.methodToJava(suggestNearbyPlayers))
+        .wordArg('player')
         .executes(JavaWrapper.methodToJava(cmdWhitelistAdd))
         .or(2)
         .literalArg('remove')
-        .wordArg('player').suggest(JavaWrapper.methodToJava(suggestNearbyPlayers))
+        .wordArg('player')
         .executes(JavaWrapper.methodToJava(cmdWhitelistRemove))
         .or(2)
         .literalArg('list')
