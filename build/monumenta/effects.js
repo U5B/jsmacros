@@ -67,7 +67,6 @@ function parseLine(player) {
     }
     if (playerDisplayName == '')
         return;
-    playerDisplayName = playerDisplayName.trim();
     effectList.push(playerDisplayName);
 }
 function start(start = true) {

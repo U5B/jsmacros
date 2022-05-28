@@ -121,7 +121,7 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
   const color = util.determineColor(percentHealth, mode.health)
   const decimalColor = color.color
   player.setGlowingColor(decimalColor)
-  player.setGlowing(true)
+  if (color.glow) player.setGlowing(color.glow)
   state.glowingPlayers.push(name)
   return true
 }

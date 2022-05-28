@@ -39,7 +39,6 @@ function parseLine (player: Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pla
     return
   }
   if (playerDisplayName == '') return
-  playerDisplayName = playerDisplayName.trim()
   effectList.push(playerDisplayName)
 }
 
