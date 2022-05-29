@@ -176,8 +176,8 @@ function terminate () {
   return true
 }
 
-function logInfo (string) {
-  Chat.log(`§7[§aGlowHealth§7]§r ${string}`)
+function logInfo (string, noChat = false) {
+  util.logInfo(string, 'GlowHealth', noChat)
 }
 
 function help () {
@@ -251,7 +251,6 @@ function commander (stop = false) {
   .or(1)
     .literalArg('help')
     .executes(JavaWrapper.methodToJava(help))
-
   command.register()
 }
 
