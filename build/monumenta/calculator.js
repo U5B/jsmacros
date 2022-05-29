@@ -193,24 +193,26 @@ function stonkConvertCalculator(ctx) {
     if (lastStonkCoSign.item === '')
         return logInfo(messages.noStonkCoSign);
     if (lastStonkCoSign.item !== 'Currency Convert')
-        return logInfo('StonkCo Currency sign found. Try /stonk buy <amount> or /stonk sell <amount>.');
+        return logInfo('Currency sign not found. Try /stonk buy <amount> or /stonk sell <amount>.');
     const hyperAmount = ctx.getArg('hyper amount');
     const currency = ctx.getArg('currency');
-    const currencyFrom = currencyMap[currency].region.hyper;
-    const currencyFromColor = calculateCurrencyColor(currencyFrom);
     let toCurrency = '';
     let toCurrencyAmount = 0;
-    if (currencyFrom === 'hcs') {
+    let currencyFrom = '';
+    if (currency === 'cxp') {
         toCurrencyAmount = lastStonkCoSign.buy;
         toCurrency = lastStonkCoSign.buyCurrency;
+        currencyFrom = currencyMap[lastStonkCoSign.sellCurrency].region.hyper;
     }
-    else if (currencyFrom === 'hxp') {
+    else if (currency === 'ccs') {
         toCurrencyAmount = lastStonkCoSign.sell;
         toCurrency = lastStonkCoSign.sellCurrency;
+        currencyFrom = currencyMap[lastStonkCoSign.buyCurrency].region.hyper;
     }
     else {
         return logInfo('Invalid argument.');
     }
+    const currencyFromColor = calculateCurrencyColor(currencyFrom);
     const output = calculator(toCurrencyAmount, hyperAmount, toCurrency);
     logInfo(`${currencyFromColor}${hyperAmount}${currencyFrom}§r > ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
     return true;
