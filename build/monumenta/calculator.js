@@ -31,13 +31,16 @@ const util = __importStar(require("../lib/util"));
 // Line 3: Buy for 69 ccs
 // Line 4: Sell for 42 ccs
 // $1 - item name, $2 - buy price, $3 - buy currency, $4 - sell price, $5 - sell currency
-const stonkRegex = /([\w\d\. ]{1,15}) [_]{15} Buy for ([\d\.]+) ([a-z]{2,3}) Sell for ([\d\.]+) ([a-z]{2,3})/;
+const stonkRegex = /([\w\d\. ]{1,17}) [_]{15,17} Buy for ([\d\.]{1,4}) ([a-z]{2,3}) Sell for ([\d\.]{1,4}) ([a-z]{2,3})/;
 // Line 1: Currency
 // Line 2: _______________
 // Line 3: 1 hcs → 69 cxp
 // Line 4: 1 hxp → 42 ccs
-// $1 - 
-const stonkCurrencyRegex = /Currency \d [_~]{15} 1 hcs → ([\d]{2,3}) ([a-z]{3}) 1 hxp → ([\d]{2,3}) ([a-z]{3})/;
+const stonkCurrencyRegex = /Currency \d [_~]{15,17} 1 hcs → ([\d]{2}) ([a-z]{3}) 1 hxp → ([\d]{2}) ([a-z]{3})/;
+const messages = {
+    noStonkCoSign: 'No sign found. Right-click a StonkCo sign first or use the /stonk calc command.',
+    stonkConvertSign: 'Currency sign not found. Try /stonk buy <amount> or /stonk sell <amount>.'
+};
 const lastStonkCoSign = {
     item: '',
     buy: 0,
@@ -111,11 +114,15 @@ function checkForStonkCoSign(chat) {
     const message = chat.text.getStringStripFormatting().trim();
     switch (true) {
         case stonkRegex.test(message): {
+            chat.text = null; // cancel original sign chat message
+            context.releaseLock();
             const [, item, buyPrice, buyCurrency, sellPrice, sellCurrency] = stonkRegex.exec(message);
             addStonkCoSign(item, buyPrice, buyCurrency, sellPrice, sellCurrency);
             break;
         }
         case stonkCurrencyRegex.test(message): {
+            chat.text = null; // cancel original sign chat message
+            context.releaseLock();
             const [, hcsToCurrencyAmount, hcsToCurrency, hxpToCurrencyAmount, hxpToCurrency] = stonkCurrencyRegex.exec(message);
             addStonkCurrencySign('Currency Convert', hcsToCurrencyAmount, hcsToCurrency, hxpToCurrencyAmount, hxpToCurrency);
             break;
@@ -137,7 +144,7 @@ function addStonkCoSign(item, buyPrice, buyCurrency, sellPrice, sellCurrency) {
         lastStonkCoSign.sellCurrency = sellCurrency;
     const buyCurrencyColor = calculateCurrencyColor(buyCurrency);
     const sellCurrencyColor = calculateCurrencyColor(sellCurrency);
-    logInfo(`StonkCo ${colors.item}'${item}'§r: ${colors.buy}buy:§r ${buyCurrencyColor}${buyPrice}${buyCurrency}§r, ${colors.sell}sell:§r ${sellCurrencyColor}${sellPrice}${sellCurrency}§r`);
+    logInfo(`${colors.item}'${item}'§r: ${colors.buy}buy:§r ${buyCurrencyColor}${buyPrice}${buyCurrency}§r, ${colors.sell}sell:§r ${sellCurrencyColor}${sellPrice}${sellCurrency}§r`);
 }
 function addStonkCurrencySign(item, hcsToCurrencyAmount, hcsToCurrency, hxpToCurrencyAmount, hxpToCurrency) {
     if (item)
@@ -152,29 +159,29 @@ function addStonkCurrencySign(item, hcsToCurrencyAmount, hcsToCurrency, hxpToCur
         lastStonkCoSign.sellCurrency = hxpToCurrency;
     const cxpCurrencyColor = calculateCurrencyColor(hcsToCurrency);
     const ccsCurrencyColor = calculateCurrencyColor(hxpToCurrency);
-    logInfo(`StonkCo ${colors.item}'${item}'§r: ${ccsCurrencyColor}1hcs§r > ${cxpCurrencyColor}${hcsToCurrencyAmount}${hcsToCurrency}§r | ${cxpCurrencyColor}1hxp§r > ${ccsCurrencyColor}${hxpToCurrencyAmount}${hxpToCurrency}§r`);
+    logInfo(`${colors.item}'${item}'§r: ${ccsCurrencyColor}1hcs§r > ${cxpCurrencyColor}${hcsToCurrencyAmount}${hcsToCurrency}§r | ${cxpCurrencyColor}1hxp§r > ${ccsCurrencyColor}${hxpToCurrencyAmount}${hxpToCurrency}§r`);
 }
 function stonkCoCalculator(ctx) {
     if (lastStonkCoSign.item === '')
-        return Chat.log('§7[§aMMarket§7]§r No StonkCo sign found. Right-click a StonkCo sign first or use the /mmarket calc command.');
+        return logInfo(messages.noStonkCoSign);
     const itemCount = ctx.getArg('item amount');
     const buying = ctx.getArg('buy/sell');
     let price = 0;
     let currency = '';
     if (buying === 'buy') {
         if (lastStonkCoSign.buy === 0 || lastStonkCoSign.buyCurrency === '')
-            return logInfo(`No buy price found. Try doing /mmarket stonkco sell <${itemCount} instead.`);
+            return logInfo(`No buy price found. Try doing /stonk sell <${itemCount} instead.`);
         price = lastStonkCoSign.buy;
         currency = lastStonkCoSign.buyCurrency;
     }
     else if (buying === 'sell') {
         if (lastStonkCoSign.sell === 0 || lastStonkCoSign.buyCurrency === '')
-            return logInfo(`No sell price found. Try doing /mmarket stonkco buy <${itemCount} instead.`);
+            return logInfo(`No sell price found. Try doing /stonk buy <${itemCount} instead.`);
         price = lastStonkCoSign.sell;
         currency = lastStonkCoSign.sellCurrency;
     }
     else {
-        return logInfo('Invalid argument. Try /mmarket stonkco buy <amount> or /mmarket stonkco sell <amount>');
+        return logInfo('Invalid argument. Try /stonk buy <amount> or /stonk sell <amount>');
     }
     if (!itemCount)
         return logInfo('Invalid item amount: ' + itemCount);
@@ -184,9 +191,9 @@ function stonkCoCalculator(ctx) {
 }
 function stonkConvertCalculator(ctx) {
     if (lastStonkCoSign.item === '')
-        return Chat.log('§7[§aMMarket§7]§r No StonkCo sign found. Right-click a StonkCo sign first or use the /mmarket calc command.');
+        return logInfo(messages.noStonkCoSign);
     if (lastStonkCoSign.item !== 'Currency Convert')
-        return Chat.log('§7[§aMMarket§7]§r StonkCo Currency sign found. Try /mmarket stonkco buy <amount> or /mmarket stonkco sell <amount>.');
+        return logInfo('StonkCo Currency sign found. Try /stonk buy <amount> or /stonk sell <amount>.');
     const hyperAmount = ctx.getArg('hyper amount');
     const currency = ctx.getArg('currency');
     const currencyFrom = currencyMap[currency].region.hyper;
@@ -229,17 +236,6 @@ function calculator(price, itemCount, currency) {
     output.hyper.count = count.hyper;
     output.concentrated.count = count.concentrated;
     output.standard.count = count.standard;
-    /*
-    if (total > 0) { // calculate if greater than 0
-      output.hyper.count = Math.floor(total)
-      total = total - output.hyper.count
-      if (total > 0) { // calculate if greater than 0
-        output.concentrated.count = Math.floor(total * conversion['concentrated'].down)
-        total = total - output.concentrated.count
-        if (total > 0) output.standard.count = Math.floor(total * conversion['standard'].down)
-      }
-    }
-    */
     return output;
 }
 let currencyObject = { hyper: 0, concentrated: 0, standard: 0 };
@@ -253,11 +249,13 @@ function calculateCurrency(total, currency, multiplier) {
 }
 function help() {
     logInfo(`Usage:
-/mmarket buy/sell <amount>
-/mmarket convert <currency> <amount>
-/mmarket calc <currency> <price> <amount>
-/mmarket help
-`);
+Right click a StonkCo sign and then use these commands:
+/stonk buy/sell <amount>
+/stonk convert <currency> <amount>
+Or use the regular calculator for non-StonkCo signs:
+/stonk calc <currency> <price> <amount>
+Display this help menu:
+/stonk help`);
     return true;
 }
 let command;
@@ -268,13 +266,12 @@ function commander(stop = false) {
     }
     if (stop === true)
         return true;
-    command = Chat.createCommandBuilder('mmarket');
+    command = Chat.createCommandBuilder('stonk');
     command
-        .literalArg('stonkco')
         .wordArg('buy/sell').suggestMatching(['buy', 'sell'])
         .intArg('item amount')
         .executes(JavaWrapper.methodToJava(stonkCoCalculator))
-        .or(2)
+        .or(1)
         .literalArg('convert')
         .wordArg('currency').suggestMatching('cxp', 'ccs')
         .intArg('hyper amount')
@@ -291,10 +288,10 @@ function commander(stop = false) {
     command.register();
 }
 function start() {
-    logInfo('Started! Type /mmarket help for more info.');
+    logInfo('Started! Type /stonk help for more info.');
     commander();
-    JsMacros.on('RecvMessage', JavaWrapper.methodToJavaAsync(checkForStonkCoSign));
-    JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(resetSignData));
+    JsMacros.on('RecvMessage', JavaWrapper.methodToJava(checkForStonkCoSign));
+    JsMacros.on('DimensionChange', JavaWrapper.methodToJava(resetSignData));
 }
 function terminate() {
     commander(true);
@@ -311,5 +308,5 @@ else {
     console.log(test);
 }
 function logInfo(string, noChat = false) {
-    util.logInfo(string, 'MMarket', noChat);
+    util.logInfo(string, 'StonkCalc', noChat);
 }

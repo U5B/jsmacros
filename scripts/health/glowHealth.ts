@@ -181,15 +181,24 @@ function logInfo (string) {
 }
 
 function help () {
-  logInfo(`Usage: 
+  logInfo(`Usage:
+Set a preset mode: 
 /glowhealth preset <preset>
+Toggle glow:
 /glowhealth toggle <true/false>
-/glowhealth whiteliist <add/remove> <player>
+Toggle the whitelist:
+/glowhealth whitelist toggle <true/false>
+Add or remove a player to the whitelist:
+/glowhealth whitelist <add/remove> <player>
+List the whitelisted players:
 /glowhealth whitelist <list>
+Clear the whitelist:
 /glowhealth whitelist clear
-/glowhealth toggle <true/false>
+Move overlay of the health hud:
 /glowhealth draw move <x> <y> <align>
+Toggle overlay of the health hud
 /glowhealth draw toggle <true/false>
+Display this help menu:
 /glowhealth help`)
 }
 

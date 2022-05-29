@@ -90,7 +90,9 @@ function start(start = true) {
 }
 function help() {
     logInfo(`Usage:
+Move the effects overlay:
 /meffects move <x> <y> <align>
+Display this help menu:
 /meffects help`);
     return true;
 }
