@@ -212,8 +212,8 @@ function terminate() {
     state.tickLoop = null;
     return true;
 }
-function logInfo(string) {
-    Chat.log(`§7[§aGlowHealth§7]§r ${string}`);
+function logInfo(string, noChat = false) {
+    util.logInfo(string, 'GlowHealth', noChat);
 }
 function help() {
     logInfo(`Usage:

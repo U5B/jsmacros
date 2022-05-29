@@ -219,7 +219,7 @@ function regularCalculator(ctx) {
     const itemCount = ctx.getArg('item amount');
     const price = ctx.getArg('price');
     const currency = ctx.getArg('currency');
-    if (!Number.isInteger(itemCount) || Number.isInteger(price) || Number.isInteger(currency))
+    if (!Number.isInteger(itemCount) || !Number.isInteger(price) || !currency)
         return logInfo('Invalid arguments...');
     const output = calculator(price, itemCount, currency);
     logInfo(`${colors.item}${itemCount}x items§r: ${output.color}(${output.hyper.count}${output.hyper.name}, ${output.concentrated.count}${output.concentrated.name}, ${output.standard.count}${output.standard.name})§r`);
