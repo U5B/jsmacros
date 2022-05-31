@@ -26,7 +26,7 @@ const config = {
     // if blatant mode is true: this highights the selected player with raytrace.color
     // if blatant mode is false: this highlights the selected player with their health
     enabled: false,
-    reach: 30, // Hallowed Beam range (cannot be decimal)
+    reach: 65, // Hallowed Beam range is 30 (cannot be decimal)
     // set to true to contiune highlighting the player even if crosshair is not on the player
     // set to false to only highlights the person you are looking at
     persist: false,
@@ -59,7 +59,7 @@ const config = {
       color: 0x00FF00, // green
       rgb: [255, 255, 255], // ignored but needed
       percent: 1.0, // ignored but needed
-      glow: false
+      glow: true
     },
     base: {
       color: 0xFFFFFF, // white

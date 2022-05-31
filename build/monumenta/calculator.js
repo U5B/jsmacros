@@ -31,12 +31,12 @@ const util = __importStar(require("../lib/util"));
 // Line 3: Buy for 69 ccs
 // Line 4: Sell for 42 ccs
 // $1 - item name, $2 - buy price, $3 - buy currency, $4 - sell price, $5 - sell currency
-const stonkRegex = /([\w\d\. ]{1,17}) [_]{15,17} Buy for ([\d\.]{1,4}) ([a-z]{2,3}) Sell for ([\d\.]{1,4}) ([a-z]{2,3})/;
+const stonkRegex = /^([\w\d\. ]{1,17}) [_]{15,17} Buy for ([\d\.]{1,5}) ?([a-z]{2,3}) Sell for ([\d\.]{1,5}) ?([a-z]{2,3})$/;
 // Line 1: Currency
 // Line 2: _______________
 // Line 3: 1 hcs → 69 cxp
 // Line 4: 1 hxp → 42 ccs
-const stonkCurrencyRegex = /Currency \d [_~]{15,17} 1 hcs → ([\d]{2}) ([a-z]{3}) 1 hxp → ([\d]{2}) ([a-z]{3})/;
+const stonkCurrencyRegex = /^Currency \d [_]{15,17} 1 hcs → ([\d]{2}) ?([a-z]{3}) 1 hxp → ([\d]{2}) ?([a-z]{3})$/;
 const messages = {
     noStonkCoSign: 'No sign found. Right-click a StonkCo sign first or use the /stonk calc command.',
     stonkConvertSign: 'Currency sign not found. Try /stonk buy <amount> or /stonk sell <amount>.'
@@ -111,6 +111,8 @@ function resetSignData() {
     return true;
 }
 function checkForStonkCoSign(chat) {
+    if (!chat.text)
+        return;
     const message = chat.text.getStringStripFormatting().trim();
     switch (true) {
         case stonkRegex.test(message): {
@@ -137,11 +139,11 @@ function addStonkCoSign(item, buyPrice, buyCurrency, sellPrice, sellCurrency) {
     if (buyPrice)
         lastStonkCoSign.buy = Number(buyPrice);
     if (buyCurrency)
-        lastStonkCoSign.buyCurrency = buyCurrency;
+        lastStonkCoSign.buyCurrency = buyCurrency.toLowerCase();
     if (sellPrice)
         lastStonkCoSign.sell = Number(sellPrice);
     if (sellCurrency)
-        lastStonkCoSign.sellCurrency = sellCurrency;
+        lastStonkCoSign.sellCurrency = sellCurrency.toLowerCase();
     const buyCurrencyColor = calculateCurrencyColor(buyCurrency);
     const sellCurrencyColor = calculateCurrencyColor(sellCurrency);
     logInfo(`${colors.item}'${item}'§r: ${colors.buy}buy:§r ${buyCurrencyColor}${buyPrice}${buyCurrency}§r, ${colors.sell}sell:§r ${sellCurrencyColor}${sellPrice}${sellCurrency}§r`);
@@ -152,11 +154,11 @@ function addStonkCurrencySign(item, hcsToCurrencyAmount, hcsToCurrency, hxpToCur
     if (hcsToCurrencyAmount)
         lastStonkCoSign.buy = Number(hcsToCurrencyAmount); // buy is used for hcs -> cxp
     if (hcsToCurrency)
-        lastStonkCoSign.buyCurrency = hcsToCurrency;
+        lastStonkCoSign.buyCurrency = hcsToCurrency.toLowerCase();
     if (hxpToCurrencyAmount)
         lastStonkCoSign.sell = Number(hxpToCurrencyAmount); // sell is used for hxp -> ccs
     if (hxpToCurrency)
-        lastStonkCoSign.sellCurrency = hxpToCurrency;
+        lastStonkCoSign.sellCurrency = hxpToCurrency.toLowerCase();
     const cxpCurrencyColor = calculateCurrencyColor(hcsToCurrency);
     const ccsCurrencyColor = calculateCurrencyColor(hxpToCurrency);
     logInfo(`${colors.item}'${item}'§r: ${ccsCurrencyColor}1hcs§r > ${cxpCurrencyColor}${hcsToCurrencyAmount}${hcsToCurrency}§r | ${cxpCurrencyColor}1hxp§r > ${ccsCurrencyColor}${hxpToCurrencyAmount}${hxpToCurrency}§r`);

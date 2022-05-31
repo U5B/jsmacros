@@ -75,15 +75,27 @@ function onTick() {
 }
 function isPlayerVisible(entity) {
     if (!util.isPlayer(entity))
-        return null;
+        return null; // only accept players
     if (mode.raytrace.depth === false)
-        return true;
+        return true; // if depth check is off, skip everything
+    if (isPlayerInRange(entity) === false)
+        return false; // if player is not in range, ignore
     if (isPlayerGlowing(entity) === true)
-        return true;
+        return true; // ignore glowing players if toggle is enabled
     const javaEntity = entity.asLiving().getRaw();
     // @ts-ignore # LivingEntity.canSee
     const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity);
     return result;
+}
+function isPlayerInRange(player) {
+    if (mode.raytrace.reach >= 64)
+        return true; // if reach is set to 64 or higher, skip everything
+    const ourPosition = Player.getPlayer().getBlockPos(); // get our position
+    const playerPositiion = player.getBlockPos(); // get other player position
+    const distance = Math.floor(ourPosition.toVector(playerPositiion).getMagnitude());
+    if (distance > mode.raytrace.reach)
+        return false;
+    return true;
 }
 function isPlayerGlowing(player) {
     if (mode.raytrace.ignoreGlowing === false)
@@ -92,7 +104,7 @@ function isPlayerGlowing(player) {
     player.resetGlowing();
     const value = player.isGlowing();
     player.setGlowing(forceGlowing);
-    return value;
+    return value; // true/false
 }
 function highlightPlayerCursor() {
     const player = util.rayTraceEntity(mode.raytrace.reach);
@@ -157,6 +169,8 @@ function checkPlayer(player) {
     player.setGlowingColor(decimalColor);
     if (color.glow)
         player.setGlowing(color.glow);
+    else
+        player.resetGlowing();
     state.glowingPlayers.push(name);
     return true;
 }

@@ -45,13 +45,23 @@ function onTick () {
 }
 
 function isPlayerVisible (entity:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
-  if (!util.isPlayer(entity)) return null
-  if (mode.raytrace.depth === false) return true
-  if (isPlayerGlowing(entity) === true) return true
+  if (!util.isPlayer(entity)) return null // only accept players
+  if (mode.raytrace.depth === false) return true // if depth check is off, skip everything
+  if (isPlayerInRange(entity) === false) return false // if player is not in range, ignore
+  if (isPlayerGlowing(entity) === true) return true // ignore glowing players if toggle is enabled
   const javaEntity = entity.asLiving().getRaw()
   // @ts-ignore # LivingEntity.canSee
   const result = Player.getPlayer().asLiving().getRaw().method_6057(javaEntity)
   return result
+}
+
+function isPlayerInRange (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
+  if (mode.raytrace.reach >= 64) return true // if reach is set to 64 or higher, skip everything
+  const ourPosition = Player.getPlayer().getBlockPos() // get our position
+  const playerPositiion = player.getBlockPos() // get other player position
+  const distance = Math.floor(ourPosition.toVector(playerPositiion).getMagnitude())
+  if (distance > mode.raytrace.reach) return false
+  return true
 }
 
 function isPlayerGlowing (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
@@ -60,7 +70,7 @@ function isPlayerGlowing (player:Java.xyz.wagyourtail.jsmacros.client.api.helper
   player.resetGlowing()
   const value = player.isGlowing()
   player.setGlowing(forceGlowing)
-  return value
+  return value // true/false
 }
 
 function highlightPlayerCursor () {
@@ -122,6 +132,7 @@ function checkPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
   const decimalColor = color.color
   player.setGlowingColor(decimalColor)
   if (color.glow) player.setGlowing(color.glow)
+  else player.resetGlowing()
   state.glowingPlayers.push(name)
   return true
 }
