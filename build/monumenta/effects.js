@@ -142,16 +142,7 @@ function configure(ctx) {
 const configPath = '../../config/effects.json';
 function getConfig() {
     let modifiedConfig = config;
-    if (FS.exists(configPath)) {
-        try {
-            const file = FS.open(configPath);
-            const customConfig = file.read();
-            modifiedConfig = JSON.parse(customConfig);
-        }
-        catch (e) {
-            modifiedConfig = config;
-        }
-    }
+    const success = util.readConfig('effects');
     return modifiedConfig;
 }
 function writeConfig(config) {

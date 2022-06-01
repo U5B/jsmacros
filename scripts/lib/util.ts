@@ -36,7 +36,7 @@ function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Playe
 // health = { color: { base, good, low, critical }}
 function determineColor (healthPercent: number, health = config.health) {
   let color = health.base
-  if (healthPercent > health.low.percent) color = health.good
+  if (healthPercent <= health.good.percent && healthPercent > health.low.percent) color = health.good
   else if (healthPercent <= health.low.percent && healthPercent > health.critical.percent) color = health.low // needs healing
   else if (healthPercent <= health.critical.percent) color = health.critical // needs healing now
   color.rgb = decimalToRGB(color.color)
@@ -74,4 +74,26 @@ function logInfo (string, prefix = 'USB', noChat = false) {
   debugInfo(`[${prefix}]: ${string}`)
 }
 
-export { isPlayer, determineColor, decimalToRGB, rgbToDecimal, rayTraceEntity, cleanString, trimString, debugInfo, logInfo, nodeEnv }
+function writeConfig (configPath, config) {
+  const configRoot = `${JsMacros.getConfig().macroFolder}\\config`
+  if (!FS.exists(configRoot)) FS.makeDir(configRoot)
+  try {
+    FS.open(`${configRoot}\\${configPath}.json`).write(JSON.stringify(config, null, 2))
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+function readConfig (configPath) {
+  const configRoot = `${JsMacros.getConfig().macroFolder}\\config`
+  if (!FS.exists(configRoot)) FS.makeDir(configRoot)
+  try {
+    const result = JSON.parse(FS.open(`${configRoot}\\${configPath}.json`).read())
+    return result
+  } catch (e) {
+    return false
+  }
+}
+
+export { readConfig, writeConfig, isPlayer, determineColor, decimalToRGB, rgbToDecimal, rayTraceEntity, cleanString, trimString, debugInfo, logInfo, nodeEnv }

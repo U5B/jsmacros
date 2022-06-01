@@ -1,7 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.getModes = exports.writeCustomConfig = exports.getConfig = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = exports.getModes = exports.getConfig = exports.writeCustomConfig = void 0;
+const util_1 = require("../lib/util");
 // default config
 const configPath = '../../config/glowHealth.json';
 const config = {
@@ -125,15 +126,13 @@ function getConfig(mode = 'custom') {
             break;
         }
         case 'custom': {
-            if (FS.exists(configPath)) {
-                try {
-                    const file = FS.open(configPath);
-                    const customConfig = file.read();
-                    modifiedConfig = JSON.parse(customConfig);
-                }
-                catch (e) {
-                    modifiedConfig = config;
-                }
+            const success = (0, util_1.readConfig)('glowHealth');
+            if (!success) {
+                modifiedConfig = config;
+                (0, util_1.readConfig)(modifiedConfig);
+            }
+            else {
+                modifiedConfig = success;
             }
             break;
         }
@@ -146,12 +145,7 @@ function getConfig(mode = 'custom') {
 }
 exports.getConfig = getConfig;
 function writeCustomConfig(config) {
-    try {
-        FS.open(configPath).write(JSON.stringify(config, null, 2));
-        return true;
-    }
-    catch (e) {
-        return false;
-    }
+    const success = (0, util_1.writeConfig)('glowHealth', config);
+    return success;
 }
 exports.writeCustomConfig = writeCustomConfig;

@@ -112,28 +112,16 @@ function configure (ctx) {
   return true
 }
 
-const configPath = '../../config/effects.json'
 function getConfig () {
   let modifiedConfig = config
-  if (FS.exists(configPath)) {
-    try {
-      const file = FS.open(configPath)
-      const customConfig = file.read()
-      modifiedConfig = JSON.parse(customConfig)
-    } catch (e) {
-      modifiedConfig = config
-    }
-  }
-  return modifiedConfig
+  const success = util.readConfig('effects')
+  if (!success) return modifiedConfig
+  modifiedConfig = success
+  return success
 }
 
 function writeConfig (config) {
-  try {
-    FS.open(configPath).write(JSON.stringify(config, null, 2))
-    return true
-  } catch (e) {
-    return false
-  }
+  util.writeConfig('effects', config)
 }
 
 function terminate () {

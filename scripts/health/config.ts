@@ -1,4 +1,7 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+
+import { writeConfig, readConfig } from "../lib/util"
+
 // default config
 const configPath = '../../config/glowHealth.json'
 const config = {
@@ -122,14 +125,12 @@ function getConfig (mode = 'custom') {
       break
     }
     case 'custom': {
-      if (FS.exists(configPath)) {
-        try {
-          const file = FS.open(configPath)
-          const customConfig = file.read()
-          modifiedConfig = JSON.parse(customConfig)
-        } catch (e) {
-          modifiedConfig = config
-        }
+      const success = readConfig('glowHealth')
+      if (!success) {
+        modifiedConfig = config
+        readConfig(modifiedConfig)
+      } else {
+        modifiedConfig = success
       }
       break
     }
@@ -142,12 +143,8 @@ function getConfig (mode = 'custom') {
 }
 
 function writeCustomConfig (config) {
-  try {
-    FS.open(configPath).write(JSON.stringify(config, null, 2))
-    return true
-  } catch (e) {
-    return false
-  }
+  const success = writeConfig('glowHealth', config)
+  return success
 }
 
-export { getConfig, writeCustomConfig, getModes, config }
+export { writeCustomConfig, getConfig, getModes, config }
