@@ -9,3 +9,9 @@
 | MEffects | Display's Monumenta Custom Effects
 ## Check out the [Wiki](https://github.com/U5B/jsmacros/wiki) for more information.
 Feel free to open an issue if you have a feature request or found a bug.
+
+# Cracked Launchers are not supported!
+There will be no support for people using third-party launchers such as TLauncher.  
+There will also be no support for people using modified versions of Forge or Fabric.
+MultiMC and Curseforge probably work, but haven't been tested.
+
