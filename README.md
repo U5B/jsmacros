@@ -10,6 +10,9 @@
 ## Check out the [Wiki](https://github.com/U5B/jsmacros/wiki) for more information.
 Feel free to open an issue if you have a feature request or found a bug.
 
+## Videos
+[GlowHealth Demostration](https://www.youtube.com/watch?v=Y2q-RMoxbn4)
+[StonkCalc Showcase](https://www.youtube.com/watch?v=pQzBVYwz4UA)
 # Cracked Launchers are not supported!
 There will be no support for people using third-party launchers such as TLauncher.  
 There will also be no support for people using modified versions of Forge or Fabric.
