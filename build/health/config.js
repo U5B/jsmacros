@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.getModes = exports.getConfig = exports.writeCustomConfig = void 0;
 const util_1 = require("../lib/util");
 // default config
-const configPath = '../../config/glowHealth.json';
 const config = {
     name: 'default',
     enabled: true,
@@ -51,25 +50,25 @@ const config = {
             color: 0xFF0000,
             rgb: [255, 255, 255],
             percent: 0.5,
-            glow: true
+            glow: true // if false, uses glowing effect from server
         },
         low: {
             color: 0xFFFF00,
             rgb: [255, 255, 255],
             percent: 0.7,
-            glow: true,
+            glow: true, // if false, uses glowing effect from server
         },
         good: {
             color: 0x00FF00,
             rgb: [255, 255, 255],
             percent: 1.0,
-            glow: true
+            glow: true // if false, uses glowing effect from server
         },
         base: {
             color: 0xFFFFFF,
             rgb: [255, 255, 255],
             percent: 1.0,
-            glow: false
+            glow: false // if false, uses glowing effect from server
         }
     }
 };
@@ -81,21 +80,23 @@ function getModes() {
 exports.getModes = getModes;
 function getConfig(mode = 'custom') {
     let modifiedConfig = config;
-    modifiedConfig.name = mode;
     switch (mode) {
-        case 'espGlowing': { // esp meets wall except for glowingg players
+        case 'espGlowing': { // esp meets wall except for glowing players
+            modifiedConfig.name = 'espGlowing';
             modifiedConfig.blatant.enabled = true;
             modifiedConfig.raytrace.depth = true;
             modifiedConfig.raytrace.ignoreGlowing = true;
             break;
         }
         case 'espLegit': { // esp meets wall
+            modifiedConfig.name = 'espLegit';
             modifiedConfig.blatant.enabled = true;
             modifiedConfig.raytrace.depth = true;
             modifiedConfig.raytrace.ignoreGlowing = false;
             break;
         }
         case 'persistGlowing': { // esp for one person meets a wall
+            modifiedConfig.name = 'persistGlowing';
             modifiedConfig.blatant.enabled = false;
             modifiedConfig.raytrace.enabled = true;
             modifiedConfig.raytrace.persist = true;
@@ -104,6 +105,7 @@ function getConfig(mode = 'custom') {
             break;
         }
         case 'persistLegit': { // esp for one person meets a wall
+            modifiedConfig.name = 'persistLegit';
             modifiedConfig.blatant.enabled = false;
             modifiedConfig.raytrace.enabled = true;
             modifiedConfig.raytrace.persist = true;
@@ -112,6 +114,7 @@ function getConfig(mode = 'custom') {
             break;
         }
         case 'raytraceGlowing': { // aim is required meets a wall
+            modifiedConfig.name = 'raytraceGlowing';
             modifiedConfig.blatant.enabled = false;
             modifiedConfig.raytrace.enabled = true;
             modifiedConfig.raytrace.depth = true;
@@ -119,6 +122,7 @@ function getConfig(mode = 'custom') {
             break;
         }
         case 'raytraceLegit': { // aim is required meets a wall
+            modifiedConfig.name = 'raytraceLegit';
             modifiedConfig.blatant.enabled = false;
             modifiedConfig.raytrace.enabled = true;
             modifiedConfig.raytrace.depth = true;
@@ -134,6 +138,7 @@ function getConfig(mode = 'custom') {
             else {
                 modifiedConfig = success;
             }
+            modifiedConfig.name = 'custom';
             break;
         }
         case 'default': {

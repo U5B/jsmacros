@@ -3,8 +3,7 @@
 import { writeConfig, readConfig } from "../lib/util"
 
 // default config
-const configPath = '../../config/glowHealth.json'
-const config = {
+const config = { // configuration is located in /config/glowHealth.json
   name: 'default',
   enabled: true,
   blatant: { // esp mode
@@ -50,25 +49,25 @@ const config = {
       color: 0xFF0000, // green
       rgb: [255, 255, 255], // ignored but needed
       percent: 0.5, // health is 50%
-      glow: true
+      glow: true // if false, uses glowing effect from server
     },
     low: {
       color: 0xFFFF00, // yellow
       rgb: [255, 255, 255], // ignored but needed
       percent: 0.7, // health is 70%
-      glow: true,
+      glow: true, // if false, uses glowing effect from server
     },
     good: {
       color: 0x00FF00, // green
       rgb: [255, 255, 255], // ignored but needed
-      percent: 1.0, // ignored but needed
-      glow: true
+      percent: 1.0, // health is 100% (set to 0.9 to prevent glow from showing until poise is gone)
+      glow: true // if false, uses glowing effect from server
     },
     base: {
       color: 0xFFFFFF, // white
       rgb: [255, 255, 255], // ignored but needed
-      percent: 1.0, // ignored but needed
-      glow: false
+      percent: 1.0, // this needs to be 1.0 do not change
+      glow: false // if false, uses glowing effect from server
     }
   }
 }
@@ -80,21 +79,23 @@ function getModes () {
 
 function getConfig (mode = 'custom') {
   let modifiedConfig = config
-  modifiedConfig.name = mode
   switch (mode) {
-    case 'espGlowing': { // esp meets wall except for glowingg players
+    case 'espGlowing': { // esp meets wall except for glowing players
+      modifiedConfig.name = 'espGlowing'
       modifiedConfig.blatant.enabled = true
       modifiedConfig.raytrace.depth = true
       modifiedConfig.raytrace.ignoreGlowing = true
       break
     }
     case 'espLegit': { // esp meets wall
+      modifiedConfig.name = 'espLegit'
       modifiedConfig.blatant.enabled = true
       modifiedConfig.raytrace.depth = true
       modifiedConfig.raytrace.ignoreGlowing = false
       break
     }
     case 'persistGlowing': { // esp for one person meets a wall
+      modifiedConfig.name = 'persistGlowing'
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.persist = true
@@ -103,6 +104,7 @@ function getConfig (mode = 'custom') {
       break
     }
     case 'persistLegit': { // esp for one person meets a wall
+      modifiedConfig.name = 'persistLegit'
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.persist = true
@@ -111,6 +113,7 @@ function getConfig (mode = 'custom') {
       break
     }
     case 'raytraceGlowing': { // aim is required meets a wall
+      modifiedConfig.name = 'raytraceGlowing'
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.depth = true
@@ -118,6 +121,7 @@ function getConfig (mode = 'custom') {
       break
     }
     case 'raytraceLegit': { // aim is required meets a wall
+      modifiedConfig.name = 'raytraceLegit'
       modifiedConfig.blatant.enabled = false
       modifiedConfig.raytrace.enabled = true
       modifiedConfig.raytrace.depth = true
@@ -132,6 +136,7 @@ function getConfig (mode = 'custom') {
       } else {
         modifiedConfig = success
       }
+      modifiedConfig.name = 'custom'
       break
     }
     case 'default': {
