@@ -19,8 +19,8 @@ function rayTraceEntity(reach) {
         reach = Math.round(reach);
     // @ts-ignore # DebugRenderer.getTargetedEntity()
     const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reach);
-    // @ts-ignore # Check if the result is empty
-    if (!result || result?.isEmpty())
+    // @ts-ignore # Check if the result is empty (.isPresent() is needed for Java 8)
+    if (result == null || !result?.isPresent())
         return false;
     // @ts-ignore
     const entity = Java.type('xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper').create(result.get());
