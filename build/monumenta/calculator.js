@@ -295,7 +295,7 @@ function start() {
     logInfo('Started! Type /stonk help for more info.');
     commander();
     JsMacros.on('RecvMessage', JavaWrapper.methodToJava(checkForStonkCoSign));
-    JsMacros.on('DimensionChange', JavaWrapper.methodToJava(resetSignData));
+    JsMacros.on('DimensionChange', JavaWrapper.methodToJavaAsync(resetSignData));
 }
 function terminate() {
     commander(true);

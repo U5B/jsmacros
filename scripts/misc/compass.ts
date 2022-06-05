@@ -54,13 +54,13 @@ function commander (stop = false) {
   command.intArg('x')
   command.intArg('y')
   command.intArg('z')
-  command.executes(JavaWrapper.methodToJava(runCommand))
+  command.executes(JavaWrapper.methodToJavaAsync(runCommand))
   command.register()
 }
 
 commander(false)
 Chat.log('§7[§aCOMPASS§7]§r Started. Left click with a compass to begin.')
-const listener = JsMacros.on('Key', JavaWrapper.methodToJava(onKeyPress))
+const listener = JsMacros.on('Key', JavaWrapper.methodToJavaAsync(onKeyPress))
 
 function terminate () {
   JsMacros.off('Key', listener)

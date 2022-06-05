@@ -97,7 +97,7 @@ function commander (stop = false) {
   if (stop === true) return true
   command = Chat.createCommandBuilder('poi')
   command.greedyStringArg('arg1').suggestMatching(poiSuggestions)
-  command.executes(JavaWrapper.methodToJava(runCommand))
+  command.executes(JavaWrapper.methodToJavaAsync(runCommand))
   command.register()
 }
 

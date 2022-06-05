@@ -129,7 +129,7 @@ function commander(stop = false) {
         return true;
     command = Chat.createCommandBuilder('poi');
     command.greedyStringArg('arg1').suggestMatching(poiSuggestions);
-    command.executes(JavaWrapper.methodToJava(runCommand));
+    command.executes(JavaWrapper.methodToJavaAsync(runCommand));
     command.register();
 }
 function runCommand(ctx) {

@@ -162,7 +162,7 @@ function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
 function start () {
   commander(false)
   state.started = true
-  if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick)) // ignore if already started
+  if (!state.tickLoop) state.tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick)) // ignore if already started
   return true
 }
 

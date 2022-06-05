@@ -96,8 +96,8 @@ const eventListeners = {
 function startListeners () {
   if (eventListeners.heal || eventListeners.damage || started) return
   started = true
-  eventListeners.heal = JsMacros.on('EntityHealed', JavaWrapper.methodToJava(parseHealthChange))
-  eventListeners.damage = JsMacros.on('EntityDamaged', JavaWrapper.methodToJava(parseHealthChange))
+  eventListeners.heal = JsMacros.on('EntityHealed', JavaWrapper.methodToJavaAsync(parseHealthChange))
+  eventListeners.damage = JsMacros.on('EntityDamaged', JavaWrapper.methodToJavaAsync(parseHealthChange))
 }
 
 function terminate () {

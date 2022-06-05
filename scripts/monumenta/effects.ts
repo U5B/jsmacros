@@ -56,7 +56,7 @@ function start (start: boolean = true) {
   h2d.register()
   table = new TextLines(h2d, config.x, config.y, config.align)
   table.lines = []
-  tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJava(onTick))
+  tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick))
   started = true
 }
 
