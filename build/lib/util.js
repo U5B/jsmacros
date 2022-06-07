@@ -18,8 +18,8 @@ function rayTraceEntity(reach) {
     if (!Number.isInteger(reach))
         reach = Math.round(reach);
     // @ts-ignore # DebugRenderer.getTargetedEntity()
-    const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reach);
-    // @ts-ignore # Check if the result is empty (.isPresent() is needed for Java 8)
+    const result = Java.type('net.minecraft.class_863').method_23101(Player.getPlayer().asLiving().getRaw(), reach); // returns Java.Optional https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
+    // @ts-ignore # Check if the result is empty (isPresent() is needed for Java 8)
     if (result == null || !result?.isPresent())
         return false;
     // @ts-ignore

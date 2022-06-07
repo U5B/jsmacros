@@ -30,6 +30,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const util = __importStar(require("../lib/util"));
 const pois_json_1 = __importDefault(require("./data/pois.json"));
 const poiSuggestions = [];
+const shardMap = {
+    'King\'s Valley': 'valley',
+    'Celsian Isles': 'isles',
+};
+let config = util.readConfig('poi');
 function makeSearchTerms() {
     for (const [, poi] of Object.entries(pois_json_1.default)) {
         poiSuggestions.push(poi.name);
@@ -85,14 +90,16 @@ function responsePoi(input, response) {
         if (!util.nodeEnv) {
             const builder = Chat.createTextBuilder();
             builder.append(`§7[§aPOI§7]§r '${response.name}': `);
-            const coordinates = `(${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})`;
-            builder.append(coordinates);
+            const coordinates = `${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z}`;
+            builder.append(`(${coordinates})`); // send brackets here
             builder.withColor(0xa);
             builder.append(' [COPY]');
             builder.withColor(0xc);
-            builder.withClickEvent('copy_to_clipboard', coordinates);
+            builder.withClickEvent('copy_to_clipboard', coordinates); // but not here
             builder.withShowTextHover(Chat.createTextHelperFromString('Click to copy coordinates to clipboard.'));
             Chat.log(builder.build());
+            if (config.xaero)
+                parseXaero(response);
         }
         logInfo(`'${response.name}': §a(${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})§r`, true);
     }
@@ -106,8 +113,21 @@ function responsePoi(input, response) {
     }
     return true;
 }
+function parseXaero(response) {
+    const world = `monumenta\$${shardMap[response.shard]}`;
+    logXaeroWaypoint(response.name, response.coordinates.x, response.coordinates.y, response.coordinates.z, world);
+}
+function logXaeroWaypoint(name = 'Compass', x = 0, y = 0, z = 0, world = 'minecraft$world') {
+    // xaero-waypoint:asd:A:-1280:213:-1284:11:false:0:Internal-dim%monumenta$isles-waypoints
+    // xaero-waypoint:name:label:x:y:z:color:globalBoolean:yaw:Internal-dim$world-waypoints
+    // hardcoded values: 4 as red, true as global, 0 as yaw
+    const test = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`;
+    // only way for this to work is to send it to yourself >w<
+    Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${test}`);
+}
 function start() {
     logInfo('Starting service...');
+    generateConfig();
     makeSearchTerms();
     commander();
     return true;
@@ -133,8 +153,22 @@ function commander(stop = false) {
     command.register();
 }
 function runCommand(ctx) {
+    context.releaseLock();
     const poiInput = ctx.getArg('arg1');
-    return validatePoi(poiInput);
+    if (poiInput === 'xaero') {
+        config.xaero = !config.xaero;
+        logInfo(`Xaero Integration: ${config.xaero}`);
+        generateConfig();
+        return;
+    }
+    validatePoi(poiInput);
+    return true;
+}
+const defaultConfig = { xaero: false, spoof: false };
+function generateConfig() {
+    if (!config)
+        config = defaultConfig;
+    util.writeConfig('poi', config);
 }
 start();
 if (util.nodeEnv) {
