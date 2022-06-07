@@ -114,16 +114,26 @@ function responsePoi(input, response) {
     return true;
 }
 function parseXaero(response) {
-    const world = `monumenta\$${shardMap[response.shard]}`;
+    let world = `monumenta\$${shardMap[response.shard]}`;
+    if (config.spoof)
+        world = `minecraft$overworld`; // don't know if this works
     logXaeroWaypoint(response.name, response.coordinates.x, response.coordinates.y, response.coordinates.z, world);
 }
-function logXaeroWaypoint(name = 'Compass', x = 0, y = 0, z = 0, world = 'minecraft$world') {
+function logXaeroWaypoint(name = 'Compass', x = 0, y = 0, z = 0, world = 'minecraft$overworld') {
     // xaero-waypoint:asd:A:-1280:213:-1284:11:false:0:Internal-dim%monumenta$isles-waypoints
-    // xaero-waypoint:name:label:x:y:z:color:globalBoolean:yaw:Internal-dim$world-waypoints
-    // hardcoded values: 4 as red, true as global, 0 as yaw
-    const test = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`;
+    // name: string = 'Name'
+    // label: string = 'N'
+    // x: number (-integer -> integer) = 0
+    // y: number (-integer -> integer) = 0
+    // z: number (-integer -> integer) = 0
+    // color: number (0-16) (4: dark red) = 4 (red) 
+    // global: boolean (true/false) = true
+    // yaw: number (?) = 0
+    // world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
+    // xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim$world-waypoints
+    const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`;
     // only way for this to work is to send it to yourself >w<
-    Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${test}`);
+    Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`);
 }
 function start() {
     logInfo('Starting service...');
@@ -160,6 +170,11 @@ function runCommand(ctx) {
         logInfo(`Xaero Integration: ${config.xaero}`);
         generateConfig();
         return;
+    }
+    else if (poiInput === 'spoof') {
+        config.spoof = !config.spoof;
+        logInfo(`Dimension Spoof: ${config.spoof}`);
+        generateConfig();
     }
     validatePoi(poiInput);
     return true;

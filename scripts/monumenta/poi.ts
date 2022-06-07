@@ -88,13 +88,52 @@ function parseXaero (response) {
   logXaeroWaypoint(response.name, response.coordinates.x, response.coordinates.y, response.coordinates.z, world)
 }
 
-function logXaeroWaypoint (name: string = 'Compass', x: number = 0, y: number = 0, z: number = 0, world: string = 'minecraft$world') {
+function logXaeroWaypoint (name: string = 'Compass', x: number = 0, y: number = 0, z: number = 0, world: string = 'minecraft$overworld') {
   // xaero-waypoint:asd:A:-1280:213:-1284:11:false:0:Internal-dim%monumenta$isles-waypoints
-  // xaero-waypoint:name:label:x:y:z:color:globalBoolean:yaw:Internal-dim$world-waypoints
-  // hardcoded values: 4 as red, true as global, 0 as yaw
-  const test = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
+  // name: string = 'Name'
+  // label: string = 'N'
+  // x: number (-integer -> integer) = 0
+  // y: number (-integer -> integer) = 0
+  // z: number (-integer -> integer) = 0
+  // color: number (0-16) (4: dark red) = 4 (red) 
+  // global: boolean (true/false) = true
+  // yaw: number (?) = 0
+  // world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
+  // xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim$world-waypoints
+  const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
   // only way for this to work is to send it to yourself >w<
-  Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${test}`)
+  Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`)
+}
+
+
+// this probably doesn't work at all
+function reflectionTime (waypointString: string) {
+  const newString = `<usb> ${waypointString}` // technically it needs letters before it? maybe
+  const args = newString.split(':')
+  try {
+    const xaeroClass = Java.type('xaero.common.minimap.waypoints.WaypointSharingHandler')
+    // @ts-ignore
+    xaeroClass.onWaypointAdd(args)
+    return true
+  } catch {
+    return false
+  }
+}
+
+// this probably doesn't work at all
+function reflectionTime2 (waypointString: string) {
+  const newString = `<usb> ${waypointString}` // technically it needs letters before it? maybe
+  const args = newString.split(':')
+  try {
+    const javaArray = Java.type('java.util.ArrayList')
+    const javaArguments = new javaArray(args)
+    const xaeroClass = Reflection.getClass('xaero.common.minimap.waypoints.WaypointSharingHandler')
+    const xaeroMethod = Reflection.getMethod(xaeroClass, 'onWaypointAdd', [javaArray])
+    Reflection.invokeMethod(xaeroMethod, xaeroClass, [javaArguments])
+    return true
+  } catch {
+    return false
+  }
 }
 
 function start () {
