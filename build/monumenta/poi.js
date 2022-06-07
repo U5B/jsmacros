@@ -132,8 +132,27 @@ function logXaeroWaypoint(name = 'Compass', x = 0, y = 0, z = 0, world = 'minecr
     // world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
     // xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim$world-waypoints
     const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`;
+    const alternativeWaypoint = `xaero_waypoint_add:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`;
+    reflectionTime(alternativeWaypoint);
     // only way for this to work is to send it to yourself >w<
     Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`);
+}
+// this probably doesn't work at all
+// this uses whatever the [X+] button does internally which sends a string called 'xaero_waypoint_add' as a command
+// thanks Etheradon for helping me
+function reflectionTime(waypointString) {
+    const args = waypointString.split(':');
+    try {
+        // ForgeEventHandler.java L157-L160
+        // @ts-ignore # get the waypoint session
+        const session = Java.type('xaero.common.XaeroMinimapSession').getCurrentSession();
+        // @ts-ignore # add waypoint
+        session.getWaypointSharing().onWaypointAdd(args);
+        return true;
+    }
+    catch {
+        return false;
+    }
 }
 function start() {
     logInfo('Starting service...');

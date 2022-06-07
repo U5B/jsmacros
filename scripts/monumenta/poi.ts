@@ -101,33 +101,24 @@ function logXaeroWaypoint (name: string = 'Compass', x: number = 0, y: number = 
   // world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
   // xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim$world-waypoints
   const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
-  // only way for this to work is to send it to yourself >w<
+  const alternativeWaypoint = `xaero_waypoint_add:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
+  reflectionTime(alternativeWaypoint)
+    // only way for this to work is to send it to yourself >w<
   Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`)
 }
 
 
 // this probably doesn't work at all
+// this uses whatever the [X+] button does internally which sends a string called 'xaero_waypoint_add' as a command
+// thanks Etheradon for helping me
 function reflectionTime (waypointString: string) {
-  const newString = `<usb> ${waypointString}` // technically it needs letters before it? maybe
-  const args = newString.split(':')
+  const args = waypointString.split(':')
   try {
-    const xaeroClass = Java.type('xaero.common.minimap.waypoints.WaypointSharingHandler')
-    // @ts-ignore
-    xaeroClass.onWaypointAdd(args)
-    return true
-  } catch {
-    return false
-  }
-}
-
-// this probably doesn't work at all
-function reflectionTime2 (waypointString: string) {
-  const newString = `<usb> ${waypointString}` // technically it needs letters before it? maybe
-  const args = newString.split(':')
-  try {
-    const xaeroClass = Reflection.getClass('xaero.common.minimap.waypoints.WaypointSharingHandler')
-    const xaeroMethod = Reflection.getMethod(xaeroClass, 'onWaypointAdd', [Java.type('java.lang.String')])
-    Reflection.invokeMethod(xaeroMethod, xaeroClass, args)
+    // ForgeEventHandler.java L157-L160
+    // @ts-ignore # get the waypoint session
+    const session = Java.type('xaero.common.XaeroMinimapSession').getCurrentSession()
+    // @ts-ignore # add waypoint
+    session.getWaypointSharing().onWaypointAdd(args)
     return true
   } catch {
     return false
