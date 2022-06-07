@@ -125,11 +125,9 @@ function reflectionTime2 (waypointString: string) {
   const newString = `<usb> ${waypointString}` // technically it needs letters before it? maybe
   const args = newString.split(':')
   try {
-    const javaArray = Java.type('java.util.ArrayList')
-    const javaArguments = new javaArray(args)
     const xaeroClass = Reflection.getClass('xaero.common.minimap.waypoints.WaypointSharingHandler')
-    const xaeroMethod = Reflection.getMethod(xaeroClass, 'onWaypointAdd', [javaArray])
-    Reflection.invokeMethod(xaeroMethod, xaeroClass, [javaArguments])
+    const xaeroMethod = Reflection.getMethod(xaeroClass, 'onWaypointAdd', [Java.type('java.lang.String')])
+    Reflection.invokeMethod(xaeroMethod, xaeroClass, args)
     return true
   } catch {
     return false
