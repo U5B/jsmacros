@@ -1,3 +1,4 @@
+// which way is north?
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 function getCompass () {
   // @ts-ignore

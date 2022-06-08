@@ -23,6 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// shiny players
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 const util = __importStar(require("../lib/util"));
 const drawHealth_1 = require("./drawHealth");

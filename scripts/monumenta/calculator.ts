@@ -1,3 +1,4 @@
+// sponsered by StonkCo:tm:
 // @ts-ignore # figure out if it is a node env
 const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 import * as util from '../lib/util'

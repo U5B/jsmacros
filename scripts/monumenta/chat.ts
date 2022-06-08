@@ -1,3 +1,4 @@
+// I keep missing __Deen__'s parties uwu
 const regex = {
   base: /^<[a-z\-]{2,16}> (?:\[[A-Z]{2,8}\] )?([0-9a-zA-Z_]{3,16}) » (.*)$/,
   lfg: {
@@ -21,11 +22,11 @@ function lfg (message: string) {
   World.playSound('entity.player.levelup', 0.5, 1)
 }
 
-
-const listener = JsMacros.on('RecvMessage', JavaWrapper.methodToJavaAsync(onMessage))
+let messageListener = JsMacros.on('RecvMessage', JavaWrapper.methodToJavaAsync(onMessage))
 function terminate () {
-  JsMacros.off('RecvMessage', listener)
+  JsMacros.off('RecvMessage', messageListener)
 }
+
 // @ts-ignore
 event.listener = JavaWrapper.methodToJava(terminate)
 export {}

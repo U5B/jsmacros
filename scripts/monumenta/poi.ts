@@ -1,5 +1,7 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+
 import * as util from '../lib/util'
+import * as xaero from '../lib/xaero'
 import poiData from './data/pois.json'
 const poiSuggestions = []
 
@@ -53,27 +55,27 @@ function validatePoi (input) {
   return true
 }
 
-function responsePoi (input, response) {
-  if (!response) {
+function responsePoi (input, poi) {
+  if (!poi) {
     logInfo(`'${input}': No POI found.`)
     return false
-  } else if (response && response.coordinates && response.coordinates.x && response.coordinates.y && response.coordinates.z) {
+  } else if (poi && poi.coordinates && poi.coordinates.x && poi.coordinates.y && poi.coordinates.z) {
     if (!util.nodeEnv) {
-      const builder = Chat.createTextBuilder()
-      builder.append(`§7[§aPOI§7]§r '${response.name}': `)
-      const coordinates = `${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z}`
+      let builder = Chat.createTextBuilder()
+      builder.append(`§7[§aPOI§7]§r '${poi.name}': `)
+      const coordinates = `${poi.coordinates.x}, ${poi.coordinates.y}, ${poi.coordinates.z}`
       builder.append(`(${coordinates})`) // send brackets here
       builder.withColor(0xa)
       builder.append(' [COPY]')
       builder.withColor(0xc)
       builder.withClickEvent('copy_to_clipboard', coordinates) // but not here
       builder.withShowTextHover(Chat.createTextHelperFromString('Click to copy coordinates to clipboard.'))
+      if (config.xaero) builder = parseXaero(poi, builder)
       Chat.log(builder.build())
-      if (config.xaero) parseXaero(response)
     }
-    logInfo(`'${response.name}': §a(${response.coordinates.x}, ${response.coordinates.y}, ${response.coordinates.z})§r`, true)
-  } else if (response && response.coordinates && !response.coordinates.x && !response.coordinates.y && !response.coordinates.z) {
-    logInfo(`'${response.name}': POI is missing coordinates...`)
+    logInfo(`'${poi.name}': §a(${poi.coordinates.x}, ${poi.coordinates.y}, ${poi.coordinates.z})§r`, true)
+  } else if (poi && poi.coordinates && !poi.coordinates.x && !poi.coordinates.y && !poi.coordinates.z) {
+    logInfo(`'${poi.name}': POI is missing coordinates...`)
     return false
   } else {
     logInfo(`'${input}': No POI found.`)
@@ -82,47 +84,11 @@ function responsePoi (input, response) {
   return true
 }
 
-function parseXaero (response) {
-  let world = `monumenta\$${shardMap[response.shard]}`
-  if (config.spoof) world = `minecraft$overworld` // don't know if this works
-  logXaeroWaypoint(response.name, response.coordinates.x, response.coordinates.y, response.coordinates.z, world)
-}
-
-function logXaeroWaypoint (name: string = 'Compass', x: number = 0, y: number = 0, z: number = 0, world: string = 'minecraft$overworld') {
-  // xaero-waypoint:asd:A:-1280:213:-1284:11:false:0:Internal-dim%monumenta$isles-waypoints
-  // name: string = 'Name'
-  // label: string = 'N'
-  // x: number (-integer -> integer) = 0
-  // y: number (-integer -> integer) = 0
-  // z: number (-integer -> integer) = 0
-  // color: number (0-16) (4: dark red) = 4 (red) 
-  // global: boolean (true/false) = true
-  // yaw: number (?) = 0
-  // world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
-  // xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim$world-waypoints
-  const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
-  const alternativeWaypoint = `xaero_waypoint_add:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:true:0:Internal-dim%${world}-waypoints`
-  reflectionTime(alternativeWaypoint)
-    // only way for this to work is to send it to yourself >w<
-  Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`)
-}
-
-
-// this probably doesn't work at all
-// this uses whatever the [X+] button does internally which sends a string called 'xaero_waypoint_add' as a command
-// thanks Etheradon for helping me
-function reflectionTime (waypointString: string) {
-  const args = waypointString.split(':')
-  try {
-    // ForgeEventHandler.java L157-L160
-    // @ts-ignore # get the waypoint session
-    const session = Java.type('xaero.common.XaeroMinimapSession').getCurrentSession()
-    // @ts-ignore # add waypoint
-    session.getWaypointSharing().onWaypointAdd(args)
-    return true
-  } catch {
-    return false
-  }
+function parseXaero (poi, builder) {
+  const world = `monumenta:${shardMap[poi.shard]}`
+  if (!config.spoof) builder = xaero.xaeroChatBuilder(builder, poi.coordinates, poi.name)
+  else builder = xaero.xaeroChatBuilder(builder, poi.coordinates, poi.name, world)
+  return builder
 }
 
 function start () {
@@ -156,7 +122,7 @@ function commander (stop = false) {
 function runCommand (ctx) {
   context.releaseLock()
   const poiInput = ctx.getArg('arg1')
-  if (poiInput === 'xaero') {
+  if (poiInput === 'xaero') { // last minute commands: couldn't be bothered to make a proper command system
     config.xaero = !config.xaero
     logInfo(`Xaero Integration: ${config.xaero}`)
     generateConfig()
@@ -165,6 +131,7 @@ function runCommand (ctx) {
     config.spoof = !config.spoof
     logInfo(`Dimension Spoof: ${config.spoof}`)
     generateConfig()
+    return
   }
   validatePoi(poiInput)
   return true

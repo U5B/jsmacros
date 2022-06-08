@@ -23,6 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// custom drugs from Monumenta are my favorite
 const textLines_1 = require("../lib/textLines");
 const util = __importStar(require("../lib/util"));
 let started = false;

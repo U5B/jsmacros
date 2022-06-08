@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// which way is north?
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 function getCompass() {
     // @ts-ignore

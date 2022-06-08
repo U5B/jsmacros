@@ -1,3 +1,4 @@
+// shiny players
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 import * as util from "../lib/util"
 import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHealth"
