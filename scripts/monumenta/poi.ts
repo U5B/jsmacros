@@ -76,15 +76,15 @@ function responsePoi (input, poi) {
 }
 
 function start () {
-  logInfo('Starting service...')
   makeSearchTerms()
   commander()
+  logInfo('Started!')
   return true
 }
 
 function terminate () {
-  logInfo('Stopping service...')
   commander(true)
+  logInfo('Stopped!')
   return true
 }
 

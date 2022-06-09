@@ -1,19 +1,31 @@
 const xaeroColorMap = {
-  'color1': 0,
-  'color2': 1,
-  'color3': 2,
-  'color4': 3,
-  'color5': 4,
-  'color6': 5,
-  'color7': 6,
-  'color8': 7,
-  'color9': 8,
-  'color10': 9,
+  'black': 0,
+  'dark blue': 1,
+  'dark green': 2,
+  'dark aqua': 3,
+  'dark red': 4,
+  'dark purple': 5,
+  'gold': 6,
+  'gray': 7,
+  'dark gray': 8,
+  'blue': 9,
+  'green': 10,
+  'aqua': 11,
+  'red': 12,
+  'light purple': 13,
+  'yellow': 14,
+  'white': 15
 }
 
 function createCoordinateBuilder (coordinates: { x: number, y: number, z: number}, prefix: string, name: string = 'Compass') {
   let builder = Chat.createTextBuilder()
   builder.append(`§7[§a${prefix}§7]§r '${name}':`)
+  const currentPosition = Player.getPlayer().getBlockPos()
+  if (coordinates.x === 0 && coordinates.y === 0 && coordinates.z === 0) {
+    coordinates.x = currentPosition.getX()
+    coordinates.y = currentPosition.getY()
+    coordinates.z = currentPosition.getZ()
+  } else if (coordinates.y === 0) coordinates.y = currentPosition.getY()
   const formattedCoordinates = `${coordinates.x}, ${coordinates.y}, ${coordinates.z}`
 
   builder = addCoordinates(builder, `(${formattedCoordinates})`) // bracket these coordinates to look fancy
@@ -78,15 +90,15 @@ function xaeroClickEvent ({ x, y, z }: { x: number, y: number, z: number }, shar
   y: number (-integer -> integer) = 0 || '~'
   z: number (-integer -> integer) = 0
   color: number (0-16) (4: dark red)
-  global: boolean (true/false) = true
+  rotation: boolean (true/false) = true
   yaw: number (?) = 0
   world: string: (minecraft$overworld, monumenta$isles) 'minecraft$overworld'
   xaero-waypoint:name:label:x:y:z:color:global:yaw:Internal-dim%world-waypoints
   */
   // this needs to be run in a 'run_command' clickEvent: only works in there for some odd reason
-  const alternativeWaypoint = `xaero_waypoint_add:${name}:${name[0].toUpperCase()}:${newX}:${newY}:${newZ}:4:false:0:Internal_dim%${currentWorld}_waypoints`
+  const alternativeWaypoint = `xaero_waypoint_add:${name}:${name[0].toUpperCase()}:${newX}:${newY}:${newZ}:${xaeroColorMap['dark red']}:false:0:Internal_dim%${currentWorld}_waypoints`
   // other method is sending it to yourself >w<
-  const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:4:false:0:Internal-dim%${world}-waypoints`
+  const xaeroWaypoint = `xaero-waypoint:${name}:${name[0].toUpperCase()}:${x}:${y}:${z}:${xaeroColorMap['dark red']}:false:0:Internal-dim%${world}-waypoints`
   // Chat.say(`/msg ${Player.getPlayer().getName().getStringStripFormatting()} ${xaeroWaypoint}`)
   if (share === true) return xaeroWaypoint
   return alternativeWaypoint

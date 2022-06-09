@@ -33,24 +33,22 @@ let playerMap = {};
 let mode;
 let started = false;
 function onTick(inputMode) {
-    if (World && World.isWorldLoaded()) {
-        mode = inputMode;
-        if (World.getTime() % 20 !== 0)
-            return; // every second, check if a player has been unloaded
-        if (started === false) {
-            startListeners();
-            drawHealthStartup();
-        }
-        else if (state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) {
-            drawHealthStartup();
-        }
-        healthTable.lines = [];
-        playerMap = {};
-        const players = World.getLoadedPlayers();
-        // @ts-ignore
-        for (const player of players) {
-            parseEntity(player);
-        }
+    mode = inputMode;
+    if (World.getTime() % 20 !== 0)
+        return; // every second, check if a player has been unloaded
+    if (started === false) {
+        startListeners();
+        drawHealthStartup();
+    }
+    else if (state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) {
+        drawHealthStartup();
+    }
+    healthTable.lines = [];
+    playerMap = {};
+    const players = World.getLoadedPlayers();
+    // @ts-ignore
+    for (const player of players) {
+        parseEntity(player);
     }
     return true;
 }
@@ -116,7 +114,6 @@ function drawHealthStartup(stop = false) {
 }
 exports.drawHealthStartup = drawHealthStartup;
 const eventListeners = {
-    tick: null,
     heal: null,
     damage: null
 };
@@ -131,10 +128,8 @@ function terminate() {
     if (started === false)
         return;
     healthTable.lines = [];
-    JsMacros.off('Tick', eventListeners.tick);
     JsMacros.off('EntityHealed', eventListeners.heal);
     JsMacros.off('EntityDamaged', eventListeners.damage);
-    eventListeners.tick = null;
     eventListeners.heal = null;
     eventListeners.damage = null;
     drawHealthStartup(true);

@@ -41,6 +41,10 @@ let config = {
 function onTick() {
     if (!World || !World.isWorldLoaded() || World.getTime() % 5 != 0)
         return;
+    else if (started === false) {
+        logInfo(`Started! Type /meffects help for more info.`);
+        started = true;
+    }
     effectList = [];
     const players = World.getPlayers();
     // @ts-ignore
@@ -80,14 +84,11 @@ function start(start = true) {
     }
     config = getConfig();
     commander(false);
-    if (started === false)
-        logInfo(`Started MEffects! Type /meffects help for more info.`);
     h2d = Hud.createDraw2D();
     h2d.register();
     table = new textLines_1.TextLines(h2d, config.x, config.y, config.align);
     table.lines = [];
     tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick));
-    started = true;
 }
 function help() {
     logInfo(`Usage:
@@ -156,6 +157,7 @@ function terminate() {
     commander(true);
     h2d.unregister();
     started = false;
+    logInfo('Stopped!');
 }
 function logInfo(string, noChat = false) {
     util.logInfo(string, 'MEffects', noChat);

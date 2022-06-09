@@ -1,6 +1,7 @@
 // which way is north?
-import * as xaero from '../lib/xaero'
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
+import * as util from '../lib/util'
+import * as xaero from '../lib/xaero'
 function getCompass () {
   // @ts-ignore
   const position = World.getRespawnPos()
@@ -28,8 +29,8 @@ function runCommand (ctx) {
   const x = ctx.getArg('x')
   const y = ctx.getArg('y')
   const z = ctx.getArg('z')
-  if (x && y && z) createCompass(x, y, z)
-  else Chat.log('§7[§aCompass§7]§r Not enough arguments. Try /compass <x> <y> <z>§r')
+  if (Number.isInteger(x) && Number.isInteger(y) && Number.isInteger(z)) createCompass(x, y, z)
+  else logInfo('Not enough arguments. Try /compass <x> <y> <z>')
   return true
 }
 
@@ -54,7 +55,7 @@ function commander (stop = false) {
 }
 
 commander(false)
-Chat.log('§7[§aCompass§7]§r Started. Left click with a compass to begin.')
+logInfo('Started! Left click with a compass to begin.')
 const listener = JsMacros.on('Key', JavaWrapper.methodToJavaAsync(onKeyPress))
 
 function terminate () {
@@ -62,6 +63,11 @@ function terminate () {
   commander(true)
   return true
 }
+
+function logInfo (string, noChat = false) {
+  util.logInfo(string, 'Compass', noChat)
+}
+
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate)
 export {}

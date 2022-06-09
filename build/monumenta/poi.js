@@ -1,5 +1,4 @@
 "use strict";
-/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -27,6 +26,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// am lost, need direction to the POI
+/* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 const util = __importStar(require("../lib/util"));
 const xaero = __importStar(require("../lib/xaero"));
 const pois_json_1 = __importDefault(require("./data/pois.json"));
@@ -105,15 +106,14 @@ function responsePoi(input, poi) {
     return true;
 }
 function start() {
-    logInfo('Starting service...');
-    generateConfig();
     makeSearchTerms();
     commander();
+    logInfo('Started!');
     return true;
 }
 function terminate() {
-    logInfo('Stopping service...');
     commander(true);
+    logInfo('Stopped!');
     return true;
 }
 let command;
@@ -134,20 +134,8 @@ function commander(stop = false) {
 function runCommand(ctx) {
     context.releaseLock();
     const poiInput = ctx.getArg('arg1');
-    if (poiInput === 'spoof') { // toggle spoof
-        config.spoof = !config.spoof;
-        logInfo(`Dimension Spoof: ${config.spoof}`);
-        generateConfig();
-        return;
-    }
     validatePoi(poiInput);
     return true;
-}
-const defaultConfig = { xaero: false, spoof: false };
-function generateConfig() {
-    if (!config)
-        config = defaultConfig;
-    util.writeConfig('poi', config);
 }
 start();
 if (util.nodeEnv) {

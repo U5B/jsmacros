@@ -300,6 +300,7 @@ function start() {
 }
 function terminate() {
     commander(true);
+    logInfo('Stopped!');
     return true;
 }
 if (!nodeEnv) {
