@@ -44,6 +44,9 @@ class TextLines {
       this._lines[i].setText(txt)
       const newX = realignX(this._lines[i], this.x, this.align)
       this._lines[i].setPos(newX, this.y + 12 * i)
+      if (txt.startsWith('+')) this._lines[i].color(0xa) // green
+      else if (txt.startsWith('-')) this._lines[i].color(0xc) // red
+      else this._lines[i].color(0xf) // yellow
     })
   }
 }

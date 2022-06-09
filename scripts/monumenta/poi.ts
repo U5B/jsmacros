@@ -1,5 +1,5 @@
+// am lost, need direction to the POI
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
-
 import * as util from '../lib/util'
 import * as xaero from '../lib/xaero'
 import poiData from './data/pois.json'
@@ -77,7 +77,6 @@ function responsePoi (input, poi) {
 
 function start () {
   logInfo('Starting service...')
-  generateConfig()
   makeSearchTerms()
   commander()
   return true
@@ -106,20 +105,8 @@ function commander (stop = false) {
 function runCommand (ctx) {
   context.releaseLock()
   const poiInput = ctx.getArg('arg1')
-  if (poiInput === 'spoof') { // toggle spoof
-    config.spoof = !config.spoof
-    logInfo(`Dimension Spoof: ${config.spoof}`)
-    generateConfig()
-    return
-  }
   validatePoi(poiInput)
   return true
-}
-
-const defaultConfig = { xaero: false, spoof: false}
-function generateConfig () {
-  if (!config) config = defaultConfig
-  util.writeConfig('poi', config)
 }
 
 start()

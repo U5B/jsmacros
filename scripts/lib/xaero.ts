@@ -1,3 +1,16 @@
+const xaeroColorMap = {
+  'color1': 0,
+  'color2': 1,
+  'color3': 2,
+  'color4': 3,
+  'color5': 4,
+  'color6': 5,
+  'color7': 6,
+  'color8': 7,
+  'color9': 8,
+  'color10': 9,
+}
+
 function createCoordinateBuilder (coordinates: { x: number, y: number, z: number}, prefix: string, name: string = 'Compass') {
   let builder = Chat.createTextBuilder()
   builder.append(`§7[§a${prefix}§7]§r '${name}':`)
@@ -10,7 +23,7 @@ function createCoordinateBuilder (coordinates: { x: number, y: number, z: number
 }
 
 // coordinates: '(x, y, z)'
-// color: 0xc | must be a hexadecimal
+// color: 0xa (green) | must be a hexadecimal
 function addCoordinates (builder: Java.xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder, coordinates: string, color: number = 0xa) {
   builder.append(` ${coordinates}`)
   builder.withColor(color)
@@ -18,7 +31,7 @@ function addCoordinates (builder: Java.xyz.wagyourtail.jsmacros.client.api.class
 }
 
 // coordinates: '(x, y, z)'
-// color: 0xc | must be a hexadecimal
+// color: 0xc (red) | must be a hexadecimal
 function addCopyClick (builder: Java.xyz.wagyourtail.jsmacros.client.api.classes.TextBuilder, coordinates: string, color: number = 0xc) {
   builder.append(' [COPY]')
   builder.withColor(color)
@@ -32,7 +45,7 @@ function addXaeroClick (builder: Java.xyz.wagyourtail.jsmacros.client.api.classe
   const wayPointCommand = xaeroClickEvent(coordinates, false, name, world)
   if (wayPointCommand === false) return builder
   builder.append(' [XAERO]')
-  builder.withColor(0xb) // hardcoded to aqua because I am a terrible person
+  builder.withColor(0x9) // hardcoded to blue because I am a terrible person
   builder.withClickEvent('run_command', wayPointCommand)
   builder.withShowTextHover(Chat.createTextHelperFromString('Create a new Xaero Minimap Waypoint.'))
   return builder
