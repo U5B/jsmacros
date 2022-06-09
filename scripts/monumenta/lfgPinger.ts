@@ -19,7 +19,7 @@ function lfg (message: string) {
   const [, username, text] = regex.lfg.base.exec(message)
   if (username === Player.getPlayer().getName().getStringStripFormatting()) return
   if (lfgBlacklist.includes(text)) return
-  World.playSound('entity.player.levelup', 0.5, 1)
+  World.playSound('entity.player.levelup', 1, 1)
 }
 
 let messageListener = JsMacros.on('RecvMessage', JavaWrapper.methodToJavaAsync(onMessage))
@@ -28,5 +28,5 @@ function terminate () {
 }
 
 // @ts-ignore
-event.listener = JavaWrapper.methodToJava(terminate)
+event.stopListener = JavaWrapper.methodToJava(terminate)
 export {}

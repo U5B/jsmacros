@@ -1,4 +1,5 @@
 // which way is north?
+import * as xaero from '../lib/xaero'
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 function getCompass () {
   // @ts-ignore
@@ -28,19 +29,12 @@ function runCommand (ctx) {
   const y = ctx.getArg('y')
   const z = ctx.getArg('z')
   if (x && y && z) createCompass(x, y, z)
+  else Chat.log('§7[§aCompass§7]§r Not enough arguments. Try /compass <x> <y> <z>§r')
   return true
 }
 
 function createCompass (x: number, y: number, z: number) {
-  const builder = Chat.createTextBuilder()
-  builder.append('§7[§aCOMPASS§7]§r ')
-  const coordinates = `(${x}, ${y}, ${z})`
-  builder.append(coordinates)
-  builder.withColor(0xa) // green
-  builder.append(' [COPY]')
-  builder.withColor(0xc) // red
-  builder.withClickEvent('copy_to_clipboard', coordinates)
-  builder.withShowTextHover(Chat.createTextHelperFromString('Click to copy coordinates to clipboard.'))
+  const builder = xaero.createCoordinateBuilder({x, y, z}, 'Compass', 'Compass')
   Chat.log(builder.build())
 }
 
@@ -60,7 +54,7 @@ function commander (stop = false) {
 }
 
 commander(false)
-Chat.log('§7[§aCOMPASS§7]§r Started. Left click with a compass to begin.')
+Chat.log('§7[§aCompass§7]§r Started. Left click with a compass to begin.')
 const listener = JsMacros.on('Key', JavaWrapper.methodToJavaAsync(onKeyPress))
 
 function terminate () {

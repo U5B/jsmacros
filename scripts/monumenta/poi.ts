@@ -3,7 +3,7 @@
 import * as util from '../lib/util'
 import * as xaero from '../lib/xaero'
 import poiData from './data/pois.json'
-const poiSuggestions = []
+const poiSuggestions = ['spoof'] // command options that isn't a POI
 
 const shardMap = {
   'King\'s Valley': 'valley',
@@ -61,16 +61,7 @@ function responsePoi (input, poi) {
     return false
   } else if (poi && poi.coordinates && poi.coordinates.x && poi.coordinates.y && poi.coordinates.z) {
     if (!util.nodeEnv) {
-      let builder = Chat.createTextBuilder()
-      builder.append(`§7[§aPOI§7]§r '${poi.name}': `)
-      const coordinates = `${poi.coordinates.x}, ${poi.coordinates.y}, ${poi.coordinates.z}`
-      builder.append(`(${coordinates})`) // send brackets here
-      builder.withColor(0xa)
-      builder.append(' [COPY]')
-      builder.withColor(0xc)
-      builder.withClickEvent('copy_to_clipboard', coordinates) // but not here
-      builder.withShowTextHover(Chat.createTextHelperFromString('Click to copy coordinates to clipboard.'))
-      if (config.xaero) builder = parseXaero(poi, builder)
+      const builder = xaero.createCoordinateBuilder(poi.coordinates, 'POI', poi.name)
       Chat.log(builder.build())
     }
     logInfo(`'${poi.name}': §a(${poi.coordinates.x}, ${poi.coordinates.y}, ${poi.coordinates.z})§r`, true)
@@ -82,13 +73,6 @@ function responsePoi (input, poi) {
     return false
   }
   return true
-}
-
-function parseXaero (poi, builder) {
-  const world = `monumenta:${shardMap[poi.shard]}`
-  if (!config.spoof) builder = xaero.xaeroChatBuilder(builder, poi.coordinates, poi.name)
-  else builder = xaero.xaeroChatBuilder(builder, poi.coordinates, poi.name, world)
-  return builder
 }
 
 function start () {
@@ -122,12 +106,7 @@ function commander (stop = false) {
 function runCommand (ctx) {
   context.releaseLock()
   const poiInput = ctx.getArg('arg1')
-  if (poiInput === 'xaero') { // last minute commands: couldn't be bothered to make a proper command system
-    config.xaero = !config.xaero
-    logInfo(`Xaero Integration: ${config.xaero}`)
-    generateConfig()
-    return
-  } else if (poiInput === 'spoof') {
+  if (poiInput === 'spoof') { // toggle spoof
     config.spoof = !config.spoof
     logInfo(`Dimension Spoof: ${config.spoof}`)
     generateConfig()
