@@ -52,10 +52,10 @@ function parseLine (player: Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pla
 
 function start (start: boolean = true) {
   if (h2d && start === false) {
-    terminate()
+    terminate(true)
     return
   } else if (h2d && start === true) {
-    terminate()
+    terminate(true)
   }
   config = getConfig()
   commander(false)
@@ -130,12 +130,14 @@ function writeConfig (config) {
   util.writeConfig('effects', config)
 }
 
-function terminate () {
+function terminate (restart = false) {
   JsMacros.off('Tick', tickLoop)
   commander(true)
   h2d.unregister()
-  started = false
-  logInfo('Stopped!')
+  if (restart === false) {
+    started = false
+    logInfo('Stopped!')
+  }
 }
 
 function logInfo (string, noChat = false) {

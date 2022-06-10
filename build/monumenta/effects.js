@@ -82,11 +82,11 @@ function parseLine(player) {
 }
 function start(start = true) {
     if (h2d && start === false) {
-        terminate();
+        terminate(true);
         return;
     }
     else if (h2d && start === true) {
-        terminate();
+        terminate(true);
     }
     config = getConfig();
     commander(false);
@@ -158,12 +158,14 @@ function getConfig() {
 function writeConfig(config) {
     util.writeConfig('effects', config);
 }
-function terminate() {
+function terminate(restart = false) {
     JsMacros.off('Tick', tickLoop);
     commander(true);
     h2d.unregister();
-    started = false;
-    logInfo('Stopped!');
+    if (restart === false) {
+        started = false;
+        logInfo('Stopped!');
+    }
 }
 function logInfo(string, noChat = false) {
     util.logInfo(string, 'MEffects', noChat);
