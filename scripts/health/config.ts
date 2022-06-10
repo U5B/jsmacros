@@ -46,9 +46,9 @@ const config = { // configuration is located in /config/glowHealth.json
   // Hand of Light 2 is 20% of max health (4hp) + 8hp.  Total Healing: 12hp (6 hearts)
   health: {
     critical: {
-      color: 0xFF0000, // green
+      color: 0xFF0000, // red
       rgb: [255, 255, 255], // ignored but needed
-      percent: 0.5, // health is 50%
+      percent: 0.4, // health is 40%
       glow: true // if false, uses glowing effect from server
     },
     low: {

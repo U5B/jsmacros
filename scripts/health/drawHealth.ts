@@ -48,7 +48,7 @@ function parseEntity (entity) {
 }
 
 function determineHealthColor ([name, player]) {
-  const colorObject = util.determineColor(player.hp / player.maxHp, mode.health)
+  const colorObject = util.determineColor(player.hp / player.maxHp)
   const [r, g ,b] = colorObject.rgb
   const builder = Chat.createTextBuilder()
   builder.append(`${player.hp}/${player.maxHp} ${name}`)

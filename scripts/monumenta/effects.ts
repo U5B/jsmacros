@@ -16,7 +16,7 @@ let config = {
 }
 
 function onTick () {
-  if (!World || !World.isWorldLoaded() || World.getTime() % 5 != 0) return
+  if (!World || !World.isWorldLoaded() || World.getTime() % 10 != 0) return
   else if (started === false) {
     logInfo(`Started! Type /meffects help for more info.`)
     started = true
@@ -44,6 +44,9 @@ function parseLine (player: Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pla
     return
   }
   if (playerDisplayName == '') return
+  if (playerDisplayName.startsWith('+')) playerDisplayName = '§2' + playerDisplayName
+  else if (playerDisplayName.startsWith('-')) playerDisplayName = '§4' + playerDisplayName
+  else playerDisplayName = '§6' + playerDisplayName
   effectList.push(playerDisplayName)
 }
 

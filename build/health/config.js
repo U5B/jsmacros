@@ -49,7 +49,7 @@ const config = {
         critical: {
             color: 0xFF0000,
             rgb: [255, 255, 255],
-            percent: 0.5,
+            percent: 0.4,
             glow: true // if false, uses glowing effect from server
         },
         low: {
