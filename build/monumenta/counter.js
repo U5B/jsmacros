@@ -23,66 +23,64 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// custom drugs from Monumenta are my favorite
-const textLines_1 = require("../lib/textLines");
-const config_1 = require("../lib/config");
 const util = __importStar(require("../lib/util"));
-let started = false;
-const fakePlayerRegex = /~BTLP[0-9a-z]{8} (\d+)/;
-const fakePlayerNumbers = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
-let table;
+const textLines_1 = require("../lib/textLines");
+const chestPrefix = '# of Chests: ';
+const spawnerPrefix = '# of Spawners: ';
+const regex = {
+    addChest: /^\+1 Chest added to lootroom\.$/,
+    bmSpawnerCount: /^Spawners broken: (\d+)\/(\d+)$/,
+    addSpawner: /^\+6 seconds!$/
+};
+let config = {
+    x: 0,
+    y: 0,
+    align: 0,
+};
+const counter = {
+    chest: 0,
+    spawner: 0
+};
 let h2d;
-let listener;
-let effectList = [];
-let config = config_1.defaults.meffects;
-function onTick() {
+let table;
+const eventListeners = {
+    title: null,
+    dimension: null,
+};
+function onTitle(event) {
     context.releaseLock();
-    if (!World || !World.isWorldLoaded() || World.getTime() % 10 != 0)
-        return;
-    else if (started === false) {
-        logInfo(`Started! Type /meffects help for more info.`);
-        started = true;
+    if (event.type === 'ACTIONBAR') {
+        const message = event.message.getStringStripFormatting().trim();
+        switch (true) {
+            case regex.addChest.test(message): {
+                counter.chest++;
+                break;
+            }
+            case regex.addSpawner.test(message): {
+                counter.spawner++;
+                break;
+            }
+            case regex.bmSpawnerCount.test(message): {
+                const [broken, total] = regex.bmSpawnerCount.exec(message);
+                counter.spawner = parseInt(broken);
+                break;
+            }
+        }
+        table.lines = [
+            `${chestPrefix}${counter.chest}`,
+            `${spawnerPrefix}${counter.spawner}`
+        ];
     }
-    effectList = [];
-    const players = World.getPlayers();
-    if (players == null)
-        return;
-    // @ts-ignore
-    for (const player of players) {
-        parseLine(player);
-    }
-    table.lines = effectList;
     return true;
 }
-function parseLine(player) {
-    if (!player || !World.isWorldLoaded())
-        return;
-    const playerName = player?.getName();
-    if (!fakePlayerRegex.test(playerName))
-        return;
-    const [, number] = fakePlayerRegex.exec(playerName);
-    if (!number || !fakePlayerNumbers.includes(number))
-        return;
-    let playerDisplayName;
-    try {
-        playerDisplayName = player?.getDisplayText().getString();
-    }
-    catch {
-        return;
-    }
-    if (playerDisplayName == '')
-        return;
-    let [r, g, b] = [255, 255, 255];
-    if (playerDisplayName.startsWith('+'))
-        [r, g, b] = [0, 255, 0]; // green
-    else if (playerDisplayName.startsWith('-'))
-        [r, g, b] = [255, 0, 0]; // red
-    else
-        [r, g, b] = [255, 255, 0]; // yellow
-    const builder = Chat.createTextBuilder();
-    builder.append(playerDisplayName);
-    builder.withColor(r, g, b);
-    effectList.push(builder.build());
+function resetCounter() {
+    counter.chest = 0;
+    counter.spawner = 0;
+    table.lines = [
+        `${chestPrefix}${counter.chest}`,
+        `${spawnerPrefix}${counter.spawner}`
+    ];
+    return true;
 }
 function start(start = true) {
     if (h2d && start === false) {
@@ -97,16 +95,12 @@ function start(start = true) {
     h2d = Hud.createDraw2D();
     h2d.register();
     table = new textLines_1.TextLines(h2d, config.x, config.y, config.align);
-    table.lines = [];
-    listener = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick));
-}
-function help() {
-    logInfo(`Usage:
-Move the effects overlay:
-/meffects move <x> <y> <align>
-Display this help menu:
-/meffects help`);
-    return true;
+    table.lines = [
+        `${chestPrefix}${counter.chest}`,
+        `${spawnerPrefix}${counter.spawner}`
+    ];
+    eventListeners.title = JsMacros.on('Title', JavaWrapper.methodToJavaAsync(onTitle));
+    eventListeners.dimension = JsMacros.on('JoinedServer', JavaWrapper.methodToJavaAsync(resetCounter));
 }
 let command;
 function commander(stop = false) {
@@ -116,16 +110,13 @@ function commander(stop = false) {
     }
     if (stop === true)
         return true;
-    command = Chat.createCommandBuilder('meffects');
+    command = Chat.createCommandBuilder('lootrun');
     command
         .literalArg('move')
         .intArg('x') // x pos
         .intArg('y') // y pos
         .wordArg('align').suggestMatching(['left', 'center', 'right']) // align
-        .executes(JavaWrapper.methodToJava(configure))
-        .or(1)
-        .literalArg('help')
-        .executes(JavaWrapper.methodToJava(help));
+        .executes(JavaWrapper.methodToJava(configure));
     command.register();
 }
 function configure(ctx) {
@@ -153,27 +144,28 @@ function configure(ctx) {
 }
 function getConfig() {
     let modifiedConfig = config;
-    const success = util.readConfig('meffects');
+    const success = util.readConfig('lootrun');
     if (!success)
         return modifiedConfig;
     modifiedConfig = success;
     return success;
 }
 function writeConfig(config) {
-    util.writeConfig('effects', config);
+    util.writeConfig('lootrun', config);
 }
 function terminate(restart = false) {
-    JsMacros.off('Tick', listener);
     commander(true);
     h2d.unregister();
     if (restart === false) {
-        started = false;
         logInfo('Stopped!');
     }
+    JsMacros.off('Title', eventListeners.title);
+    JsMacros.off('DimensionChange', eventListeners.dimension);
+    eventListeners.title = null;
 }
 function logInfo(string, noChat = false) {
-    util.logInfo(string, 'MEffects', noChat);
+    util.logInfo(string, 'Lootrun', noChat);
 }
-start(true);
+start(false);
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate);

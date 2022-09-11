@@ -26,10 +26,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // shiny players
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 const util = __importStar(require("../lib/util"));
-const drawHealth_1 = require("./drawHealth");
 // Configuration Start
-const config_1 = require("./config");
-let mode = (0, config_1.getConfig)('custom');
+const healthConfig_1 = require("./healthConfig");
+let mode = (0, healthConfig_1.getConfig)('custom');
 // Configuration End
 const state = {
     tickLoop: undefined,
@@ -40,6 +39,7 @@ const state = {
     selectedPlayer: ''
 };
 function onTick() {
+    context.releaseLock();
     try {
         if (World && World.isWorldLoaded() && state.started === true) {
             if (state.running === false) {
@@ -64,10 +64,6 @@ function onTick() {
         else {
             resetPlayers(false, false);
         }
-        if (mode.draw.enabled === true)
-            (0, drawHealth_1.onTick)(mode);
-        else
-            (0, drawHealth_1.terminate)();
         return true;
     }
     catch (e) {
@@ -143,8 +139,11 @@ function highlightPlayerCursorHealth() {
 }
 function checkPlayers() {
     state.nearbyPlayers = [];
+    const players = World.getLoadedPlayers();
+    if (players == null)
+        return;
     // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
-    for (const player of World.getLoadedPlayers()) {
+    for (const player of players) {
         let valid = false;
         const name = player.getName()?.getString();
         state.nearbyPlayers.push(player.getName()?.getString());
@@ -185,8 +184,11 @@ function resetPlayer(player) {
 }
 // This function should set all players to their previous glowing state
 function resetPlayers(ignoreGlowing = false, ignoreSelected = false) {
+    const players = World.getLoadedPlayers();
+    if (players == null)
+        return;
     // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
-    for (const player of World.getLoadedPlayers()) {
+    for (const player of players) {
         if ((ignoreGlowing || ignoreSelected) === true) { // run check only if ignore is true
             const name = player.getName().getString();
             if (ignoreSelected && state.selectedPlayer === name)
@@ -215,7 +217,6 @@ function stop(error) {
 function terminate() {
     logInfo('Stopped!');
     commander(true);
-    (0, drawHealth_1.terminate)();
     state.started = false;
     state.running = false;
     state.glowingPlayers = [];
@@ -262,11 +263,10 @@ function commander(stop = false) {
     command = Chat.createCommandBuilder('glowhealth');
     command
         .literalArg('preset')
-        .greedyStringArg('config').suggestMatching((0, config_1.getModes)())
+        .greedyStringArg('config').suggestMatching((0, healthConfig_1.getModes)())
         .executes(JavaWrapper.methodToJava(cmdPreset))
         .or(1)
         .literalArg('toggle')
-        .booleanArg('enabled')
         .executes(JavaWrapper.methodToJava(cmdToggle))
         .or(1)
         .literalArg('whitelist')
@@ -285,19 +285,7 @@ function commander(stop = false) {
         .executes(JavaWrapper.methodToJava(cmdWhitelistClear))
         .or(2)
         .literalArg('toggle')
-        .booleanArg('enabled')
         .executes(JavaWrapper.methodToJava(cmdWhitelistToggle))
-        .or(1)
-        .literalArg('draw')
-        .literalArg('move')
-        .intArg('x')
-        .intArg('y')
-        .wordArg('align').suggestMatching(['left', 'center', 'right'])
-        .executes(JavaWrapper.methodToJava(cmdDrawMove))
-        .or(2)
-        .literalArg('toggle')
-        .booleanArg('enabled')
-        .executes(JavaWrapper.methodToJava(cmdDrawToggle))
         .or(1)
         .literalArg('help')
         .executes(JavaWrapper.methodToJava(help));
@@ -305,86 +293,50 @@ function commander(stop = false) {
 }
 function cmdPreset(ctx) {
     const configOption = ctx.getArg('config');
-    mode = (0, config_1.getConfig)(configOption);
+    mode = (0, healthConfig_1.getConfig)(configOption);
     logInfo(`Running with config: '${mode.name}'`);
     return true;
 }
-function cmdToggle(ctx) {
-    const enabled = ctx.getArg('enabled');
-    mode = (0, config_1.getConfig)();
-    mode.enabled = enabled;
-    logInfo(`Glow is now ${enabled ? 'enabled' : 'disabled'}`);
-    (0, config_1.writeCustomConfig)(mode);
+function cmdToggle() {
+    mode = (0, healthConfig_1.getConfig)();
+    mode.enabled = !mode.enabled;
+    logInfo(`Glow is now ${mode.enabled ? 'enabled' : 'disabled'}`);
+    (0, healthConfig_1.writeCustomConfig)(mode);
     return true;
 }
 function cmdWhitelistAdd(ctx) {
     const player = ctx.getArg('player');
-    mode = (0, config_1.getConfig)();
+    mode = (0, healthConfig_1.getConfig)();
     mode.whitelist.players.push(player);
     logInfo('Added ' + player + ' to the whitelist');
-    (0, config_1.writeCustomConfig)(mode);
+    (0, healthConfig_1.writeCustomConfig)(mode);
     return true;
 }
 function cmdWhitelistRemove(ctx) {
     const player = ctx.getArg('player');
-    mode = (0, config_1.getConfig)();
+    mode = (0, healthConfig_1.getConfig)();
     mode.whitelist.players = mode.whitelist.players.filter(p => p !== player);
     logInfo('Removed ' + player + ' from the whitelist');
-    (0, config_1.writeCustomConfig)(mode);
+    (0, healthConfig_1.writeCustomConfig)(mode);
     return true;
 }
 function cmdWhitelistClear() {
-    mode = (0, config_1.getConfig)();
+    mode = (0, healthConfig_1.getConfig)();
     mode.whitelist.players = [];
     logInfo('Cleared the whitelist');
-    (0, config_1.writeCustomConfig)(mode);
+    (0, healthConfig_1.writeCustomConfig)(mode);
     return true;
 }
 function cmdWhitelistList() {
-    mode = (0, config_1.getConfig)();
+    mode = (0, healthConfig_1.getConfig)();
     logInfo(`Whitelisted: [${mode.whitelist.players}]`);
     return true;
 }
 function cmdWhitelistToggle(ctx) {
-    const boolean = ctx.getArg('enabled');
-    mode = (0, config_1.getConfig)();
-    mode.whitelist.enabled = boolean;
-    logInfo('Whitelist is now ' + (boolean ? 'enabled' : 'disabled'));
-    (0, config_1.writeCustomConfig)(mode);
-    return true;
-}
-function cmdDrawMove(ctx) {
-    const x = ctx.getArg('x');
-    const y = ctx.getArg('y');
-    let align = ctx.getArg('align');
-    switch (align) {
-        case 'left':
-            align = 0;
-            break;
-        case 'center':
-            align = 0.5;
-            break;
-        case 'right':
-            align = 1;
-            break;
-        default:
-            align = 0;
-            break;
-    }
-    mode = (0, config_1.getConfig)();
-    mode.draw.x = x;
-    mode.draw.y = y;
-    mode.draw.align = align;
-    logInfo(`Draw configured: x: ${x}, y: ${y}, align: ${align}`);
-    (0, config_1.writeCustomConfig)(mode);
-    return true;
-}
-function cmdDrawToggle(ctx) {
-    const boolean = ctx.getArg('enabled');
-    mode = (0, config_1.getConfig)();
-    mode.draw.enabled = boolean;
-    logInfo('Draw is now ' + (boolean ? 'enabled' : 'disabled'));
-    (0, config_1.writeCustomConfig)(mode);
+    mode = (0, healthConfig_1.getConfig)();
+    mode.whitelist.enabled = !mode.whitelist.enabled;
+    logInfo('Whitelist is now ' + (mode.whitelist.enabled ? 'enabled' : 'disabled'));
+    (0, healthConfig_1.writeCustomConfig)(mode);
     return true;
 }
 start();

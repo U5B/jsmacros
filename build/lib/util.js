@@ -4,7 +4,10 @@ exports.nodeEnv = exports.logInfo = exports.debugInfo = exports.trimString = exp
 // @ts-ignore
 const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1);
 exports.nodeEnv = nodeEnv;
-const config_1 = require("../health/config");
+const config_1 = require("./config");
+const config = {
+    glowhealth: readConfig('glowhealth') || config_1.defaults.glowhealth
+};
 const decimalToRGB = (color) => [
     (color >> 16) & 0xFF,
     (color >> 8) & 0xFF,
@@ -39,9 +42,11 @@ function isPlayer(player) {
 }
 exports.isPlayer = isPlayer;
 // health = { color: { base, good, low, critical }}
-function determineColor(healthPercent, health = config_1.config.health) {
+function determineColor(healthPercent, health = config.glowhealth.health) {
     let color = health.base;
-    if (healthPercent <= health.good.percent && healthPercent > health.low.percent)
+    if (healthPercent > health.good.percent)
+        color = health.base;
+    else if (healthPercent <= health.good.percent && healthPercent > health.low.percent)
         color = health.good;
     else if (healthPercent <= health.low.percent && healthPercent > health.critical.percent)
         color = health.low; // needs healing

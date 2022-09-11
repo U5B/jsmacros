@@ -3,14 +3,7 @@
 import * as util from '../lib/util'
 import * as xaero from '../lib/xaero'
 import poiData from './data/pois.json'
-const poiSuggestions = ['spoof'] // command options that isn't a POI
-
-const shardMap = {
-  'King\'s Valley': 'valley',
-  'Celsian Isles': 'isles',
-}
-
-let config = util.readConfig('poi')
+const poiSuggestions = [] // command options that isn't a POI
 
 function makeSearchTerms () {
   for (const [, poi] of Object.entries(poiData)) {
@@ -103,7 +96,6 @@ function commander (stop = false) {
 }
 
 function runCommand (ctx) {
-  context.releaseLock()
   const poiInput = ctx.getArg('arg1')
   validatePoi(poiInput)
   return true

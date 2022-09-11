@@ -1,5 +1,6 @@
 // custom drugs from Monumenta are my favorite
 import { TextLines } from "../lib/textLines"
+import { defaults } from "../lib/config"
 import * as util from "../lib/util"
 
 let started = false
@@ -7,15 +8,12 @@ const fakePlayerRegex = /~BTLP[0-9a-z]{8} (\d+)/
 const fakePlayerNumbers = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19']
 let table
 let h2d
-let tickLoop
+let listener
 let effectList = []
-let config = {
-  x: 0, 
-  y: 0,
-  align: 0 // left shift
-}
+let config = defaults.meffects
 
 function onTick () {
+  context.releaseLock()
   if (!World || !World.isWorldLoaded() || World.getTime() % 10 != 0) return
   else if (started === false) {
     logInfo(`Started! Type /meffects help for more info.`)
@@ -23,6 +21,7 @@ function onTick () {
   } 
   effectList = []
   const players = World.getPlayers()
+  if (players == null) return
   // @ts-ignore
   for (const player of players) {
     parseLine(player)
@@ -44,10 +43,14 @@ function parseLine (player: Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pla
     return
   }
   if (playerDisplayName == '') return
-  if (playerDisplayName.startsWith('+')) playerDisplayName = '§2' + playerDisplayName
-  else if (playerDisplayName.startsWith('-')) playerDisplayName = '§4' + playerDisplayName
-  else playerDisplayName = '§6' + playerDisplayName
-  effectList.push(playerDisplayName)
+  let [r, g, b] = [255, 255, 255]
+  if (playerDisplayName.startsWith('+')) [r, g, b] = [0, 255, 0] // green
+  else if (playerDisplayName.startsWith('-')) [r, g, b] = [255, 0, 0] // red
+  else [r, g, b] = [255, 255, 0] // yellow
+  const builder = Chat.createTextBuilder()
+  builder.append(playerDisplayName)
+  builder.withColor(r, g, b)
+  effectList.push(builder.build())
 }
 
 function start (start: boolean = true) {
@@ -63,7 +66,7 @@ function start (start: boolean = true) {
   h2d.register()
   table = new TextLines(h2d, config.x, config.y, config.align)
   table.lines = []
-  tickLoop = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick))
+  listener = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick))
 }
 
 function help () {
@@ -120,7 +123,7 @@ function configure (ctx) {
 
 function getConfig () {
   let modifiedConfig = config
-  const success = util.readConfig('effects')
+  const success = util.readConfig('meffects')
   if (!success) return modifiedConfig
   modifiedConfig = success
   return success
@@ -131,7 +134,7 @@ function writeConfig (config) {
 }
 
 function terminate (restart = false) {
-  JsMacros.off('Tick', tickLoop)
+  JsMacros.off('Tick', listener)
   commander(true)
   h2d.unregister()
   if (restart === false) {

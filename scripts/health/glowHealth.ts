@@ -1,10 +1,9 @@
 // shiny players
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 import * as util from "../lib/util"
-import { terminate as drawHealthStop, onTick as drawHealthTick } from "./drawHealth"
 
 // Configuration Start
-import { getConfig, getModes, writeCustomConfig } from "./config"
+import { getConfig, getModes, writeCustomConfig } from "./healthConfig"
 let mode = getConfig('custom')
 // Configuration End
 
@@ -18,6 +17,7 @@ const state = {
 }
 
 function onTick () {
+  context.releaseLock()
   try {
     if (World && World.isWorldLoaded() && state.started === true) {
       if (state.running === false) {
@@ -37,9 +37,7 @@ function onTick () {
     } else {
       resetPlayers(false, false)
     }
-    if (mode.draw.enabled === true) drawHealthTick(mode)
-    else drawHealthStop()
-  return true
+    return true
   } catch (e) {
     stop(e)
   }
@@ -110,8 +108,10 @@ function highlightPlayerCursorHealth () {
 
 function checkPlayers () {
   state.nearbyPlayers = []
+  const players = World.getLoadedPlayers()
+  if (players == null) return
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
-  for (const player of World.getLoadedPlayers()) {
+  for (const player of players) {
     let valid = false
     const name = player.getName()?.getString()
     state.nearbyPlayers.push(player.getName()?.getString())
@@ -148,8 +148,10 @@ function resetPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Pl
 
 // This function should set all players to their previous glowing state
 function resetPlayers (ignoreGlowing = false, ignoreSelected = false) {
+  const players = World.getLoadedPlayers()
+  if (players == null) return
   // @ts-ignore # World.getLoadedPlayers() works still, despite what Typescript says
-  for (const player of World.getLoadedPlayers()) {
+  for (const player of players) {
     if ((ignoreGlowing || ignoreSelected) === true) { // run check only if ignore is true
       const name = player.getName().getString()
       if (ignoreSelected && state.selectedPlayer === name) continue
@@ -177,7 +179,6 @@ function stop (error) {
 function terminate () {
   logInfo('Stopped!')
   commander(true)
-  drawHealthStop()
   state.started = false
   state.running = false
   state.glowingPlayers = []
@@ -228,7 +229,6 @@ function commander (stop = false) {
     .executes(JavaWrapper.methodToJava(cmdPreset))
   .or(1)
     .literalArg('toggle')
-    .booleanArg('enabled')
     .executes(JavaWrapper.methodToJava(cmdToggle))
   .or(1)
     .literalArg('whitelist')
@@ -247,19 +247,7 @@ function commander (stop = false) {
       .executes(JavaWrapper.methodToJava(cmdWhitelistClear))
     .or(2)
       .literalArg('toggle')
-      .booleanArg('enabled')
       .executes(JavaWrapper.methodToJava(cmdWhitelistToggle))
-  .or(1)
-    .literalArg('draw')
-      .literalArg('move')
-        .intArg('x')
-        .intArg('y')
-        .wordArg('align').suggestMatching(['left', 'center', 'right'])
-        .executes(JavaWrapper.methodToJava(cmdDrawMove))
-    .or(2)
-      .literalArg('toggle')
-      .booleanArg('enabled')
-      .executes(JavaWrapper.methodToJava(cmdDrawToggle))
   .or(1)
     .literalArg('help')
     .executes(JavaWrapper.methodToJava(help))
@@ -273,11 +261,10 @@ function cmdPreset (ctx) {
   return true
 }
 
-function cmdToggle (ctx) {
-  const enabled = ctx.getArg('enabled')
+function cmdToggle () {
   mode = getConfig()
-  mode.enabled = enabled
-  logInfo(`Glow is now ${enabled ? 'enabled' : 'disabled'}`)
+  mode.enabled = !mode.enabled
+  logInfo(`Glow is now ${mode.enabled ? 'enabled' : 'disabled'}`)
   writeCustomConfig(mode)
   return true
 }
@@ -315,47 +302,9 @@ function cmdWhitelistList () {
 }
 
 function cmdWhitelistToggle (ctx) {
-  const boolean = ctx.getArg('enabled')
   mode = getConfig()
-  mode.whitelist.enabled = boolean
-  logInfo('Whitelist is now ' + (boolean ? 'enabled' : 'disabled'))
-  writeCustomConfig(mode)
-  return true
-}
-
-function cmdDrawMove (ctx) {
-  const x = ctx.getArg('x')
-  const y = ctx.getArg('y')
-  let align = ctx.getArg('align')
-  switch (align) {
-    case 'left':
-      align = 0
-      break
-    case 'center':
-      align = 0.5
-      break
-    case 'right':
-      align = 1
-      break
-    default:
-      align = 0
-      break
-  }
-  mode = getConfig()
-  mode.draw.x = x
-  mode.draw.y = y
-  mode.draw.align = align
-  logInfo(`Draw configured: x: ${x}, y: ${y}, align: ${align}`)
-
-  writeCustomConfig(mode)
-  return true
-}
-
-function cmdDrawToggle (ctx) {
-  const boolean = ctx.getArg('enabled')
-  mode = getConfig()
-  mode.draw.enabled = boolean
-  logInfo('Draw is now ' + (boolean ? 'enabled' : 'disabled'))
+  mode.whitelist.enabled = !mode.whitelist.enabled
+  logInfo('Whitelist is now ' + (mode.whitelist.enabled ? 'enabled' : 'disabled'))
   writeCustomConfig(mode)
   return true
 }

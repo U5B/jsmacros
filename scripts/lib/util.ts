@@ -1,6 +1,9 @@
 // @ts-ignore
 const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
-import { config } from "../health/config"
+import { defaults } from './config'
+const config = {
+  glowhealth: readConfig('glowhealth') || defaults.glowhealth
+}
 
 const decimalToRGB = (color: number): [number, number, number] => [
   (color >> 16) & 0xFF,
@@ -24,7 +27,7 @@ function rayTraceEntity (reach: number) {
   return entity
 }
 
-function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.PlayerEntityHelper<any>) {
+function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.EntityHelper<any>) {
   if (!player) return false
   if (player.getType() === 'minecraft:player') {
     if (player.getName().getString() === Player.getPlayer().getName().getString()) return false // ignore self
@@ -34,9 +37,10 @@ function isPlayer (player:Java.xyz.wagyourtail.jsmacros.client.api.helpers.Playe
 }
 
 // health = { color: { base, good, low, critical }}
-function determineColor (healthPercent: number, health = config.health) {
+function determineColor (healthPercent: number, health = config.glowhealth.health) {
   let color = health.base
-  if (healthPercent <= health.good.percent && healthPercent > health.low.percent) color = health.good
+  if (healthPercent > health.good.percent) color = health.base
+  else if (healthPercent <= health.good.percent && healthPercent > health.low.percent) color = health.good
   else if (healthPercent <= health.low.percent && healthPercent > health.critical.percent) color = health.low // needs healing
   else if (healthPercent <= health.critical.percent) color = health.critical // needs healing now
   color.rgb = decimalToRGB(color.color)

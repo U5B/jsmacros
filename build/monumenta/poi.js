@@ -31,12 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const util = __importStar(require("../lib/util"));
 const xaero = __importStar(require("../lib/xaero"));
 const pois_json_1 = __importDefault(require("./data/pois.json"));
-const poiSuggestions = ['spoof']; // command options that isn't a POI
-const shardMap = {
-    'King\'s Valley': 'valley',
-    'Celsian Isles': 'isles',
-};
-let config = util.readConfig('poi');
+const poiSuggestions = []; // command options that isn't a POI
 function makeSearchTerms() {
     for (const [, poi] of Object.entries(pois_json_1.default)) {
         poiSuggestions.push(poi.name);
@@ -132,7 +127,6 @@ function commander(stop = false) {
     command.register();
 }
 function runCommand(ctx) {
-    context.releaseLock();
     const poiInput = ctx.getArg('arg1');
     validatePoi(poiInput);
     return true;

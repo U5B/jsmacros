@@ -23,59 +23,108 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.drawHealthStartup = exports.onTick = exports.terminate = void 0;
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 const util = __importStar(require("../lib/util"));
 const textLines_1 = require("../lib/textLines");
 let healthTable;
 let h2d;
 let playerMap = {};
-let mode;
 let started = false;
-function onTick(inputMode) {
-    mode = inputMode;
-    if (World.getTime() % 20 !== 0)
-        return; // every second, check if a player has been unloaded
-    if (started === false) {
-        startListeners();
-        drawHealthStartup();
+let doReload = false;
+let enabled = true;
+let command = null;
+const config = {
+    x: 0,
+    y: 0,
+    align: 0,
+    health: {
+        critical: {
+            color: 0xFF0000,
+            rgb: [255, 255, 255],
+            percent: 0.4,
+            glow: true // if false, uses glowing effect from server
+        },
+        low: {
+            color: 0xFFFF00,
+            rgb: [255, 255, 255],
+            percent: 0.7,
+            glow: true, // if false, uses glowing effect from server
+        },
+        good: {
+            color: 0x00FF00,
+            rgb: [255, 255, 255],
+            percent: 1.0,
+            glow: true // if false, uses glowing effect from server
+        },
+        base: {
+            color: 0xFFFFFF,
+            rgb: [255, 255, 255],
+            percent: 1.0,
+            glow: false // if false, uses glowing effect from server
+        }
     }
-    else if (state.x !== mode.draw.x || state.y !== mode.draw.y || state.align !== mode.draw.align) {
+};
+function onTick() {
+    context.releaseLock();
+    if (enabled === false)
+        return false;
+    if (!World || !World.isWorldLoaded())
+        return;
+    if (doReload === true)
         drawHealthStartup();
-    }
-    healthTable.lines = [];
+    if (World.getTime() % 3 !== 0)
+        return; // every 0.5 seconds
+    checkAllPlayers();
+    return true;
+}
+function checkAllPlayers() {
     playerMap = {};
     const players = World.getLoadedPlayers();
+    if (players == null) {
+        drawHealthOverlay();
+        return false;
+    }
     // @ts-ignore
     for (const player of players) {
         parseEntity(player);
     }
+    drawHealthOverlay();
     return true;
 }
-exports.onTick = onTick;
-function parseHealthChange(event) {
-    const entity = event.entity;
-    parseEntity(entity);
-    return true;
+/*
+function parseHealthChange (event: Events.EntityDamaged | Events.EntityHealed) {
+  const entity = event.entity
+  const valid = parseEntity(entity)
+  if (valid === false) return
+  drawHealthOverlay()
+  return true
 }
+
+function parseEntityChange (event: Events.EntityLoad | Events.EntityUnload) {
+  const entity = event.entity
+  const valid = parseEntity(entity)
+  if (valid === false) return
+  drawHealthOverlay()
+  return true
+}
+*/
 function parseEntity(entity) {
     if (!util.isPlayer(entity))
-        return;
+        return false;
     const player = entity.asPlayer();
     const name = player.getName().getString();
-    // if (name === Player.getPlayer().getName().getString()) return
-    const currentHealth = Math.round(player.getHealth());
-    let maxHealth = Math.round(player.getMaxHealth());
-    if (maxHealth === 0)
-        maxHealth = 1; // dividing by 0 is bad
+    const currentHealth = Math.max(1, Math.round(player.getHealth()));
+    const maxHealth = Math.max(1, Math.round(player.getMaxHealth()));
     playerMap[name] = {
         hp: currentHealth,
         maxHp: maxHealth
     };
-    drawHealthOverlay();
+    return true;
 }
 function determineHealthColor([name, player]) {
     const colorObject = util.determineColor(player.hp / player.maxHp);
+    if (colorObject.glow === false)
+        return '';
     const [r, g, b] = colorObject.rgb;
     const builder = Chat.createTextBuilder();
     builder.append(`${player.hp}/${player.maxHp} ${name}`);
@@ -84,6 +133,10 @@ function determineHealthColor([name, player]) {
     return message;
 }
 function drawHealthOverlay() {
+    healthTable.lines = [];
+    if (playerMap == null) {
+        return true;
+    }
     healthTable.lines = [
         ...Object.entries(playerMap)
             // @ts-ignore # sort by health decimal
@@ -93,11 +146,6 @@ function drawHealthOverlay() {
     ];
     return true;
 }
-const state = {
-    x: 0,
-    y: 0,
-    align: 0
-};
 function drawHealthStartup(stop = false) {
     if (h2d)
         h2d.unregister();
@@ -105,37 +153,124 @@ function drawHealthStartup(stop = false) {
         return;
     h2d = Hud.createDraw2D();
     h2d.register();
-    healthTable = new textLines_1.TextLines(h2d, mode.draw.x, mode.draw.y, mode.draw.align); // hardcoded is bad
-    state.x = mode.draw.x;
-    state.y = mode.draw.y;
-    state.align = mode.draw.align;
+    healthTable = new textLines_1.TextLines(h2d, config.x, config.y, config.align);
     healthTable.lines = [];
+    doReload = false;
     return healthTable;
 }
-exports.drawHealthStartup = drawHealthStartup;
-const eventListeners = {
-    heal: null,
-    damage: null
-};
-function startListeners() {
-    if (eventListeners.heal || eventListeners.damage || started)
-        return;
-    started = true;
-    eventListeners.heal = JsMacros.on('EntityHealed', JavaWrapper.methodToJavaAsync(parseHealthChange));
-    eventListeners.damage = JsMacros.on('EntityDamaged', JavaWrapper.methodToJavaAsync(parseHealthChange));
+function loadConfig() {
+    let mode = util.readConfig('drawHealth');
+    if (!mode)
+        mode = config;
+    else {
+        config.x = mode.x;
+        config.y = mode.y;
+        config.align = mode.align;
+        config.health = mode.health;
+    }
+    util.writeConfig('drawHealth', config);
+    doReload = true;
+    return true;
 }
+function writeConfig() {
+    util.writeConfig('drawHealth', config);
+    doReload = true;
+    return true;
+}
+const eventListeners = {
+    tick: null,
+    heal: null,
+    damage: null,
+    load: null,
+    unload: null
+};
+function start() {
+    loadConfig();
+    drawHealthStartup();
+    commander(false);
+    started = true;
+    eventListeners.tick = JsMacros.on('Tick', JavaWrapper.methodToJavaAsync(onTick));
+    // eventListeners.heal = JsMacros.on('EntityHealed', JavaWrapper.methodToJavaAsync(parseHealthChange))
+    // eventListeners.damage = JsMacros.on('EntityDamaged', JavaWrapper.methodToJavaAsync(parseHealthChange))
+    // eventListeners.load = JsMacros.on('EntityLoad', JavaWrapper.methodToJavaAsync(parseEntityChange))
+    // eventListeners.unload = JsMacros.on('EntityUnload', JavaWrapper.methodToJavaAsync(parseEntityChange))
+    return true;
+}
+start();
 function terminate() {
     if (started === false)
         return;
     healthTable.lines = [];
-    JsMacros.off('EntityHealed', eventListeners.heal);
-    JsMacros.off('EntityDamaged', eventListeners.damage);
+    // JsMacros.off('EntityHealed', eventListeners.heal)
+    // JsMacros.off('EntityDamaged', eventListeners.damage)
+    // JsMacros.off('EntityLoad', eventListeners.load)
+    // JsMacros.off('EntityUnload', eventListeners.unload)
+    JsMacros.off('onTick', eventListeners.tick);
     eventListeners.heal = null;
     eventListeners.damage = null;
+    eventListeners.tick = null;
+    eventListeners.load = null;
+    eventListeners.unload = null;
+    commander(true);
     drawHealthStartup(true);
     started = false;
     return true;
 }
-exports.terminate = terminate;
+function commander(stop = false) {
+    if (command) {
+        command.unregister();
+        command = null;
+    }
+    if (stop === true)
+        return true;
+    command = Chat.createCommandBuilder('drawhealth');
+    command
+        .literalArg('move')
+        .intArg('x')
+        .intArg('y')
+        .wordArg('align').suggestMatching(['left', 'center', 'right'])
+        .executes(JavaWrapper.methodToJava(cmdDrawMove))
+        .or(1)
+        .literalArg('toggle')
+        .booleanArg('enabled')
+        .executes(JavaWrapper.methodToJava(cmdDrawToggle))
+        .or(1)
+        .literalArg('reload')
+        .executes(JavaWrapper.methodToJavaAsync(loadConfig));
+    command.register();
+}
+function cmdDrawMove(ctx) {
+    const x = ctx.getArg('x');
+    const y = ctx.getArg('y');
+    let align = ctx.getArg('align');
+    switch (align) {
+        case 'left':
+            align = 0;
+            break;
+        case 'center':
+            align = 0.5;
+            break;
+        case 'right':
+            align = 1;
+            break;
+        default:
+            align = 0;
+            break;
+    }
+    config.x = x;
+    config.y = y;
+    config.align = align;
+    writeConfig();
+    return true;
+}
+function cmdDrawToggle(ctx) {
+    const boolean = ctx.getArg('enabled');
+    enabled = boolean;
+    logInfo('DrawHealth is now ' + (enabled ? 'enabled' : 'disabled'));
+    return true;
+}
+function logInfo(string, noChat = false) {
+    util.logInfo(string, 'DrawHealth', noChat);
+}
 // @ts-ignore
 event.stopListener = JavaWrapper.methodToJava(terminate);
