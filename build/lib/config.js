@@ -53,7 +53,7 @@ const glowHealth = {
             color: 0xFFFF00,
             rgb: [255, 255, 255],
             percent: 0.7,
-            glow: true, // if false, uses glowing effect from server
+            glow: true // if false, uses glowing effect from server
         },
         good: {
             color: 0x00FF00,
@@ -70,12 +70,12 @@ const glowHealth = {
     }
 };
 const mEffects = {
-    x: 950,
-    y: 150,
+    x: 0,
+    y: 0,
     align: 1
 };
 const defaults = {
     meffects: mEffects,
-    glowhealth: glowHealth,
+    glowhealth: glowHealth
 };
 exports.defaults = defaults;

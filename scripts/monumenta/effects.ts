@@ -123,7 +123,7 @@ function configure (ctx) {
 
 function getConfig () {
   let modifiedConfig = config
-  const success = util.readConfig('meffects')
+  const success = util.readConfig('effects')
   if (!success) return modifiedConfig
   modifiedConfig = success
   return success

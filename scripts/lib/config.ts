@@ -50,7 +50,7 @@ const glowHealth = { // configuration is located in /config/glowHealth.json
       color: 0xFFFF00, // yellow
       rgb: [255, 255, 255], // ignored but needed
       percent: 0.7, // health is 70%
-      glow: true, // if false, uses glowing effect from server
+      glow: true // if false, uses glowing effect from server
     },
     good: {
       color: 0x00FF00, // green
@@ -68,14 +68,14 @@ const glowHealth = { // configuration is located in /config/glowHealth.json
 }
 
 const mEffects = {
-  x: 950,
-  y: 150,
+  x: 0,
+  y: 0,
   align: 1
 }
 
 const defaults = {
   meffects: mEffects,
-  glowhealth: glowHealth,
+  glowhealth: glowHealth
 }
 
 export { defaults }

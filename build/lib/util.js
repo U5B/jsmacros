@@ -91,26 +91,28 @@ function logInfo(string, prefix = 'USB', noChat = false) {
 exports.logInfo = logInfo;
 function writeConfig(configPath, config) {
     const configRoot = `${JsMacros.getConfig().macroFolder}\\config`;
-    if (!FS.exists(configRoot))
-        FS.makeDir(configRoot);
     try {
+        if (!FS.exists(configRoot))
+            FS.makeDir(configRoot);
         FS.open(`${configRoot}\\${configPath}.json`).write(JSON.stringify(config, null, 2));
         return true;
     }
     catch (e) {
+        logInfo(e, 'config');
         return false;
     }
 }
 exports.writeConfig = writeConfig;
 function readConfig(configPath) {
     const configRoot = `${JsMacros.getConfig().macroFolder}\\config`;
-    if (!FS.exists(configRoot))
-        FS.makeDir(configRoot);
     try {
+        if (!FS.exists(configRoot))
+            FS.makeDir(configRoot);
         const result = JSON.parse(FS.open(`${configRoot}\\${configPath}.json`).read());
         return result;
     }
     catch (e) {
+        logInfo(e, 'config');
         return false;
     }
 }
