@@ -1,6 +1,6 @@
 /* global World, Player, JsMacros, JavaWrapper, event, Chat, Java, FS, Hud */
 
-import { writeConfig, readConfig } from "../lib/util"
+import { writeConfig, readConfig } from '../lib/util'
 import { defaults } from '../lib/config'
 // default config
 const config = defaults.glowhealth
@@ -65,7 +65,6 @@ function getConfig (mode = 'custom') {
       const success = readConfig('glowHealth')
       if (!success) {
         modifiedConfig = config
-        readConfig(modifiedConfig)
       } else {
         modifiedConfig = success
       }

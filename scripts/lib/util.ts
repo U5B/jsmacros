@@ -2,7 +2,7 @@
 const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
 import { defaults } from './config'
 const config = {
-  glowhealth: readConfig('glowhealth') || defaults.glowhealth
+  glowhealth: defaults.glowhealth
 }
 
 const decimalToRGB = (color: number): [number, number, number] => [
@@ -49,9 +49,9 @@ function determineColor (healthPercent: number, health = config.glowhealth.healt
 
 function cleanString (str) {
   return str
-    .replaceAll(/'/g, '')
-    .replaceAll(/\n/g, '')
-    .replaceAll(/ /g, '')
+    .replace(/'/g, '')
+    .replace(/\n/g, '')
+    .replace(/ /g, '')
     .trim()
     .toLowerCase()
 }
@@ -74,7 +74,7 @@ function debugInfo (input) { // node debug
 
 function logInfo (string, prefix = 'USB', noChat = false) {
   if (!nodeEnv && noChat === false) Chat.log(`§7[§a${prefix}§7]§r ${string}`)
-  string = string.replaceAll(/§./g, '')
+  string =  string.toString().replace(/§./g, '')
   debugInfo(`[${prefix}]: ${string}`)
 }
 
@@ -97,6 +97,7 @@ function readConfig (configPath) {
     const result = JSON.parse(FS.open(`${configRoot}\\${configPath}.json`).read())
     return result
   } catch (e) {
+    logInfo('Error finding config file. Disregard if running the program for the first time.', 'config')
     logInfo(e, 'config')
     return false
   }

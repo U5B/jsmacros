@@ -6,7 +6,7 @@ const nodeEnv = (typeof process !== 'undefined') && (process.release.name.search
 exports.nodeEnv = nodeEnv;
 const config_1 = require("./config");
 const config = {
-    glowhealth: readConfig('glowhealth') || config_1.defaults.glowhealth
+    glowhealth: config_1.defaults.glowhealth
 };
 const decimalToRGB = (color) => [
     (color >> 16) & 0xFF,
@@ -58,9 +58,9 @@ function determineColor(healthPercent, health = config.glowhealth.health) {
 exports.determineColor = determineColor;
 function cleanString(str) {
     return str
-        .replaceAll(/'/g, '')
-        .replaceAll(/\n/g, '')
-        .replaceAll(/ /g, '')
+        .replace(/'/g, '')
+        .replace(/\n/g, '')
+        .replace(/ /g, '')
         .trim()
         .toLowerCase();
 }
@@ -85,7 +85,7 @@ exports.debugInfo = debugInfo;
 function logInfo(string, prefix = 'USB', noChat = false) {
     if (!nodeEnv && noChat === false)
         Chat.log(`§7[§a${prefix}§7]§r ${string}`);
-    string = string.replaceAll(/§./g, '');
+    string = string.toString().replace(/§./g, '');
     debugInfo(`[${prefix}]: ${string}`);
 }
 exports.logInfo = logInfo;
@@ -112,6 +112,7 @@ function readConfig(configPath) {
         return result;
     }
     catch (e) {
+        logInfo('Error finding config file. Disregard if running the program for the first time.', 'config');
         logInfo(e, 'config');
         return false;
     }

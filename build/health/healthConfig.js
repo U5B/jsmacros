@@ -67,7 +67,6 @@ function getConfig(mode = 'custom') {
             const success = (0, util_1.readConfig)('glowHealth');
             if (!success) {
                 modifiedConfig = config;
-                (0, util_1.readConfig)(modifiedConfig);
             }
             else {
                 modifiedConfig = success;

@@ -91,6 +91,7 @@ function start(start = true) {
         terminate(true);
     }
     config = getConfig();
+    writeConfig(config);
     commander(false);
     h2d = Hud.createDraw2D();
     h2d.register();
