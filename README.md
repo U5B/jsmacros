@@ -1,3 +1,7 @@
+## Archived as features has been replaced by other mods
+* USBPlus for [GlowHealth, POI, Compass](https://github.com/U5B/usbplus)
+* UnofficialMonumentaMod by Njol for [Calculator, MEffects](https://github.com/Njol/UnofficialMonumentaMod)
+
 # Scripts made for the [JsMacro mod](https://github.com/wagyourtail/JsMacros)
 ## Keep in mind that only [releases](https://github.com/U5B/jsmacros/releases) are guaranteed to be working at all!
 | Scripts | Small Description |
